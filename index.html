@@ -1581,7 +1581,8 @@ async function fetchRealData(name, code) {
       { signal: AbortSignal.timeout(30000) }
     );
     const data = await res.json();
-    if (data.error) return null;
+    // ✅ error 키가 있을 때만 null 반환
+    if (data && typeof data.error === 'string') return null;
     return data;
   } catch(e) {
     return null;
@@ -1607,7 +1608,7 @@ async function startAnalysisReal(name, code) {
   clearInterval(ticker);
   ids.forEach(s => document.getElementById(s).className = 'step done');
 
-  if (!real) {
+  if (real === null || real === undefined) {
     showOnly('search-screen');
     showSearchError(`❌ <b>"${name}"</b> 을 찾을 수 없어요.<br>종목명을 정확히 입력하거나 종목코드(예: 005930)로 검색해보세요.`);
     return;

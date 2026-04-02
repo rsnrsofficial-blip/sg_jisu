@@ -6,7 +6,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timedelta
 from pykrx import stock as krx
 
-app = FastAPI()
+# JSONResponse 기본 동작을 ensure_ascii=False로 오버라이드
+class UTF8JSONResponse(JSONResponse):
+    def render(self, content) -> bytes:
+        return json.dumps(content, ensure_ascii=False).encode('utf-8')
+
+app = FastAPI(default_response_class=UTF8JSONResponse)
 
 # ── UTF-8 강제 적용 미들웨어 (모바일 한글 깨짐 방지) ──
 @app.middleware("http")

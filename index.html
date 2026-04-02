@@ -14,6 +14,20 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .ad-slot { width: 100%; background: #111; border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0; gap: 4px; }
 .ad-label { font-size: 9px; color: #252525; letter-spacing: 2px; }
 .ad-box { width: 728px; max-width: 100%; height: 90px; background: #141414; border: 1px dashed #1e1e1e; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #252525; letter-spacing: 1px; }
+
+.mobile-ad { display: none !important; }
+.pc-ad { display: flex !important; margin: 0 auto; }
+
+@media (max-width: 768px) {
+    .pc-ad { display: none !important; }
+    .mobile-ad { 
+        display: flex !important; 
+        width: 320px !important; 
+        height: 50px !important; 
+        margin: 0 auto; 
+    }
+}
+  
 .ad-box-rect { width: 300px; height: 250px; background: #141414; border: 1px dashed #1e1e1e; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #252525; letter-spacing: 1px; margin: 8px auto; }
 
 /* 면책 */
@@ -176,7 +190,18 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 <!-- 검색 화면 -->
 <div id="search-screen">
   <div class="disclaimer-bar"><b>투자 위험 고지</b> · 본 서비스는 공시 데이터 기반 참고 정보이며, 특정 종목에 대한 투자를 권유하지 않습니다. 모든 투자 판단과 손익 책임은 투자자 본인에게 있습니다.</div>
-  <div class="ad-slot"><div class="ad-label">advertisement</div><div class="ad-box">광고 영역 (728×90)</div></div>
+
+  <div class="ad-slot">
+  <div class="ad-label">ADVERTISEMENT</div>
+  
+  <div class="ad-box pc-ad">
+    광고 영역 (728×90)
+  </div>
+
+  <div class="ad-box mobile-ad">
+    광고 영역 (320×50)
+  </div>
+</div>
   <div class="search-main">
     <div class="logo">설거지수<span>.ai</span></div>
     <div class="tagline">EXIT LIQUIDITY DETECTOR</div>

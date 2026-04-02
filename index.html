@@ -1536,17 +1536,24 @@ function renderResult(code){
   },80);
 }
 
-function animateScore(target,col){
-  const arc=document.getElementById('gauge-arc');
-  const num=document.getElementById('r-score');
-  // 배경 트랙 색도 점수 색으로
+function animateScore(target, col) {
+  const arc = document.getElementById('gauge-arc');
+  const num = document.getElementById('r-score');
   arc.style.stroke = col;
-  const total=302, start=performance.now(), dur=1000;
-  function frame(now){
-    const p=Math.min((now-start)/dur,1),e=1-Math.pow(1-p,3);
-    arc.setAttribute('stroke-dasharray',(e*target/100*total)+' '+total);
-    num.textContent=Math.round(target*e);
-    if(p<1) requestAnimationFrame(frame);
+  
+  // ✅ target이 0이면 그냥 바로 표시
+  if (target === 0) {
+    arc.setAttribute('stroke-dasharray', '0 302');
+    num.textContent = '0';
+    return;
+  }
+  
+  const total = 302, start = performance.now(), dur = 1000;
+  function frame(now) {
+    const p = Math.min((now - start) / dur, 1), e = 1 - Math.pow(1 - p, 3);
+    arc.setAttribute('stroke-dasharray', (e * target / 100 * total) + ' ' + total);
+    num.textContent = Math.round(target * e);
+    if (p < 1) requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 }

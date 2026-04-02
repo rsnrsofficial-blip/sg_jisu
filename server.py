@@ -38,21 +38,32 @@ def get_cached(corp_code):
 def set_cached(corp_code, data):
     _cache[corp_code] = (time.time(), data)
 
-print("📥 회사 목록 다운로드 중...")
-res = requests.get("https://opendart.fss.or.kr/api/corpCode.xml", params={"crtfc_key": API_KEY})
-z = zipfile.ZipFile(io.BytesIO(res.content))
-root = ET.fromstring(z.read("CORPCODE.xml"))
-
 CORP_LIST = []
-for c in root.findall("list"):
-    sc = c.findtext("stock_code", "").strip()
-    if sc:
-        CORP_LIST.append({
-            "corp_code": c.findtext("corp_code", ""),
-            "corp_name": c.findtext("corp_name", ""),
-            "stock_code": sc,
-        })
-print(f"✅ 총 {len(CORP_LIST)}개 상장사 로드 완료")
+CORP_LIST_READY = False
+
+def load_corp_list():
+    global CORP_LIST, CORP_LIST_READY
+    try:
+        print("📥 회사 목록 다운로드 중...")
+        res = requests.get("https://opendart.fss.or.kr/api/corpCode.xml",
+                          params={"crtfc_key": API_KEY}, timeout=30)
+        z = zipfile.ZipFile(io.BytesIO(res.content))
+        root = ET.fromstring(z.read("CORPCODE.xml"))
+        for c in root.findall("list"):
+            sc = c.findtext("stock_code", "").strip()
+            if sc:
+                CORP_LIST.append({
+                    "corp_code": c.findtext("corp_code", ""),
+                    "corp_name": c.findtext("corp_name", ""),
+                    "stock_code": sc,
+                })
+        CORP_LIST_READY = True
+        print(f"✅ 총 {len(CORP_LIST)}개 상장사 로드 완료")
+    except Exception as e:
+        print(f"❌ 회사 목록 로드 실패: {e}")
+
+# 백그라운드에서 로드
+threading.Thread(target=load_corp_list, daemon=True).start()
 
 def search_corp(name):
     for c in CORP_LIST:
@@ -592,8 +603,15 @@ def get_price(stock_code: str = ""):
     except Exception as e:
         return {"error": str(e)}
 
+@app.get("/")
+def health():
+    return {"status": "ok", "ready": CORP_LIST_READY, "corps": len(CORP_LIST)}
+
 @app.get("/analyze")
 def analyze(name: str = "", request: Request = None):
+    if not CORP_LIST_READY:
+        return {"error": "서버 준비 중이에요. 잠시 후 다시 시도해주세요 (약 30초)"}
+    
     corp_code, corp_name, stock_code = search_corp(name)
     if not corp_code:
         return {"error": f"'{name}' 을 찾을 수 없어요"}

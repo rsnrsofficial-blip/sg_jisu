@@ -1633,26 +1633,27 @@ async function startAnalysisReal(name, code) {
 
   // 주가 실시간 조회
   try {
-    const priceRes = await fetch(`https://sgjisu-production.up.railway.app/price?stock_code=${real.stock_code}`);
-    const price = await priceRes.json();
-    if (!price.error) {
-      const 상승 = price.등락 >= 0;
-      const 색 = 상승 ? '#00e676' : '#ff3131';
-      const 부호 = 상승 ? '+' : '';
-      document.getElementById('r-price').textContent = price.현재가.toLocaleString() + '원';
-      document.getElementById('r-price').style.color = 색;
-      document.getElementById('r-change').innerHTML = `<span style="color:${색}">${부호}${price.등락.toLocaleString()}원 (${부호}${price.등락률}%)</span>`;
-      document.getElementById('r-date').textContent = price.날짜 + ' 기준';
-    } else {
-      document.getElementById('r-price').textContent = '조회 불가';
-      document.getElementById('r-price').style.color = '#555';
-      document.getElementById('r-date').textContent = today + ' 기준';
-    }
-  } catch(e) {
-    document.getElementById('r-price').textContent = '실시간 연동 예정';
+  const priceRes = await fetch(`https://sgjisu-production.up.railway.app/price?stock_code=${real.stock_code}`);
+  const price = await priceRes.json();
+  if (price && !price.error && price['현재가'] != null) {
+    const 상승 = price['등락'] >= 0;
+    const 색 = 상승 ? '#00e676' : '#ff3131';
+    const 부호 = 상승 ? '+' : '';
+    document.getElementById('r-price').textContent = price['현재가'].toLocaleString() + '원';
+    document.getElementById('r-price').style.color = 색;
+    document.getElementById('r-change').innerHTML = `<span style="color:${색}">${부호}${price['등락'].toLocaleString()}원 (${부호}${price['등락률']}%)</span>`;
+    document.getElementById('r-date').textContent = price['날짜'] + ' 기준';
+  } else {
+    document.getElementById('r-price').textContent = '조회 불가';
     document.getElementById('r-price').style.color = '#555';
     document.getElementById('r-date').textContent = today + ' 기준';
   }
+} catch(e) {
+  console.error('price error:', e);
+  document.getElementById('r-price').textContent = '조회 불가';
+  document.getElementById('r-price').style.color = '#555';
+  document.getElementById('r-date').textContent = today + ' 기준';
+}
   document.getElementById('r-score').style.color = '#555';
   document.getElementById('r-score').textContent = '0';
 

@@ -1576,13 +1576,15 @@ function showSearchError(msg) {
 
 async function fetchRealData(name, code) {
   try {
-    const param = code ? `corp_code=${code}&name=${encodeURIComponent(name)}` : `name=${encodeURIComponent(name)}`;
-    const res = await fetch(`https://sgjisu-production.up.railway.app/analyze?${param}`, { signal: AbortSignal.timeout(30000) });
+    const res = await fetch(
+      `https://sgjisu-production.up.railway.app/analyze?name=${encodeURIComponent(name)}`,
+      { signal: AbortSignal.timeout(30000) }
+    );
     const data = await res.json();
     if (data.error) return null;
     return data;
   } catch(e) {
-    return null; // 서버 꺼져있으면 null 반환
+    return null;
   }
 }
 

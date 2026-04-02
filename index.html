@@ -1349,7 +1349,21 @@ function showOnly(id){
   window.scrollTo(0,0);
 }
 
-function goBack(){ showOnly('search-screen'); document.getElementById('main-input').value=''; }
+function goBack(){
+  // 체류시간 계산 후 로그 전송
+  if (window._sessionStart && window._logData) {
+    const session_time = Math.round((Date.now() - window._sessionStart) / 1000);
+    fetch('http://127.0.0.1:8000/log', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ ...window._logData, session_time })
+    }).catch(()=>{});
+    window._sessionStart = null;
+    window._logData = null;
+  }
+  showOnly('search-screen');
+  document.getElementById('main-input').value='';
+}
 
 function quick(name,code){ document.getElementById('main-input').value=name; startAnalysis(name,code); }
 
@@ -1683,6 +1697,19 @@ async function startAnalysisReal(name, code) {
         source:'공시 출처: DART 실시간 조회' });
     }
 
+    // 주가 급락 이상 감지 카드 (s7)
+    const realS7 = real.s7 ?? 0;
+    const 급락률 = real.급락률 ?? 0;
+    if (realS7 > 0) {
+      flags.push({
+        lv: realS7 >= 35 ? 'high' : 'mid',
+        title: `⚡ 주가 <b>${Math.abs(급락률).toFixed(1)}%</b> 급락 — ${realS7 >= 35 ? '허위공시 강력 의심' : '시장 신뢰 훼손 의심'}`,
+        tag: realS7 >= 35 ? '위험' : '주의',
+        detail: `⚡ <b>한 줄 요약:</b> 공식 악재 공시 없이 주가가 ${Math.abs(급락률).toFixed(1)}% 급락했어요.\n\n이는 미공개 악재, 허위공시, 또는 내부자 선행매도의 신호일 수 있어요.\n\n주가가 먼저 떨어지고 공시가 나중에 나오는 패턴은 작전주의 전형적인 탈출 패턴이에요.`,
+        source: '데이터 출처: KRX 실시간 주가'
+      });
+    }
+
     // 재무 레드플래그
     if (realS4 > 0 && 재무위험.length > 0) {
       const 상세텍스트 = Object.entries(재무상세).map(([k,v]) => `• ${k}: ${v}`).join('\n');
@@ -1748,6 +1775,14 @@ async function startAnalysisReal(name, code) {
     switchTab('flags');
     showOnly('result-screen');
 
+    // 체류시간 측정 시작
+    window._logData = {
+      company: real.종목 || name,
+      stock_code: real.stock_code || '',
+      score: real.score || 0,
+    };
+    window._sessionStart = Date.now();
+
     setTimeout(()=>{
       animateScore(realTotal, realCol);
       document.getElementById('b1').style.width = Math.round(realS1/40*100) + '%';
@@ -1775,6 +1810,16 @@ function quick(name, code){
 }
 
 showOnly('search-screen');
+
+// 창 닫거나 이탈 시에도 로그 전송
+window.addEventListener('beforeunload', () => {
+  if (window._sessionStart && window._logData) {
+    const session_time = Math.round((Date.now() - window._sessionStart) / 1000);
+    navigator.sendBeacon('http://127.0.0.1:8000/log',
+      JSON.stringify({ ...window._logData, session_time })
+    );
+  }
+});
 </script>
 </body>
 </html>

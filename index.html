@@ -1376,7 +1376,7 @@ function goBack(){
   // 체류시간 계산 후 로그 전송
   if (window._sessionStart && window._logData) {
     const session_time = Math.round((Date.now() - window._sessionStart) / 1000);
-    fetch('http://127.0.0.1:8000/log', {
+    fetch('https://sgjisu-production.up.railway.app/log', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ ...window._logData, session_time })
@@ -1577,7 +1577,7 @@ function showSearchError(msg) {
 async function fetchRealData(name, code) {
   try {
     const param = code ? `corp_code=${code}&name=${encodeURIComponent(name)}` : `name=${encodeURIComponent(name)}`;
-    const res = await fetch(`http://127.0.0.1:8000/analyze?${param}`, { signal: AbortSignal.timeout(30000) });
+    const res = await fetch(`https://sgjisu-production.up.railway.app/analyze?${param}`, { signal: AbortSignal.timeout(30000) });
     const data = await res.json();
     if (data.error) return null;
     return data;
@@ -1623,7 +1623,7 @@ async function startAnalysisReal(name, code) {
 
   // 주가 실시간 조회
   try {
-    const priceRes = await fetch(`http://127.0.0.1:8000/price?stock_code=${real.stock_code}`);
+    const priceRes = await fetch(`https://sgjisu-production.up.railway.app/price?stock_code=${real.stock_code}`);
     const price = await priceRes.json();
     if (!price.error) {
       const 상승 = price.등락 >= 0;
@@ -1838,7 +1838,7 @@ showOnly('search-screen');
 window.addEventListener('beforeunload', () => {
   if (window._sessionStart && window._logData) {
     const session_time = Math.round((Date.now() - window._sessionStart) / 1000);
-    navigator.sendBeacon('http://127.0.0.1:8000/log',
+    navigator.sendBeacon('https://sgjisu-production.up.railway.app/log',
       JSON.stringify({ ...window._logData, session_time })
     );
   }

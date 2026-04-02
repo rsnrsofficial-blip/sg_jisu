@@ -28,8 +28,21 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
     }
 }
   
-.ad-box-rect { width: 300px; height: 250px; background: #141414; border: 1px dashed #1e1e1e; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #252525; letter-spacing: 1px; margin: 8px auto; }
-
+.ad-box-rect { 
+    width: 300px; 
+    height: 250px; 
+    background: #141414; 
+    border: 1px dashed #1e1e1e; 
+    border-radius: 2px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 10px; 
+    color: #252525; 
+    letter-spacing: 1px; 
+    margin: 8px auto;
+    overflow: hidden; /* 광고가 박스를 벗어나지 않게 추가 */
+}
 /* 면책 */
 .disclaimer-bar { width: 100%; background: rgba(255,49,49,0.06); border-bottom: 1px solid rgba(255,49,49,0.12); padding: 9px 20px; text-align: center; font-size: 11px; color: #884444; line-height: 1.6; }
 .disclaimer-bar b { color: #aa5555; }
@@ -195,11 +208,20 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
   <div class="ad-label">ADVERTISEMENT</div>
   
   <div class="ad-box pc-ad">
-    광고 영역 (728×90)
+    <ins class="kakao_ad_area" style="display:none;"
+      data-ad-unit = "DAN-ChLsr4rOF8BtXOv9"
+      data-ad-width = "728"
+      data-ad-height = "90"></ins>
+    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
   </div>
 
   <div class="ad-box mobile-ad">
-    광고 영역 (320×50)
+    <div class="ad-box mobile-ad">
+    <ins class="kakao_ad_area" style="display:none;"
+      data-ad-unit = "DAN-gOR5lK6lJ4N4yvJy"
+      data-ad-width = "320"
+      data-ad-height = "50"></ins>
+    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
   </div>
 </div>
   <div class="search-main">
@@ -1107,6 +1129,14 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
       </div>
     </div>
 
+    <div class="ad-box-rect">
+        <ins class="kakao_ad_area" style="display:none;"
+            data-ad-unit = "DAN-8evj5OwPwTpMerye"
+            data-ad-width = "300"
+            data-ad-height = "250"></ins>
+        <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+    </div>
+      
     <div class="gauge-section">
       <div class="gauge-wrap">
         <svg class="gauge-svg" viewBox="0 0 240 145">

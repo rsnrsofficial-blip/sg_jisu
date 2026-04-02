@@ -1,4 +1,6 @@
 import requests, zipfile, io, xml.etree.ElementTree as ET, re, os, time, threading
+from fastapi.responses import JSONResponse
+import json
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timedelta
@@ -605,19 +607,18 @@ def get_price(stock_code: str = ""):
 
 @app.get("/")
 def health():
-    return {"status": "ok", "ready": CORP_LIST_READY, "corps": len(CORP_LIST)}
+    return JSONResponse(content={"status": "ok", "ready": CORP_LIST_READY, "corps": len(CORP_LIST)})
 
 @app.get("/analyze")
 def analyze(name: str = "", request: Request = None):
     if not CORP_LIST_READY:
-        return {"error": "서버 준비 중이에요. 잠시 후 다시 시도해주세요 (약 30초)"}
+        return JSONResponse(content={"error": "서버 준비 중이에요. 잠시 후 다시 시도해주세요 (약 30초)"})
     
     corp_code, corp_name, stock_code = search_corp(name)
     if not corp_code:
-        return {"error": f"'{name}' 을 찾을 수 없어요"}
+        return JSONResponse(content={"error": f"'{name}' 을 찾을 수 없어요"})
 
     cached = get_cached(corp_code)
-
     ip = "unknown"; device = "PC"; referrer = ""
     if request:
         ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "unknown")
@@ -625,10 +626,9 @@ def analyze(name: str = "", request: Request = None):
         referrer = request.headers.get("referer", "")
         if any(k in ua.lower() for k in ["mobile", "android", "iphone", "ipad"]):
             device = "모바일"
-
     if cached:
-        return cached  # 캐시는 로그 안 찍음
-
+        return JSONResponse(content=cached)
+        
     print(f"\n🔍 분석 중: {corp_name} ({corp_code})")
 
     s4, 재무결과, 재무위험, 자본금, 자본총계 = calc_financial(corp_code)
@@ -686,6 +686,4 @@ def analyze(name: str = "", request: Request = None):
     }
 
     set_cached(corp_code, result)
-    
-
-    return result
+    return JSONResponse(content=result, media_type="application/json; charset=utf-8")

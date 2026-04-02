@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>설거지수 측정기 | Exit Liquidity Detector</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -146,6 +146,29 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .legal-text b { color: #3a3a3a; }
 .dart-credit { text-align: center; font-size: 10px; color: #222; margin-bottom: 6px; }
 .copyright { text-align: center; font-size: 10px; color: #1e1e1e; padding-bottom: 20px; }
+
+/* ── 모바일 반응형 ── */
+@media (max-width: 480px) {
+  .logo { font-size: 38px !important; }
+  .tagline { font-size: 9px !important; letter-spacing: 3px !important; }
+  .search-row { flex-direction: row; gap: 6px; }
+  .search-input { font-size: 14px; padding: 12px 14px; }
+  .search-btn { padding: 12px 16px; font-size: 13px; white-space: nowrap; }
+  .chips { gap: 6px; }
+  .chip { font-size: 11px; padding: 7px 10px; }
+  .result-inner { padding: 24px 16px 16px; }
+  .gauge-wrap { width: 200px; height: 120px; }
+  .gauge-svg { width: 200px; height: 120px; }
+  .gauge-num { font-size: 44px !important; }
+  .card-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+  .info-card { padding: 12px !important; }
+  .tab-bar { gap: 0 !important; }
+  .tab-btn { font-size: 11px !important; padding: 10px 10px !important; }
+  .flag-card { padding: 12px 14px !important; }
+  .ad-box { width: 100% !important; max-width: 100% !important; }
+  body { overflow-x: hidden !important; }
+  #search-screen, #result-screen, #loading-screen { width: 100% !important; overflow-x: hidden !important; }
+}
 </style>
 </head>
 <body>
@@ -1559,7 +1582,7 @@ async function fetchRealData(name, code) {
     if (data.error) return null;
     return data;
   } catch(e) {
-    return null; // 서버 꺼져있으면 가짜 데이터 사용
+    return null; // 서버 꺼져있으면 null 반환
   }
 }
 

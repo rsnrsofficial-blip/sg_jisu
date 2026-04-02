@@ -7,6 +7,16 @@ from datetime import datetime, timedelta
 from pykrx import stock as krx
 
 app = FastAPI()
+
+# ── UTF-8 강제 적용 미들웨어 (모바일 한글 깨짐 방지) ──
+@app.middleware("http")
+async def add_utf8_charset(request: Request, call_next):
+    response = await call_next(request)
+    ct = response.headers.get("content-type", "")
+    if "application/json" in ct and "charset" not in ct:
+        response.headers["content-type"] = "application/json; charset=utf-8"
+    return response
+
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 API_KEY = os.getenv("DART_API_KEY")
@@ -64,7 +74,6 @@ def load_corp_list():
     except Exception as e:
         print(f"❌ 회사 목록 로드 실패: {e}")
 
-# 백그라운드에서 로드
 threading.Thread(target=load_corp_list, daemon=True).start()
 
 def search_corp(name):
@@ -153,10 +162,9 @@ def check_krx_status(stock_code):
                 결과["거래정지"] = True
                 결과["메시지"].append("🔴 거래정지 — 최근 3일 거래량 0")
 
-            # 주가 급락 감지 (최근 3일 기준)
             if len(df) >= 4:
-                기준가 = float(df["종가"].iloc[-4])  # 3일 전 종가
-                현재가 = float(df["종가"].iloc[-1])   # 최근 종가
+                기준가 = float(df["종가"].iloc[-4])
+                현재가 = float(df["종가"].iloc[-1])
                 if 기준가 > 0:
                     급락률 = (현재가 - 기준가) / 기준가 * 100
                     결과["급락률"] = round(급락률, 2)
@@ -234,15 +242,13 @@ def calc_funding(corp_code):
     return max(0, min(60, 점수)), cb_개수, cb_목록, 투자조합_건수, 총발행금액, 제3자_유증
 
 # ──────────────────────────────────────────
-# S2. 신뢰도 결여 (공시 번복/정정 감지 추가)
+# S2. 신뢰도 결여
 # ──────────────────────────────────────────
 def calc_trust(corp_code):
-    # 불성실공시 (2년)
     불성실_공시 = get_공시목록(corp_code, 730, "F")
     불성실_개수 = len(불성실_공시)
     점수 = 30 if 불성실_개수 >= 2 else 20 if 불성실_개수 == 1 else 0
 
-    # 공시 번복/정정 감지 (6개월) ← 신규 추가
     번복_키워드 = ["[기재정정]", "[내용정정]", "[취소]", "[撤回]", "계약해지", "계약취소", "공급계약해지"]
     전체_공시 = get_공시목록(corp_code, 180)
     번복_목록 = []
@@ -254,12 +260,9 @@ def calc_trust(corp_code):
                 break
 
     번복_개수 = len(번복_목록)
-    if 번복_개수 >= 5:
-        점수 += 30
-    elif 번복_개수 >= 3:
-        점수 += 20
-    elif 번복_개수 >= 1:
-        점수 += 10
+    if 번복_개수 >= 5:   점수 += 30
+    elif 번복_개수 >= 3: 점수 += 20
+    elif 번복_개수 >= 1: 점수 += 10
 
     print(f"   신뢰도: 불성실{불성실_개수}건 + 번복/정정{번복_개수}건 → {점수}점")
     return min(40, 점수), 불성실_개수, 번복_개수, 번복_목록
@@ -518,7 +521,7 @@ def calc_audit_risk(corp_code):
     return min(60, 점수), 위험내용
 
 # ──────────────────────────────────────────
-# S7. 주가 급락 + 공시 디커플링 감지 (신규)
+# S7. 주가 급락 + 공시 디커플링 감지
 # ──────────────────────────────────────────
 def calc_price_anomaly(stock_code, krx_상태, 공시목록_전체):
     점수 = 0; 위험내용 = []
@@ -554,71 +557,22 @@ def calc_price_anomaly(stock_code, krx_상태, 공시목록_전체):
     print(f"   주가이상: 급락률{급락률}% / 악재공시{len(최근_악재_공시)}건 → {점수}점")
     return min(60, 점수), 위험내용
 
-@app.post("/log")
-async def log_session(request: Request):
-    try:
-        data = await request.json()
-        ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "unknown")
-        ua = request.headers.get("user-agent", "")
-        device = "모바일" if any(k in ua.lower() for k in ["mobile", "android", "iphone", "ipad"]) else "PC"
-        referrer = request.headers.get("referer", "")
-
-        # IP로 지역 조회
-        region = ""
-        try:
-            geo = requests.get(f"http://ip-api.com/json/{ip}?lang=ko&fields=city,regionName", timeout=3).json()
-            region = f"{geo.get('regionName', '')} {geo.get('city', '')}".strip()
-        except: pass
-
-        log_to_sheets({
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "company": data.get("company", ""),
-            "stock_code": data.get("stock_code", ""),
-            "score": data.get("score", 0),
-            "ip": ip,
-            "device": device,
-            "region": region,
-            "referrer": referrer,
-            "session_time": data.get("session_time", 0),
-            "cached": False,
-        })
-        return {"ok": True}
-    except Exception as e:
-        return {"ok": False, "error": str(e)}
-
-@app.get("/price")
-def get_price(stock_code: str = ""):
-    try:
-        df = get_price_data(stock_code)
-        if df is None or len(df) == 0:
-            return {"error": "주가 데이터 없음"}
-        최근 = df.iloc[-1]; 전일 = df.iloc[-2] if len(df) >= 2 else 최근
-        현재가 = int(최근["종가"]); 전일종가 = int(전일["종가"])
-        등락 = 현재가 - 전일종가; 등락률 = 등락 / 전일종가 * 100
-        return {
-            "현재가": 현재가, "전일종가": 전일종가,
-            "등락": 등락, "등락률": round(등락률, 2),
-            "고가": int(최근["고가"]), "저가": int(최근["저가"]),
-            "거래량": int(최근["거래량"]),
-            "날짜": df.index[-1].strftime("%Y.%m.%d"),
-        }
-    except Exception as e:
-        return {"error": str(e)}
-
+# ──────────────────────────────────────────
+# API 엔드포인트
+# ──────────────────────────────────────────
 @app.get("/")
 def health():
-    return JSONResponse(content={"status": "ok", "ready": CORP_LIST_READY, "corps": len(CORP_LIST)})
+    return {"status": "ok", "ready": CORP_LIST_READY, "corps": len(CORP_LIST)}
 
 @app.get("/analyze")
 def analyze(name: str = "", request: Request = None):
     if not CORP_LIST_READY:
-        return JSONResponse(content={"error": "서버 준비 중이에요. 잠시 후 다시 시도해주세요 (약 30초)"})
-    
+        return {"error": "서버 준비 중이에요. 잠시 후 다시 시도해주세요 (약 30초)"}
+
     corp_code, corp_name, stock_code = search_corp(name)
     if not corp_code:
-        return JSONResponse(content={"error": f"'{name}' 을 찾을 수 없어요"})
+        return {"error": f"'{name}' 을 찾을 수 없어요. 종목명을 정확히 입력하거나 종목코드(예: 005930)로 검색해보세요."}
 
-    cached = get_cached(corp_code)
     ip = "unknown"; device = "PC"; referrer = ""
     if request:
         ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "unknown")
@@ -626,9 +580,11 @@ def analyze(name: str = "", request: Request = None):
         referrer = request.headers.get("referer", "")
         if any(k in ua.lower() for k in ["mobile", "android", "iphone", "ipad"]):
             device = "모바일"
+
+    cached = get_cached(corp_code)
     if cached:
-        return JSONResponse(content=cached)
-        
+        return cached
+
     print(f"\n🔍 분석 중: {corp_name} ({corp_code})")
 
     s4, 재무결과, 재무위험, 자본금, 자본총계 = calc_financial(corp_code)
@@ -640,7 +596,6 @@ def analyze(name: str = "", request: Request = None):
     s5, 주주변경횟수, 주주위험 = calc_ownership(corp_code)
     s6, 감사위험 = calc_audit_risk(corp_code)
 
-    # 주가 이상 감지 (전체 공시 목록 재활용)
     전체_공시 = get_공시목록(corp_code, 30)
     s7, 주가이상_위험 = calc_price_anomaly(stock_code, krx_상태, 전체_공시)
 
@@ -682,8 +637,58 @@ def analyze(name: str = "", request: Request = None):
         "불성실_count": 불성실수, "번복_count": 번복수, "번복_list": 번복목록,
         "매도_list": 매도목록, "매도_주식수": 매도주식수, "매도비율": round(매도비율, 2),
         "급락률": krx_상태.get("급락률", 0),
-        "재무분석": 재무결과, "재무위험항목": 전체위험, "verdict": verdict
+        "재무분석": 재무결과, "재무위험항목": 전체위험, "verdict": verdict,
     }
 
     set_cached(corp_code, result)
-    return JSONResponse(content=result, media_type="application/json; charset=utf-8")
+    return result
+
+@app.get("/price")
+def get_price(stock_code: str = ""):
+    try:
+        df = get_price_data(stock_code)
+        if df is None or len(df) == 0:
+            return {"error": "주가 데이터 없음"}
+        최근 = df.iloc[-1]; 전일 = df.iloc[-2] if len(df) >= 2 else 최근
+        현재가 = int(최근["종가"]); 전일종가 = int(전일["종가"])
+        등락 = 현재가 - 전일종가; 등락률 = 등락 / 전일종가 * 100
+        return {
+            "현재가": 현재가, "전일종가": 전일종가,
+            "등락": 등락, "등락률": round(등락률, 2),
+            "고가": int(최근["고가"]), "저가": int(최근["저가"]),
+            "거래량": int(최근["거래량"]),
+            "날짜": df.index[-1].strftime("%Y.%m.%d"),
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.post("/log")
+async def log_session(request: Request):
+    try:
+        data = await request.json()
+        ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "unknown")
+        ua = request.headers.get("user-agent", "")
+        device = "모바일" if any(k in ua.lower() for k in ["mobile", "android", "iphone", "ipad"]) else "PC"
+        referrer = request.headers.get("referer", "")
+
+        region = ""
+        try:
+            geo = requests.get(f"http://ip-api.com/json/{ip}?lang=ko&fields=city,regionName", timeout=3).json()
+            region = f"{geo.get('regionName', '')} {geo.get('city', '')}".strip()
+        except: pass
+
+        log_to_sheets({
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "company": data.get("company", ""),
+            "stock_code": data.get("stock_code", ""),
+            "score": data.get("score", 0),
+            "ip": ip,
+            "device": device,
+            "region": region,
+            "referrer": referrer,
+            "session_time": data.get("session_time", 0),
+            "cached": False,
+        })
+        return {"ok": True}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}

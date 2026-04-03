@@ -72,26 +72,7 @@ _doc_cache = {}
 
 CORP_LIST = []
 CORP_LIST_READY = False
-ACTIVE_STOCK_CODES: set = set()  # 현재 거래 중인 종목코드
-
-
-def load_active_tickers():
-    global ACTIVE_STOCK_CODES
-    try:
-        for days_back in range(0, 5):
-            date = (datetime.now() - timedelta(days=days_back)).strftime("%Y%m%d")
-            try:
-                kospi = set(krx.get_market_ticker_list(date, market="KOSPI"))
-                kosdaq = set(krx.get_market_ticker_list(date, market="KOSDAQ"))
-                if kospi or kosdaq:
-                    ACTIVE_STOCK_CODES = kospi | kosdaq
-                    print(f"✅ 활성 종목 {len(ACTIVE_STOCK_CODES)}개 로드 완료 ({date})")
-                    return
-            except Exception:
-                continue
-        print("⚠️ 활성 종목 목록 로드 실패 — 전체 목록 사용")
-    except Exception as e:
-        print(f"⚠️ 활성 종목 로드 오류: {e}")
+_dead_codes: set = set()  # 상폐/거래정지 등 비활성 종목 코드
 
 
 def load_corp_list():
@@ -116,15 +97,38 @@ def load_corp_list():
         print(f"❌ 회사 목록 로드 실패: {e}")
 
 
+def filter_dead_codes():
+    """동명 중복 종목 중 거래 데이터 없는 상폐 종목을 _dead_codes에 추가"""
+    global _dead_codes
+    from collections import Counter
+    # CORP_LIST 로드 완료 대기
+    for _ in range(60):
+        if CORP_LIST_READY:
+            break
+        time.sleep(1)
+    name_cnt = Counter(c["corp_name"] for c in CORP_LIST)
+    dup_names = {n for n, cnt in name_cnt.items() if cnt > 1}
+    checked = 0
+    for c in CORP_LIST:
+        if c["corp_name"] not in dup_names:
+            continue
+        try:
+            df = get_price_data(c["stock_code"])
+            if df is None or len(df) == 0 or df["거래량"].sum() == 0:
+                _dead_codes.add(c["stock_code"])
+                print(f"   🚫 상폐 종목 감지: {c['corp_name']} ({c['stock_code']})")
+            checked += 1
+        except Exception:
+            pass
+    print(f"✅ 중복명 종목 {checked}개 검사 완료, 상폐 {len(_dead_codes)}개 필터")
+
+
 threading.Thread(target=load_corp_list, daemon=True).start()
-threading.Thread(target=load_active_tickers, daemon=True).start()
+threading.Thread(target=filter_dead_codes, daemon=True).start()
 
 
 def _is_active(stock_code: str) -> bool:
-    """활성 종목 여부 — ACTIVE_STOCK_CODES 로드 전이면 True로 fallback"""
-    if not ACTIVE_STOCK_CODES:
-        return True
-    return stock_code in ACTIVE_STOCK_CODES
+    return stock_code not in _dead_codes
 
 
 def search_corp(name):

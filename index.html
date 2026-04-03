@@ -10,44 +10,20 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-serif; min-height: 100vh; }
 
-/* 광고 */
 .ad-slot { width: 100%; background: #111; border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0; gap: 4px; }
 .ad-label { font-size: 9px; color: #252525; letter-spacing: 2px; }
 .ad-box { width: 728px; max-width: 100%; height: 90px; background: #141414; border: 1px dashed #1e1e1e; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #252525; letter-spacing: 1px; }
-
 .mobile-ad { display: none !important; }
 .pc-ad { display: flex !important; margin: 0 auto; }
-
 @media (max-width: 768px) {
     .pc-ad { display: none !important; }
-    .mobile-ad { 
-        display: flex !important; 
-        width: 320px !important; 
-        height: 50px !important; 
-        margin: 0 auto; 
-    }
+    .mobile-ad { display: flex !important; width: 320px !important; height: 50px !important; margin: 0 auto; }
 }
-  
-.ad-box-rect { 
-    width: 300px; 
-    height: 250px; 
-    background: #141414; 
-    border: 1px dashed #1e1e1e; 
-    border-radius: 2px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    font-size: 10px; 
-    color: #252525; 
-    letter-spacing: 1px; 
-    margin: 8px auto;
-    overflow: hidden; /* 광고가 박스를 벗어나지 않게 추가 */
-}
-/* 면책 */
+.ad-box-rect { width: 300px; height: 250px; background: #141414; border: 1px dashed #1e1e1e; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #252525; letter-spacing: 1px; margin: 8px auto; overflow: hidden; }
+
 .disclaimer-bar { width: 100%; background: rgba(255,49,49,0.06); border-bottom: 1px solid rgba(255,49,49,0.12); padding: 9px 20px; text-align: center; font-size: 11px; color: #884444; line-height: 1.6; }
 .disclaimer-bar b { color: #aa5555; }
 
-/* 검색 화면 */
 #search-screen { display: flex; flex-direction: column; align-items: center; }
 .search-main { min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px 20px; text-align: center; width: 100%; }
 .logo { font-family: 'Bebas Neue', sans-serif; font-size: 56px; letter-spacing: 4px; line-height: 1; margin-bottom: 8px; }
@@ -63,7 +39,6 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .chip { background: #141414; border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 6px 14px; font-size: 12px; color: #444; cursor: pointer; }
 .chip:hover { color: #efefef; border-color: rgba(255,255,255,0.2); }
 
-/* 로딩 */
 #loading-screen { display: none; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 20px; }
 .spinner { width: 44px; height: 44px; border: 1px solid #1c1c1c; border-top-color: #ff3131; border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 20px; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -75,8 +50,11 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .step.active::before { color: #ff3131; }
 .step.done { color: #444; }
 .step.done::before { color: #00e676; }
+.progress-wrap { width: 220px; margin-top: 24px; }
+.progress-bar-bg { width: 100%; height: 2px; background: #1c1c1c; border-radius: 1px; overflow: hidden; }
+.progress-bar-fill { height: 100%; width: 0%; background: #ff3131; border-radius: 1px; transition: width 0.3s ease; }
+.progress-pct { font-size: 11px; color: #333; letter-spacing: 2px; margin-top: 8px; text-align: right; }
 
-/* 결과 화면 */
 #result-screen { display: none; flex-direction: column; align-items: center; }
 .result-inner { width: 100%; max-width: 640px; padding: 40px 24px 20px; }
 .back-btn { display: inline-block; font-size: 12px; color: #444; cursor: pointer; letter-spacing: 1px; margin-bottom: 32px; }
@@ -88,7 +66,6 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .stock-change { font-size: 12px; text-align: right; margin-top: 4px; }
 .result-date { font-size: 11px; color: #2e2e2e; margin-top: 4px; text-align: right; }
 
-/* 게이지 */
 .gauge-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 40px; }
 .gauge-wrap { position: relative; width: 240px; height: 145px; margin-bottom: 16px; }
 .gauge-svg { width: 240px; height: 145px; display: block; }
@@ -99,7 +76,6 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .vdot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: blink 1.4s ease-in-out infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
-/* 위험 카드 */
 .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 32px; }
 .card { background: #141414; border: 1px solid rgba(255,255,255,0.07); border-radius: 4px; padding: 14px; }
 .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -110,22 +86,18 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .card-bar { margin-top: 10px; height: 2px; background: #1c1c1c; border-radius: 1px; overflow: hidden; }
 .card-fill { height: 100%; border-radius: 1px; width: 0%; transition: width 1.2s ease; }
 
-/* 탭 */
 .tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.07); margin-bottom: 24px; gap: 0; }
 .tab { padding: 12px 20px; font-size: 13px; font-weight: 500; color: #444; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; white-space: nowrap; }
 .tab:hover { color: #efefef; }
 .tab.active { color: #efefef; border-bottom-color: #ff3131; }
-
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
-/* 레드플래그 탭 */
 .flag-card { background: #141414; border: 1px solid rgba(255,255,255,0.07); border-radius: 4px; margin-bottom: 12px; overflow: hidden; }
 .flag-card-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; }
 .flag-card-header:hover { background: rgba(255,255,255,0.02); }
 .fdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .flag-title { font-size: 13px; font-weight: 500; flex: 1; line-height: 1.5; }
-.flag-title b { }
 .ftag { font-size: 10px; padding: 3px 8px; border-radius: 2px; font-weight: 700; flex-shrink: 0; }
 .flag-expand { font-size: 11px; color: #333; flex-shrink: 0; transition: transform 0.2s; }
 .flag-expand.open { transform: rotate(180deg); }
@@ -136,7 +108,6 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .flag-detail-text b { color: #aaa; }
 .flag-source { font-size: 10px; color: #2a2a2a; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.04); }
 
-/* 주가 탭 */
 .price-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
 .price-box { background: #141414; border: 1px solid rgba(255,255,255,0.07); border-radius: 4px; padding: 12px; }
 .price-box-label { font-size: 10px; color: #333; letter-spacing: 1px; margin-bottom: 6px; }
@@ -146,7 +117,6 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .period-btn { background: none; border: 1px solid rgba(255,255,255,0.07); border-radius: 2px; padding: 4px 10px; font-size: 11px; color: #444; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
 .period-btn.active { background: #ff3131; border-color: #ff3131; color: white; }
 
-/* 재무 탭 */
 .fin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
 .fin-card { background: #141414; border: 1px solid rgba(255,255,255,0.07); border-radius: 4px; padding: 16px; }
 .fin-card-title { font-size: 11px; color: #444; letter-spacing: 1px; margin-bottom: 12px; }
@@ -156,7 +126,6 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .fin-val { font-size: 12px; font-weight: 500; }
 .fin-bar-wrap { margin-top: 4px; height: 3px; background: #1c1c1c; border-radius: 1px; overflow: hidden; }
 .fin-bar { height: 100%; border-radius: 1px; }
-
 .eval-section { margin-bottom: 16px; }
 .eval-title { font-size: 11px; color: #333; letter-spacing: 2px; margin-bottom: 10px; }
 .eval-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
@@ -165,7 +134,6 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .eval-text { font-size: 12px; color: #666; line-height: 1.7; }
 .eval-text b { color: #aaa; }
 
-/* 하단 */
 .footer-legal { width: 100%; max-width: 640px; padding: 24px 24px 48px; }
 .legal-box { background: #111; border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 16px 20px; margin-bottom: 12px; }
 .legal-title { font-size: 10px; color: #333; letter-spacing: 2px; margin-bottom: 8px; }
@@ -174,7 +142,6 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .dart-credit { text-align: center; font-size: 10px; color: #222; margin-bottom: 6px; }
 .copyright { text-align: center; font-size: 10px; color: #1e1e1e; padding-bottom: 20px; }
 
-/* ── 모바일 반응형 ── */
 @media (max-width: 480px) {
   .logo { font-size: 38px !important; }
   .tagline { font-size: 9px !important; letter-spacing: 3px !important; }
@@ -187,11 +154,6 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
   .gauge-wrap { width: 200px; height: 120px; }
   .gauge-svg { width: 200px; height: 120px; }
   .gauge-num { font-size: 44px !important; }
-  .card-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
-  .info-card { padding: 12px !important; }
-  .tab-bar { gap: 0 !important; }
-  .tab-btn { font-size: 11px !important; padding: 10px 10px !important; }
-  .flag-card { padding: 12px 14px !important; }
   .ad-box { width: 100% !important; max-width: 100% !important; }
   body { overflow-x: hidden !important; }
   #search-screen, #result-screen, #loading-screen { width: 100% !important; overflow-x: hidden !important; }
@@ -203,31 +165,21 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 <!-- 검색 화면 -->
 <div id="search-screen">
   <div class="disclaimer-bar"><b>투자 위험 고지</b> · 본 서비스는 공시 데이터 기반 참고 정보이며, 특정 종목에 대한 투자를 권유하지 않습니다. 모든 투자 판단과 손익 책임은 투자자 본인에게 있습니다.</div>
-
   <div class="ad-slot">
-  <div class="ad-label">ADVERTISEMENT</div>
-  
-  <div class="ad-box pc-ad">
-    <ins class="kakao_ad_area" style="display:none;"
-      data-ad-unit = "DAN-ChLsr4rOF8BtXOv9"
-      data-ad-width = "728"
-      data-ad-height = "90"></ins>
-    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+    <div class="ad-label">ADVERTISEMENT</div>
+    <div class="ad-box pc-ad">
+      <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-ChLsr4rOF8BtXOv9" data-ad-width="728" data-ad-height="90"></ins>
+      <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+    </div>
+    <div class="ad-box mobile-ad">
+      <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-gOR5lK6lJ4N4yvJy" data-ad-width="320" data-ad-height="50"></ins>
+      <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+    </div>
   </div>
-
-  <div class="ad-box mobile-ad">
-    <ins class="kakao_ad_area" style="display:none;"
-      data-ad-unit = "DAN-gOR5lK6lJ4N4yvJy"
-      data-ad-width = "320"
-      data-ad-height = "50"></ins>
-    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
-  </div>
-</div>
   <div class="search-main">
     <div class="logo">설거지수<span>.ai</span></div>
     <div class="tagline">EXIT LIQUIDITY DETECTOR</div>
-
-    <div style="max-width: 460px; margin-bottom: 28px; text-align: center;">
+    <div style="max-width:460px;margin-bottom:28px;text-align:center;">
       <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdC
 IFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAA
 AADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlk
@@ -1066,12 +1018,8 @@ ADAC0BhdwCYVb3+1J4Oe69Bq9bAKZ/VahpGVdRSNtpuSgsvqAZ4pTVYZoyRgvLcbhtMAjL4ReWsV
 CtGTSZnLujG406cH/FEAnBFcV1m0nb6rVgn8qZJZwWcrABHys6vYsqbAFqzqL6bHm34x9BhTu9K4
 ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;height:auto;margin-bottom:20px;display:block;margin-left:auto;margin-right:auto;mix-blend-mode:screen;" alt="개미 캐릭터" />
       <div style="font-size:16px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;margin-bottom:16px;line-height:1.5;">29층에서 떨어져도<br><span style="color:#ff3131;">개미는 죽지 않는다.</span></div>
-      <div style="font-size: 13px; color: #555; line-height: 2.0;">
-        CB 발행 · 대주주 매도 · 불성실공시를 실시간 자동 분석해<br>
-        <span style="color: #efefef; font-weight: 500;">개미가 물리기 전에</span> 먼저 알려주는 주식 정보 <span style="color: #efefef; font-weight: 500;">AI 서비스</span>
-      </div>
+      <div style="font-size:13px;color:#555;line-height:2.0;">CB 발행 · 대주주 매도 · 불성실공시를 실시간 자동 분석해<br><span style="color:#efefef;font-weight:500;">개미가 물리기 전에</span> 먼저 알려주는 주식 정보 <span style="color:#efefef;font-weight:500;">AI 서비스</span></div>
     </div>
-
     <div class="search-row">
       <input class="search-input" id="main-input" type="text" placeholder="종목명 또는 종목코드 입력" />
       <button class="search-btn" onclick="doSearch()">분석하기</button>
@@ -1107,13 +1055,18 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
     <div class="step" id="s4">재무제표 & 주가 데이터 수집</div>
     <div class="step" id="s5">설거지 지수 산출</div>
   </div>
+  <div class="progress-wrap">
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <div class="progress-pct" id="progress-pct">0%</div>
+  </div>
 </div>
 
 <!-- 결과 화면 -->
 <div id="result-screen">
   <div class="disclaimer-bar" style="width:100%"><b>투자 위험 고지</b> · 본 서비스는 공시 데이터 기반 참고 정보이며, 특정 종목에 대한 투자를 권유하지 않습니다. 모든 투자 판단과 손익 책임은 투자자 본인에게 있습니다.</div>
   <div class="ad-slot"><div class="ad-label">advertisement</div><div class="ad-box">광고 영역 (728×90)</div></div>
-
   <div class="result-inner">
     <div class="back-btn" onclick="goBack()">← 다시 검색</div>
     <div class="result-header">
@@ -1127,15 +1080,6 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
         <div class="result-date" id="r-date"></div>
       </div>
     </div>
-
-    <div class="ad-box-rect">
-        <ins class="kakao_ad_area" style="display:none;"
-            data-ad-unit = "DAN-8evj5OwPwTpMerye"
-            data-ad-width = "300"
-            data-ad-height = "250"></ins>
-        <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
-    </div>
-      
     <div class="gauge-section">
       <div class="gauge-wrap">
         <svg class="gauge-svg" viewBox="0 0 240 145">
@@ -1150,7 +1094,6 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
       </div>
       <div class="verdict" id="r-verdict"></div>
     </div>
-
     <div class="cards">
       <div class="card">
         <div class="card-top"><span class="card-icon">💰</span><span class="card-pt" id="pt1" style="color:#ff3131">0pt</span></div>
@@ -1170,11 +1113,19 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
         <div class="card-desc" id="cd3">대주주 매도 여부</div>
         <div class="card-bar"><div class="card-fill" id="b3" style="background:#ffd000"></div></div>
       </div>
-      <div class="card" style="grid-column: span 3;">
+      <div class="card" style="grid-column:span 3;">
         <div class="card-top"><span class="card-icon">📊</span><span class="card-pt" id="pt4" style="color:#ff3131">0pt</span></div>
         <div class="card-title">재무 위험도</div>
         <div class="card-desc" id="cd4">재무제표 실시간 분석</div>
         <div class="card-bar"><div class="card-fill" id="b4" style="background:#ff3131"></div></div>
+      </div>
+    </div>
+
+    <!-- 광고: 카드 아래, 탭 위 -->
+    <div style="display:flex;justify-content:center;margin-bottom:24px;">
+      <div class="ad-box-rect">
+        <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-8evj5OwPwTpMerye" data-ad-width="300" data-ad-height="250"></ins>
+        <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
       </div>
     </div>
 
@@ -1184,13 +1135,7 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
       <div class="tab" onclick="switchTab('price')">주가 & 시세</div>
       <div class="tab" onclick="switchTab('finance')">재무제표 분석</div>
     </div>
-
-    <!-- 탭1: 레드플래그 상세 -->
-    <div class="tab-panel active" id="tab-flags">
-      <div id="r-flags"></div>
-    </div>
-
-    <!-- 탭2: 주가 -->
+    <div class="tab-panel active" id="tab-flags"><div id="r-flags"></div></div>
     <div class="tab-panel" id="tab-price">
       <div class="price-summary">
         <div class="price-box"><div class="price-box-label">현재가</div><div class="price-box-val" id="p-cur" style="color:#efefef">—</div></div>
@@ -1205,49 +1150,28 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
           <button class="period-btn">6개월</button>
           <button class="period-btn">1년</button>
         </div>
-        <div style="position:relative; height:220px;">
-          <canvas id="priceChart"></canvas>
-        </div>
-        <div style="font-size:10px; color:#252525; margin-top:10px; text-align:right;">※ DART 키 연결 후 실시간 데이터로 자동 교체됩니다</div>
+        <div style="position:relative;height:220px;"><canvas id="priceChart"></canvas></div>
       </div>
     </div>
-
-    <!-- 탭3: 재무분석 -->
     <div class="tab-panel" id="tab-finance">
       <div class="fin-grid">
-        <div class="fin-card">
-          <div class="fin-card-title">수익성 지표</div>
-          <div id="fin-profit"></div>
-        </div>
-        <div class="fin-card">
-          <div class="fin-card-title">안정성 지표</div>
-          <div id="fin-stable"></div>
-        </div>
+        <div class="fin-card"><div class="fin-card-title">수익성 지표</div><div id="fin-profit"></div></div>
+        <div class="fin-card"><div class="fin-card-title">안정성 지표</div><div id="fin-stable"></div></div>
       </div>
-      <div class="ad-slot" style="margin: 0 -24px 20px; width: calc(100% + 48px);"><div class="ad-label">advertisement</div><div class="ad-box-rect">광고 영역 (300×250)</div></div>
-      <div class="eval-section">
-        <div class="eval-title">장점 (재무제표 기반)</div>
-        <div id="fin-strengths"></div>
-      </div>
-      <div class="eval-section">
-        <div class="eval-title">취약점 (재무제표 기반)</div>
-        <div id="fin-weaknesses"></div>
-      </div>
-      <div style="font-size:10px; color:#252525; margin-top:12px;">※ DART 키 연결 후 실제 재무제표 데이터로 자동 교체됩니다</div>
+      <div class="eval-section"><div class="eval-title">장점 (재무제표 기반)</div><div id="fin-strengths"></div></div>
+      <div class="eval-section"><div class="eval-title">취약점 (재무제표 기반)</div><div id="fin-weaknesses"></div></div>
     </div>
   </div>
 
-  <!-- 최신 뉴스 카드 섹션 -->
-  <div style="width:100%; max-width:640px; padding: 8px 24px 32px;">
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
-      <div style="font-size:11px; color:#2e2e2e; letter-spacing:2px;">최신 뉴스</div>
-      <div style="font-size:10px; color:#2a2a2a; letter-spacing:1px;">뉴스 API 연결 후 자동 표시</div>
+  <div style="width:100%;max-width:640px;padding:8px 24px 32px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div style="font-size:11px;color:#2e2e2e;letter-spacing:2px;">최신 뉴스</div>
+      <div style="font-size:10px;color:#2a2a2a;letter-spacing:1px;">뉴스 API 연결 후 자동 표시</div>
     </div>
-    <div id="news-cards" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+    <div id="news-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
   </div>
 
   <div class="ad-slot"><div class="ad-label">advertisement</div><div class="ad-box">광고 영역 (728×90)</div></div>
-
   <div class="footer-legal">
     <div class="legal-box"><div class="legal-title">법적 고지 및 면책 조항</div><div class="legal-text">본 서비스는 <b>금융투자상품에 대한 투자를 권유하지 않으며</b>, 제공되는 모든 정보는 투자 참고 목적으로만 활용되어야 합니다. 설거지 지수는 금융감독원 전자공시시스템(DART)의 공개 공시 데이터를 기반으로 알고리즘이 산출한 참고값이며, <b>투자 결과에 대한 법적 책임을 지지 않습니다.</b></div></div>
     <div class="dart-credit">데이터 출처: 금융감독원 전자공시시스템(DART) · dart.fss.or.kr</div>
@@ -1257,215 +1181,39 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
 
 <script>
 const DATA = {
-  '005930': {
-    name:'삼성전자', s1:5, s2:0, s3:10,
-    price:{ cur:'73,400', chg:'+1,200', pct:'+1.66%', high:'87,800', low:'49,900', vol:'18,432,000', up:true },
-    priceData: [68200,69100,70500,69800,71200,72000,71500,72800,73100,72400,73400,73400,73000,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400],
-    flags:[
-      { lv:'low', title:'최근 1년 CB/BW <b>발행 없음</b>', tag:'안전',
-        detail:'✅ <b>한 줄 요약:</b> 의심스러운 돈 안 빌렸어요. 완전 깨끗해요.\n\n1년 동안 외부에서 "나중에 주식으로 갚을게" 식의 돈을 한 번도 빌리지 않았어요. 삼성전자는 워낙 돈을 잘 버니까 굳이 이런 방식으로 자금을 조달할 필요가 없어요.\n\n🎮 <b>게임으로 비유하면:</b> 골드가 넉넉한 상위 1% 플레이어가 굳이 다른 길드에서 돈 빌릴 이유가 없는 거예요. 자기 돈으로 다 해결하는 거죠.',
-        source:'공시 출처: DART 발행공시 조회 (2024.01.01~현재)' },
-      { lv:'low', title:'불성실공시 이력 <b>없음</b>', tag:'안전',
-        detail:'✅ <b>한 줄 요약:</b> 금감원한테 한 번도 혼난 적 없어요. 모범생이에요.\n\n"이 회사 약속 안 지킨다"는 금융감독원 경고를 단 한 번도 받은 적이 없어요. 공시 내용대로 실제로 이행하는 회사라는 뜻이에요.\n\n🎮 <b>게임으로 비유하면:</b> 패치노트에 "이번 업데이트에 이거 추가할게요" 써놓고 실제로 다 넣어주는 게임사예요. 믿을 수 있는 거죠.',
-        source:'공시 출처: DART 불성실공시법인 지정 이력 조회' },
-      { lv:'mid', title:'임원 스톡옵션 행사 후 <b>일부 매도</b> 감지', tag:'주의',
-        detail:'🟡 <b>한 줄 요약:</b> 임원이 주식 좀 팔았는데, 양이 너무 작아서 크게 걱정 안 해도 돼요.\n\n임원 1명이 회사에서 받은 주식 12,000주를 시장에 팔았어요. 삼성전자 전체 주식의 0.0001%도 안 되는 양이에요.\n\n🎮 <b>게임으로 비유하면:</b> 수십억 개의 아이템이 거래되는 마켓에서 1개 팔린 거예요. 시장에 아무 영향 없어요. 그냥 용돈 마련 수준이에요.',
-        source:'공시 출처: DART 임원·주요주주 특정증권 등 소유상황보고서 (2025.03)' },
-    ],
-    finance:{
-      profit:[
-        { label:'매출액 증가율', val:'+12.4%', color:'#00e676', pct:62 },
-        { label:'영업이익률', val:'16.8%', color:'#00e676', pct:68 },
-        { label:'순이익률', val:'14.2%', color:'#ffd000', pct:57 },
-        { label:'ROE', val:'18.3%', color:'#00e676', pct:73 },
-      ],
-      stable:[
-        { label:'부채비율', val:'28.4%', color:'#00e676', pct:20 },
-        { label:'유동비율', val:'240%', color:'#00e676', pct:80 },
-        { label:'이자보상배율', val:'42.1x', color:'#00e676', pct:90 },
-        { label:'현금성 자산', val:'103조원', color:'#00e676', pct:85 },
-      ],
-      strengths:['<b>압도적인 현금 보유력</b>: 103조원의 현금성 자산으로 대규모 투자 및 위기 대응 능력 탁월', '<b>낮은 부채비율</b>: 28.4%로 동종 반도체 업계 평균(85%) 대비 매우 안정적', '<b>ROE 18.3%</b>: 주주 자본 활용 효율성 높음. 3년 연속 개선 추세'],
-      weaknesses:['<b>HBM 경쟁 지연</b>: AI 반도체 핵심 부품 HBM 시장에서 경쟁사 대비 납품 일정 지연 우려', '<b>중국 매출 의존도</b>: 전체 매출의 약 28%가 중국 시장. 지정학적 리스크 노출'],
-    },
-    news:[
-      { type:'good', title:'삼성전자, 엔비디아 HBM3E 최종 품질 테스트 통과', media:'한국경제', time:'2시간 전' },
-      { type:'good', title:'삼성전자 1분기 영업이익 7.1조원… 시장 예상치 상회', media:'매일경제', time:'4시간 전' },
-      { type:'bad',  title:'中 반도체 수출규제 강화… 삼성 메모리 타격 불가피', media:'연합뉴스', time:'6시간 전' },
-      { type:'bad',  title:'삼성전자 파운드리 수율 문제 지속… TSMC와 격차 확대', media:'조선비즈', time:'1일 전' },
-    ]
-  },
-  '101360': {
-    name:'에코앤드림', s1:40, s2:25, s3:30,
-    price:{ cur:'4,285', chg:'-320', pct:'-6.95%', high:'12,400', low:'3,810', vol:'9,847,000', up:false },
-    priceData:[12400,11800,10200,9400,8700,8100,7600,7200,6800,6400,6100,5800,5400,5100,4900,4750,4600,4500,4430,4380,4350,4320,4310,4295,4290,4285,4285,4285,4285,4285],
-    flags:[
-      { lv:'high', title:'<b>CB 3회 발행</b> — 발행 대상 중 투자조합 2건 포함', tag:'고위험',
-        detail:'🔴 <b>한 줄 요약:</b> 의심스러운 큰손들이 1년에 3번이나 돈을 꽂았어요.\n\n2024년 2월, 6월, 10월 — 딱 4개월 간격으로 총 280억원을 외부에서 빌렸는데, 이 중 190억원의 돈 주인이 <b>정체불명의 투자조합</b>이에요.\n\n🎮 <b>게임으로 비유하면:</b> 회사가 "나중에 주식으로 갚을게"라는 어음을 써줬어요. 근데 이 어음엔 함정이 있어요. <b>주가가 떨어질수록 더 많은 주식으로 바꿀 수 있는 조항</b>이 들어있거든요. 주가가 반 토막 나면 받는 주식은 2배가 돼요. 결국 투자조합은 주가가 오를 때 팔고 튀면 그만이에요. 손해는 나중에 주식 사는 개미 몫이고요.\n\n⚠️ <b>지금 어떤 상황이냐면:</b> 이 주식들이 언제든 시장에 쏟아질 수 있는 폭탄처럼 대기 중이에요.',
-        source:'공시 출처: DART 주요사항보고서 — 전환사채권 발행결정 (2024.02, 2024.06, 2024.10)' },
-      { lv:'high', title:'전기차 배터리 신사업 공시 후 <b>구체적 이행 없음</b>', tag:'고위험',
-        detail:'🔴 <b>한 줄 요약:</b> "전기차 배터리 한다!"고 발표해놓고 실제론 아무것도 안 했어요.\n\n2023년 11월에 "우리 이제 전기차 배터리 소재 회사로 바꿀 거야!"라고 크게 공지했지만, 2024년 전체 매출을 보면 <b>97.3%가 원래 하던 사업</b>에서 나왔어요. 신사업 매출은 사실상 0원이에요.\n\n🎮 <b>게임으로 비유하면:</b> RPG 게임에서 "다음 달에 신규 캐릭터 출시!"라고 공지만 해놓고 1년이 지나도 아무것도 안 나온 거예요. 그 공지 믿고 기다린 유저들만 손해인 상황이에요.\n\n⚠️ <b>금융감독원도 이미 경고 1회</b> 줬어요. 말만 하고 안 지키는 회사라는 인증이에요.',
-        source:'공시 출처: DART 주요경영사항 공시 (2023.11), 사업보고서 (2024)' },
-      { lv:'high', title:'주가 급등 구간 중 <b>대주주 장내 매도</b> 4,200만주', tag:'고위험',
-        detail:'🔴 <b>한 줄 요약:</b> 주가가 최고로 비쌀 때 회사 주인이 몰래 팔고 튀었어요.\n\n2024년 3~4월, 주가가 3,200원에서 12,400원으로 무려 <b>3.8배</b> 뛰는 동안 최대주주가 조용히 4,200만주를 팔았어요. 약 390억원어치예요.\n\n🎮 <b>게임으로 비유하면:</b> 게임 아이템 가격이 갑자기 폭등했을 때, 그 아이템 만든 사람이 자기 창고에 있던 걸 전부 팔아치운 거예요. 아이템을 비싸게 사들인 사람들은 이후 가격이 폭락하면서 손해를 봤고요.\n\n⚠️ <b>그 이후:</b> 주가는 현재 고점 대비 <b>65% 하락</b>했어요. 팔고 난 뒤에 주가가 이렇게 되는 건 우연이 아닌 경우가 많아요.',
-        source:'공시 출처: DART 임원·주요주주 특정증권 등 소유상황보고서 (2024.03~04)' },
-    ],
-    finance:{
-      profit:[
-        { label:'매출액 증가율', val:'-18.2%', color:'#ff3131', pct:18 },
-        { label:'영업이익률', val:'-24.1%', color:'#ff3131', pct:5 },
-        { label:'순이익률', val:'-31.4%', color:'#ff3131', pct:3 },
-        { label:'ROE', val:'-42.3%', color:'#ff3131', pct:5 },
-      ],
-      stable:[
-        { label:'부채비율', val:'342%', color:'#ff3131', pct:85 },
-        { label:'유동비율', val:'68%', color:'#ff3131', pct:20 },
-        { label:'이자보상배율', val:'-3.2x', color:'#ff3131', pct:5 },
-        { label:'현금성 자산', val:'42억원', color:'#ff8800', pct:12 },
-      ],
-      strengths:['<b>기존 사업 거래처 유지</b>: 주요 납품처와의 계약 관계는 현재까지 유지되고 있음', '<b>정부 보조금 수령</b>: 신사업 관련 R&D 보조금 약 15억원 수령 예정'],
-      weaknesses:['<b>3년 연속 영업적자</b>: 영업이익률 -24.1%로 본업 경쟁력 심각하게 훼손됨', '<b>부채비율 342%</b>: 업계 평균의 4배 수준. CB 발행으로 인한 잠재 희석 물량 과다', '<b>현금 고갈 위험</b>: 현금성 자산 42억원으로 3개월치 운영비 수준에 불과', '<b>이자보상배율 음수</b>: 영업이익으로 이자 비용도 감당 불가능한 상태'],
-    },
-    news:[
-      { type:'bad',  title:'에코앤드림, 3분기 연속 영업손실… 자금난 심화 우려', media:'파이낸셜뉴스', time:'1시간 전' },
-      { type:'bad',  title:'에코앤드림 대주주 지분 또 감소… 추가 매도 가능성', media:'이데일리', time:'3시간 전' },
-      { type:'bad',  title:'전기차 배터리 신사업 진척 없어… 공시 이행 의문', media:'머니투데이', time:'5시간 전' },
-      { type:'good', title:'에코앤드림, 정부 이차전지 R&D 지원사업 선정', media:'뉴스1', time:'2일 전' },
-    ]
-  },
-  '035720': {
-    name:'카카오', s1:20, s2:20, s3:15,
-    price:{ cur:'37,250', chg:'-450', pct:'-1.19%', high:'58,100', low:'32,400', vol:'3,214,000', up:false },
-    priceData:[55000,54200,52800,51000,49500,48200,47000,45800,44600,43500,42400,41300,40200,39500,38800,38200,37800,37500,37300,37200,37300,37250,37250,37250,37250,37250,37250,37250,37250,37250],
-    flags:[
-      { lv:'mid', title:'계열사 분리 과정에서 <b>CB 2회 발행</b> 확인', tag:'주의',
-        detail:'🟡 <b>한 줄 요약:</b> 돈은 빌렸는데, 받은 곳이 그나마 믿을 만한 곳이에요.\n\n카카오엔터, 카카오모빌리티 분리하면서 총 800억원을 "나중에 주식으로 갚을게" 방식으로 빌렸어요. 그나마 돈 준 곳이 정체불명의 사모조합이 아닌 일반 기관투자자라는 게 다행이에요.\n\n🎮 <b>게임으로 비유하면:</b> 길드 분열하면서 운영비 부족해 대부업체가 아닌 은행에서 빌린 거예요. 빌린 건 맞지만 상대적으로 깨끗한 편이에요. 단, 주가 떨어지면 갚아야 할 주식 수가 늘어나는 조항은 여전히 있어요.',
-        source:'공시 출처: DART 주요사항보고서 — 전환사채권 발행결정 (2024.03, 2024.08)' },
-      { lv:'high', title:'신사업 공시 후 <b>이행률 60% 미만</b>', tag:'위험',
-        detail:'🔴 <b>한 줄 요약:</b> SM 샀다고 "글로벌 대박 날 거야!" 했는데 생각보다 별로예요.\n\nSM엔터테인먼트 인수하면서 "K-콘텐츠로 해외에서 엄청 벌 거야!"라고 공시했는데, 실제 달성률이 60%도 안 돼요. 해외 매출 늘리겠다더니 별로고, IP 수익화도 지지부진해요.\n\n🎮 <b>게임으로 비유하면:</b> "이번 콜라보로 매출 2배 낼 거야!" 발표해놓고 실제론 1.2배 나온 거예요. 거짓말은 아닌데 너무 과장한 거죠.',
-        source:'공시 출처: DART 주요경영사항 (2023.03), 2024년 사업보고서 비교' },
-      { lv:'mid', title:'임원 <b>스톡옵션 대량 행사</b> 후 시장 매각 반복', tag:'주의',
-        detail:'🟡 <b>한 줄 요약:</b> 회사 임원들이 자기 주식을 반복적으로 팔고 있어요.\n\n최근 6개월 동안 임원 3명이 합쳐서 약 108억원어치 주식을 팔았어요. 각자 개인 사정으로 판 거겠지만, 3명이 동시에 반복적으로 파는 건 좋은 신호가 아니에요.\n\n🎮 <b>게임으로 비유하면:</b> 게임 개발자들이 자기 게임 주식을 계속 팔고 있는 거예요. "우리 게임 별로야"라고 직접 말하지는 않지만, 행동이 그걸 보여주는 거죠.',
-        source:'공시 출처: DART 임원·주요주주 특정증권 등 소유상황보고서 (2024.09~2025.02)' },
-    ],
-    finance:{
-      profit:[
-        { label:'매출액 증가율', val:'+8.1%', color:'#ffd000', pct:48 },
-        { label:'영업이익률', val:'6.2%', color:'#ffd000', pct:40 },
-        { label:'순이익률', val:'3.8%', color:'#ff8800', pct:28 },
-        { label:'ROE', val:'5.4%', color:'#ff8800', pct:32 },
-      ],
-      stable:[
-        { label:'부채비율', val:'94.2%', color:'#ffd000', pct:47 },
-        { label:'유동비율', val:'138%', color:'#ffd000', pct:55 },
-        { label:'이자보상배율', val:'4.2x', color:'#ffd000', pct:48 },
-        { label:'현금성 자산', val:'2.1조원', color:'#00e676', pct:65 },
-      ],
-      strengths:['<b>플랫폼 독점적 지위</b>: 카카오톡 MAU 4,700만명으로 국내 최대 메신저 플랫폼 유지', '<b>현금성 자산 2.1조원</b>: 유동성 위기 대응 여력 충분', '<b>콘텐츠 IP 자산</b>: 웹툰·웹소설 IP 기반 글로벌 확장 잠재력 보유'],
-      weaknesses:['<b>수익성 저하 지속</b>: 영업이익률 6.2%로 2021년(14.8%) 대비 절반 이하', '<b>계열사 리스크</b>: SM엔터 인수 후 통합 시너지 기대 이하. 투자 비용 회수 불투명', '<b>규제 리스크</b>: 공정거래위원회 플랫폼 독점 규제 강화 검토 중'],
-    },
-    news:[
-      { type:'bad',  title:'공정위, 카카오 플랫폼 독점 규제안 초안 완성… 연내 시행 예고', media:'한겨레', time:'30분 전' },
-      { type:'good', title:'카카오페이, 동남아 결제 시장 진출… 태국·베트남 MOU 체결', media:'파이낸셜뉴스', time:'2시간 전' },
-      { type:'bad',  title:'카카오 2분기 영업이익 전망치 하향… 광고 수익 부진', media:'이데일리', time:'5시간 전' },
-      { type:'good', title:'카카오웹툰 글로벌 MAU 3,000만 돌파… K-콘텐츠 흥행', media:'매일경제', time:'1일 전' },
-    ]
-  },
-  '236340': {
-    name:'SV인베스트먼트', s1:38, s2:18, s3:28,
-    price:{ cur:'2,145', chg:'+85', pct:'+4.13%', high:'6,800', low:'1,890', vol:'22,143,000', up:true },
-    priceData:[4200,5100,6200,6800,6100,5400,4800,4200,3700,3300,2900,2600,2400,2300,2250,2200,2180,2160,2150,2148,2145,2145,2145,2145,2145,2145,2145,2145,2145,2145],
-    flags:[
-      { lv:'high', title:'최근 1년 <b>BW 4회 발행</b> — 발행 대상 전원 사모투자조합', tag:'고위험',
-        detail:'🔴 <b>한 줄 요약:</b> 1년에 4번, 매번 정체불명의 조합에서 돈 받았어요. 교과서적인 작전주 패턴이에요.\n\n2024년에만 총 4번, 180억원을 "나중에 주식으로 갚을게" 방식으로 빌렸어요. 근데 4번 모두 돈 준 곳이 <b>사모투자조합</b>이에요.\n\n🎮 <b>게임으로 비유하면:</b> 세력이 이런 순서로 움직여요.\n1. 사모조합에게 싸게 신주인수권 팔기 (돈 받기)\n2. 세력이 주가를 인위적으로 끌어올리기\n3. 사모조합이 신주인수권으로 주식 대량 취득\n4. 고점에서 전부 팔고 튀기\n5. 뒤늦게 산 개미들이 폭락 감당\n\n⚠️ <b>지금 상황:</b> 신주인수권이 전부 행사되면 현재 주식의 <b>23%가 추가로 시장에 쏟아져요.</b> 주가 희석은 피할 수 없어요.',
-        source:'공시 출처: DART 주요사항보고서 — 신주인수권부사채권 발행결정 (2024.01, 2024.04, 2024.07, 2024.10)' },
-      { lv:'mid', title:'AI 투자플랫폼 신사업 공시 후 <b>내용 변경</b>', tag:'주의',
-        detail:'🟡 <b>한 줄 요약:</b> "AI 플랫폼 만들 거야!" 했다가 6개월 만에 "아 그냥 AI 분석 서비스로 바꿀게"로 슬쩍 바꿨어요.\n\n2024년 3월에 "AI 투자플랫폼 출시할게요, 이만큼 매출 낼 거예요"라고 공시했다가 6개월 뒤에 슬그머니 내용을 바꿨어요. 당초 약속한 출시일도, 예상 매출도 다 수정됐어요.\n\n🎮 <b>게임으로 비유하면:</b> "다음달 대규모 업데이트!"라고 공지했다가 6개월 후에 "소규모 패치로 변경합니다"로 바꾼 거예요. 기대하고 기다린 사람들만 손해예요.',
-        source:'공시 출처: DART 주요경영사항 공시 (2024.03), 공시 정정 (2024.09)' },
-      { lv:'high', title:'급등 직후 <b>최대주주 지분 7.3% 감소</b>', tag:'고위험',
-        detail:'🔴 <b>한 줄 요약:</b> 주가가 꼭대기 찍었을 때 회사 주인이 지분 7.3%를 팔았어요. 87억원어치예요.\n\n2024년 4~5월, 주가가 4,200원에서 6,800원으로 급등하는 딱 그 타이밍에 최대주주 지분이 34.1%에서 26.8%로 줄었어요.\n\n🎮 <b>게임으로 비유하면:</b> 아이템 가격이 폭등할 때 그 아이템 만든 사람이 자기 창고 아이템을 전부 팔아버린 거예요. 팔고 나서 가격이 폭락했고, 비싸게 산 사람들만 피해봤어요.\n\n⚠️ <b>그 이후:</b> 현재 주가 2,145원 — 고점 대비 <b>68% 하락.</b> 최대주주는 이미 팔고 나간 상황이에요.',
-        source:'공시 출처: DART 주요주주 주식 등의 대량보유 상황보고서 (2024.05)' },
-    ],
-    finance:{
-      profit:[
-        { label:'매출액 증가율', val:'+142%', color:'#ffd000', pct:52 },
-        { label:'영업이익률', val:'-8.4%', color:'#ff3131', pct:10 },
-        { label:'순이익률', val:'-12.1%', color:'#ff3131', pct:8 },
-        { label:'ROE', val:'-18.7%', color:'#ff3131', pct:6 },
-      ],
-      stable:[
-        { label:'부채비율', val:'218%', color:'#ff3131', pct:68 },
-        { label:'유동비율', val:'82%', color:'#ff3131', pct:25 },
-        { label:'이자보상배율', val:'-1.8x', color:'#ff3131', pct:5 },
-        { label:'현금성 자산', val:'28억원', color:'#ff3131', pct:8 },
-      ],
-      strengths:['<b>외형 성장</b>: 매출액 142% 증가. 신규 사업 계약 일부 체결로 외형 확대', '<b>정부 과제 수주</b>: AI 관련 정부 R&D 과제 수주로 단기 매출 발생'],
-      weaknesses:['<b>적자 구조 고착</b>: 매출 급증에도 영업적자 지속. 비용 통제 실패', '<b>BW 잠재 희석 물량</b>: 신주인수권 전부 행사 시 발행주식의 약 23% 추가 출회 가능', '<b>현금 28억원</b>: 월 운영비 수준으로 추가 자금조달 불가피', '<b>최대주주 지분 급감</b>: 경영진 책임경영 의지 약화 신호'],
-    },
-    news:[
-      { type:'bad',  title:'SV인베스트먼트, 신주인수권 행사 물량 출회 임박… 주가 압박', media:'뉴스핌', time:'1시간 전' },
-      { type:'bad',  title:'최대주주 지분 추가 감소 포착… 연속 매도 패턴 우려', media:'서울경제', time:'3시간 전' },
-      { type:'good', title:'SV인베스트먼트, AI 데이터 분석 플랫폼 베타 서비스 개시', media:'디지털타임스', time:'1일 전' },
-      { type:'bad',  title:'SV인베스트먼트 CB 추가 발행설… 자금난 심화 신호', media:'머니투데이', time:'2일 전' },
-    ]
-  }
+  '005930': { name:'삼성전자', s1:5, s2:0, s3:10, price:{ cur:'73,400', chg:'+1,200', pct:'+1.66%', high:'87,800', low:'49,900', vol:'18,432,000', up:true }, priceData:[68200,69100,70500,69800,71200,72000,71500,72800,73100,72400,73400,73400,73000,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400], flags:[{ lv:'low', title:'최근 1년 CB/BW <b>발행 없음</b>', tag:'안전', detail:'✅ <b>한 줄 요약:</b> 의심스러운 돈 안 빌렸어요.', source:'공시 출처: DART 발행공시 조회' },{ lv:'low', title:'불성실공시 이력 <b>없음</b>', tag:'안전', detail:'✅ <b>한 줄 요약:</b> 금감원한테 한 번도 혼난 적 없어요.', source:'공시 출처: DART 불성실공시법인 지정 이력 조회' },{ lv:'mid', title:'임원 스톡옵션 행사 후 <b>일부 매도</b> 감지', tag:'주의', detail:'🟡 <b>한 줄 요약:</b> 임원이 주식 좀 팔았는데 양이 작아요.', source:'공시 출처: DART 임원·주요주주 특정증권 등 소유상황보고서 (2025.03)' }], finance:{ profit:[{ label:'매출액 증가율', val:'+12.4%', color:'#00e676', pct:62 },{ label:'영업이익률', val:'16.8%', color:'#00e676', pct:68 },{ label:'순이익률', val:'14.2%', color:'#ffd000', pct:57 },{ label:'ROE', val:'18.3%', color:'#00e676', pct:73 }], stable:[{ label:'부채비율', val:'28.4%', color:'#00e676', pct:20 },{ label:'유동비율', val:'240%', color:'#00e676', pct:80 },{ label:'이자보상배율', val:'42.1x', color:'#00e676', pct:90 },{ label:'현금성 자산', val:'103조원', color:'#00e676', pct:85 }], strengths:['<b>압도적인 현금 보유력</b>: 103조원의 현금성 자산'], weaknesses:['<b>HBM 경쟁 지연</b>: AI 반도체 HBM 시장에서 경쟁사 대비 납품 일정 지연 우려'] }, news:[{ type:'good', title:'삼성전자, 엔비디아 HBM3E 최종 품질 테스트 통과', media:'한국경제', time:'2시간 전' },{ type:'bad', title:'中 반도체 수출규제 강화… 삼성 메모리 타격 불가피', media:'연합뉴스', time:'6시간 전' }] },
+  '101360': { name:'에코앤드림', s1:40, s2:25, s3:30, price:{ cur:'4,285', chg:'-320', pct:'-6.95%', high:'12,400', low:'3,810', vol:'9,847,000', up:false }, priceData:[12400,11800,10200,9400,8700,8100,7600,7200,6800,6400,6100,5800,5400,5100,4900,4750,4600,4500,4430,4380,4350,4320,4310,4295,4290,4285,4285,4285,4285,4285], flags:[{ lv:'high', title:'<b>CB 3회 발행</b> — 발행 대상 중 투자조합 2건 포함', tag:'고위험', detail:'🔴 <b>한 줄 요약:</b> 의심스러운 큰손들이 1년에 3번이나 돈을 꽂았어요.', source:'공시 출처: DART 주요사항보고서 (2024.02, 2024.06, 2024.10)' }], finance:{ profit:[{ label:'매출액 증가율', val:'-18.2%', color:'#ff3131', pct:18 },{ label:'영업이익률', val:'-24.1%', color:'#ff3131', pct:5 },{ label:'순이익률', val:'-31.4%', color:'#ff3131', pct:3 },{ label:'ROE', val:'-42.3%', color:'#ff3131', pct:5 }], stable:[{ label:'부채비율', val:'342%', color:'#ff3131', pct:85 },{ label:'유동비율', val:'68%', color:'#ff3131', pct:20 },{ label:'이자보상배율', val:'-3.2x', color:'#ff3131', pct:5 },{ label:'현금성 자산', val:'42억원', color:'#ff8800', pct:12 }], strengths:['<b>기존 사업 거래처 유지</b>'], weaknesses:['<b>3년 연속 영업적자</b>: 영업이익률 -24.1%'] }, news:[{ type:'bad', title:'에코앤드림, 3분기 연속 영업손실… 자금난 심화 우려', media:'파이낸셜뉴스', time:'1시간 전' }] },
+  '035720': { name:'카카오', s1:20, s2:20, s3:15, price:{ cur:'37,250', chg:'-450', pct:'-1.19%', high:'58,100', low:'32,400', vol:'3,214,000', up:false }, priceData:[55000,54200,52800,51000,49500,48200,47000,45800,44600,43500,42400,41300,40200,39500,38800,38200,37800,37500,37300,37200,37300,37250,37250,37250,37250,37250,37250,37250,37250,37250], flags:[{ lv:'mid', title:'계열사 분리 과정에서 <b>CB 2회 발행</b> 확인', tag:'주의', detail:'🟡 <b>한 줄 요약:</b> 돈은 빌렸는데, 받은 곳이 그나마 믿을 만한 곳이에요.', source:'공시 출처: DART 주요사항보고서 (2024.03, 2024.08)' }], finance:{ profit:[{ label:'매출액 증가율', val:'+8.1%', color:'#ffd000', pct:48 },{ label:'영업이익률', val:'6.2%', color:'#ffd000', pct:40 },{ label:'순이익률', val:'3.8%', color:'#ff8800', pct:28 },{ label:'ROE', val:'5.4%', color:'#ff8800', pct:32 }], stable:[{ label:'부채비율', val:'94.2%', color:'#ffd000', pct:47 },{ label:'유동비율', val:'138%', color:'#ffd000', pct:55 },{ label:'이자보상배율', val:'4.2x', color:'#ffd000', pct:48 },{ label:'현금성 자산', val:'2.1조원', color:'#00e676', pct:65 }], strengths:['<b>플랫폼 독점적 지위</b>: 카카오톡 MAU 4,700만명'], weaknesses:['<b>수익성 저하 지속</b>: 영업이익률 6.2%'] }, news:[{ type:'bad', title:'공정위, 카카오 플랫폼 독점 규제안 초안 완성', media:'한겨레', time:'30분 전' }] },
+  '236340': { name:'SV인베스트먼트', s1:38, s2:18, s3:28, price:{ cur:'2,145', chg:'+85', pct:'+4.13%', high:'6,800', low:'1,890', vol:'22,143,000', up:true }, priceData:[4200,5100,6200,6800,6100,5400,4800,4200,3700,3300,2900,2600,2400,2300,2250,2200,2180,2160,2150,2148,2145,2145,2145,2145,2145,2145,2145,2145,2145,2145], flags:[{ lv:'high', title:'최근 1년 <b>BW 4회 발행</b> — 발행 대상 전원 사모투자조합', tag:'고위험', detail:'🔴 <b>한 줄 요약:</b> 1년에 4번, 매번 정체불명의 조합에서 돈 받았어요.', source:'공시 출처: DART 주요사항보고서 (2024.01, 2024.04, 2024.07, 2024.10)' }], finance:{ profit:[{ label:'매출액 증가율', val:'+142%', color:'#ffd000', pct:52 },{ label:'영업이익률', val:'-8.4%', color:'#ff3131', pct:10 },{ label:'순이익률', val:'-12.1%', color:'#ff3131', pct:8 },{ label:'ROE', val:'-18.7%', color:'#ff3131', pct:6 }], stable:[{ label:'부채비율', val:'218%', color:'#ff3131', pct:68 },{ label:'유동비율', val:'82%', color:'#ff3131', pct:25 },{ label:'이자보상배율', val:'-1.8x', color:'#ff3131', pct:5 },{ label:'현금성 자산', val:'28억원', color:'#ff3131', pct:8 }], strengths:['<b>외형 성장</b>: 매출액 142% 증가'], weaknesses:['<b>적자 구조 고착</b>: 매출 급증에도 영업적자 지속'] }, news:[{ type:'bad', title:'SV인베스트먼트, 신주인수권 행사 물량 출회 임박', media:'뉴스핌', time:'1시간 전' }] }
 };
 
-const C  = {high:'#ff3131', mid:'#ff8800', low:'#00e676'};
-const BG = {high:'rgba(255,49,49,0.1)', mid:'rgba(255,136,0,0.1)', low:'rgba(0,230,118,0.07)'};
-let priceChartInst = null;
+const C={high:'#ff3131',mid:'#ff8800',low:'#00e676'};
+const BG={high:'rgba(255,49,49,0.1)',mid:'rgba(255,136,0,0.1)',low:'rgba(0,230,118,0.07)'};
+let priceChartInst=null;
 
-function scoreColor(n){ return n>=70?'#ff3131':n>=50?'#ff8800':n>=20?'#ffd000':'#00e676'; }
-function verdictText(n){ return n>=70?'⚠ 설거지 고위험':n>=50?'! 주의 요망':n>=20?'~ 경계 구간':'✓ 비교적 안전'; }
+function scoreColor(n){return n>=70?'#ff3131':n>=50?'#ff8800':n>=20?'#ffd000':'#00e676';}
+function verdictText(n){return n>=70?'⚠ 설거지 고위험':n>=50?'! 주의 요망':n>=20?'~ 경계 구간':'✓ 비교적 안전';}
 
 function showOnly(id){
-  ['search-screen','loading-screen','result-screen'].forEach(s=>{ document.getElementById(s).style.display='none'; });
+  ['search-screen','loading-screen','result-screen'].forEach(s=>{document.getElementById(s).style.display='none';});
   const el=document.getElementById(id);
-  el.style.display=(id==='loading-screen')?'flex':(id==='result-screen')?'flex':'flex';
-  if(id==='result-screen'||id==='search-screen'){ el.style.flexDirection='column'; el.style.alignItems='center'; }
+  el.style.display=(id==='loading-screen')?'flex':'flex';
+  if(id==='result-screen'||id==='search-screen'){el.style.flexDirection='column';el.style.alignItems='center';}
   window.scrollTo(0,0);
 }
 
 function goBack(){
-  // 체류시간 계산 후 로그 전송
-  if (window._sessionStart && window._logData) {
-    const session_time = Math.round((Date.now() - window._sessionStart) / 1000);
-    fetch('https://sgjisu-production.up.railway.app/log', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ ...window._logData, session_time })
-    }).catch(()=>{});
-    window._sessionStart = null;
-    window._logData = null;
+  if(window._sessionStart&&window._logData){
+    const session_time=Math.round((Date.now()-window._sessionStart)/1000);
+    fetch('https://sgjisu-production.up.railway.app/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...window._logData,session_time})}).catch(()=>{});
+    window._sessionStart=null;window._logData=null;
   }
   showOnly('search-screen');
   document.getElementById('main-input').value='';
 }
 
-function quick(name,code){ document.getElementById('main-input').value=name; startAnalysis(name,code); }
-
-function doSearch(){
-  const v=document.getElementById('main-input').value.trim();
-  const found=Object.entries(DATA).find(([c,d])=>c===v||d.name.includes(v));
-  if(found) startAnalysis(found[1].name,found[0]);
-  else{ const inp=document.getElementById('main-input'); inp.style.borderColor='rgba(255,49,49,0.5)'; setTimeout(()=>inp.style.borderColor='',1500); }
-}
-
-function startAnalysis(name,code){
-  showOnly('loading-screen');
-  document.getElementById('load-name').textContent=name+' · '+code;
-  ['s1','s2','s3','s4','s5'].forEach(s=>document.getElementById(s).className='step');
-  let i=0; const ids=['s1','s2','s3','s4','s5'];
-  function tick(){
-    if(i>0) document.getElementById(ids[i-1]).className='step done';
-    if(i<ids.length){ document.getElementById(ids[i]).className='step active'; i++; setTimeout(tick,380+Math.random()*220); }
-    else { setTimeout(()=>renderResult(code),400); }
-  }
-  tick();
-}
-
 function switchTab(name){
-  document.querySelectorAll('.tab').forEach((t,i)=>{ t.classList.toggle('active', ['flags','price','finance'][i]===name); });
+  document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.toggle('active',['flags','price','finance'][i]===name);});
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
 }
@@ -1478,12 +1226,26 @@ function toggleFlag(el){
   arrow.classList.toggle('open',!isOpen);
 }
 
+function animateScore(target,col){
+  const arc=document.getElementById('gauge-arc');
+  const num=document.getElementById('r-score');
+  arc.style.stroke=col;
+  if(target===0){arc.setAttribute('stroke-dasharray','0 302');num.textContent='0';return;}
+  const total=302,start=performance.now(),dur=1000;
+  function frame(now){
+    const p=Math.min((now-start)/dur,1),e=1-Math.pow(1-p,3);
+    arc.setAttribute('stroke-dasharray',(e*target/100*total)+' '+total);
+    num.textContent=Math.round(target*e);
+    if(p<1)requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
 function renderResult(code){
   const d=DATA[code];
   const total=Math.min(100,d.s1+d.s2+d.s3);
   const col=scoreColor(total);
   const today=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'});
-
   document.getElementById('r-code').textContent=code;
   document.getElementById('r-name').textContent=d.name;
   document.getElementById('r-price').textContent=d.price.cur+'원';
@@ -1492,11 +1254,9 @@ function renderResult(code){
   document.getElementById('r-date').textContent=today+' 장중 기준';
   document.getElementById('r-score').style.color=col;
   document.getElementById('r-score').textContent='0';
-
   const vEl=document.getElementById('r-verdict');
   vEl.innerHTML=`<div class="vdot"></div>${verdictText(total)}`;
   vEl.style.cssText=`display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:1px;margin-top:8px;color:${col};background:${col}22;border:1px solid ${col}44;`;
-
   document.getElementById('pt1').textContent=d.s1+'pt';
   document.getElementById('pt2').textContent=d.s2+'pt';
   document.getElementById('pt3').textContent=d.s3+'pt';
@@ -1504,9 +1264,7 @@ function renderResult(code){
   document.getElementById('cd2').textContent=d.s2>=20?'불성실공시 이력 확인':'공시 신뢰도 양호';
   document.getElementById('cd3').textContent=d.s3>=30?'대주주 매도 패턴 확인':'내부자 매도 미미';
   ['b1','b2','b3'].forEach(b=>document.getElementById(b).style.width='0%');
-
-  // 레드플래그 (접었다 펼치기)
-  document.getElementById('r-flags').innerHTML=d.flags.map((f,i)=>`
+  document.getElementById('r-flags').innerHTML=d.flags.map(f=>`
     <div class="flag-card">
       <div class="flag-card-header" onclick="toggleFlag(this)">
         <div class="fdot" style="background:${C[f.lv]}"></div>
@@ -1520,68 +1278,20 @@ function renderResult(code){
         <div class="flag-source">${f.source}</div>
       </div>
     </div>`).join('');
-
-  // 주가
   document.getElementById('p-cur').textContent=d.price.cur+'원';
   document.getElementById('p-high').textContent=d.price.high+'원';
   document.getElementById('p-low').textContent=d.price.low+'원';
   document.getElementById('p-vol').textContent=Number(d.price.vol.replace(/,/g,'')).toLocaleString()+'주';
-
-  if(priceChartInst) priceChartInst.destroy();
-  const labels=Array.from({length:30},(_,i)=>{ const dt=new Date(); dt.setDate(dt.getDate()-29+i); return `${dt.getMonth()+1}/${dt.getDate()}`; });
-  priceChartInst=new Chart(document.getElementById('priceChart'),{
-    type:'line',
-    data:{ labels, datasets:[{ data:d.priceData, borderColor:'#ff3131', borderWidth:1.5, pointRadius:0, fill:true, backgroundColor:'rgba(255,49,49,0.05)', tension:0.3 }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} }, scales:{
-      x:{ ticks:{color:'#333',font:{size:10},maxTicksLimit:8}, grid:{color:'rgba(255,255,255,0.03)'} },
-      y:{ ticks:{color:'#333',font:{size:10},callback:v=>v.toLocaleString()+'원'}, grid:{color:'rgba(255,255,255,0.03)'} }
-    }}
-  });
-
-  // 재무
-  document.getElementById('fin-profit').innerHTML=d.finance.profit.map(r=>`
-    <div class="fin-row"><span class="fin-label">${r.label}</span><span class="fin-val" style="color:${r.color}">${r.val}</span></div>
-    <div class="fin-bar-wrap"><div class="fin-bar" style="width:${r.pct}%;background:${r.color}"></div></div>`).join('');
-  document.getElementById('fin-stable').innerHTML=d.finance.stable.map(r=>`
-    <div class="fin-row"><span class="fin-label">${r.label}</span><span class="fin-val" style="color:${r.color}">${r.val}</span></div>
-    <div class="fin-bar-wrap"><div class="fin-bar" style="width:${r.pct}%;background:${r.color}"></div></div>`).join('');
-  document.getElementById('fin-strengths').innerHTML=d.finance.strengths.map(s=>`
-    <div class="eval-item"><div class="eval-dot" style="background:#00e676"></div><div class="eval-text">${s}</div></div>`).join('');
-  document.getElementById('fin-weaknesses').innerHTML=d.finance.weaknesses.map(s=>`
-    <div class="eval-item"><div class="eval-dot" style="background:#ff3131"></div><div class="eval-text">${s}</div></div>`).join('');
-
-  // 뉴스 카드
-  document.getElementById('news-cards').innerHTML = d.news.map(n => `
-    <div style="
-      background:#141414;
-      border:1.5px solid ${n.type==='good' ? 'rgba(0,230,118,0.35)' : 'rgba(255,49,49,0.35)'};
-      border-radius:4px;
-      padding:14px;
-      position:relative;
-      overflow:hidden;
-    ">
-      <div style="
-        position:absolute; top:0; left:0; right:0; height:2px;
-        background:${n.type==='good' ? '#00e676' : '#ff3131'};
-      "></div>
-      <div style="
-        display:inline-flex; align-items:center; gap:4px;
-        font-size:10px; font-weight:700; letter-spacing:0.5px;
-        color:${n.type==='good' ? '#00e676' : '#ff3131'};
-        background:${n.type==='good' ? 'rgba(0,230,118,0.08)' : 'rgba(255,49,49,0.08)'};
-        padding:2px 8px; border-radius:2px; margin-bottom:8px;
-      ">${n.type==='good' ? '▲ 호재' : '▼ 악재'}</div>
-      <div style="font-size:13px; font-weight:500; line-height:1.5; color:#efefef; margin-bottom:10px;">${n.title}</div>
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:10px; color:#333;">${n.media}</span>
-        <span style="font-size:10px; color:#2a2a2a;">${n.time}</span>
-      </div>
-    </div>`).join('');
-
-  // 탭 초기화
+  if(priceChartInst)priceChartInst.destroy();
+  const labels=Array.from({length:30},(_,i)=>{const dt=new Date();dt.setDate(dt.getDate()-29+i);return `${dt.getMonth()+1}/${dt.getDate()}`;});
+  priceChartInst=new Chart(document.getElementById('priceChart'),{type:'line',data:{labels,datasets:[{data:d.priceData,borderColor:'#ff3131',borderWidth:1.5,pointRadius:0,fill:true,backgroundColor:'rgba(255,49,49,0.05)',tension:0.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#333',font:{size:10},maxTicksLimit:8},grid:{color:'rgba(255,255,255,0.03)'}},y:{ticks:{color:'#333',font:{size:10},callback:v=>v.toLocaleString()+'원'},grid:{color:'rgba(255,255,255,0.03)'}}}}});
+  document.getElementById('fin-profit').innerHTML=d.finance.profit.map(r=>`<div class="fin-row"><span class="fin-label">${r.label}</span><span class="fin-val" style="color:${r.color}">${r.val}</span></div><div class="fin-bar-wrap"><div class="fin-bar" style="width:${r.pct}%;background:${r.color}"></div></div>`).join('');
+  document.getElementById('fin-stable').innerHTML=d.finance.stable.map(r=>`<div class="fin-row"><span class="fin-label">${r.label}</span><span class="fin-val" style="color:${r.color}">${r.val}</span></div><div class="fin-bar-wrap"><div class="fin-bar" style="width:${r.pct}%;background:${r.color}"></div></div>`).join('');
+  document.getElementById('fin-strengths').innerHTML=d.finance.strengths.map(s=>`<div class="eval-item"><div class="eval-dot" style="background:#00e676"></div><div class="eval-text">${s}</div></div>`).join('');
+  document.getElementById('fin-weaknesses').innerHTML=d.finance.weaknesses.map(s=>`<div class="eval-item"><div class="eval-dot" style="background:#ff3131"></div><div class="eval-text">${s}</div></div>`).join('');
+  document.getElementById('news-cards').innerHTML=d.news.map(n=>`<div style="background:#141414;border:1.5px solid ${n.type==='good'?'rgba(0,230,118,0.35)':'rgba(255,49,49,0.35)'};border-radius:4px;padding:14px;position:relative;overflow:hidden;"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:${n.type==='good'?'#00e676':'#ff3131'};"></div><div style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:${n.type==='good'?'#00e676':'#ff3131'};background:${n.type==='good'?'rgba(0,230,118,0.08)':'rgba(255,49,49,0.08)'};padding:2px 8px;border-radius:2px;margin-bottom:8px;">${n.type==='good'?'▲ 호재':'▼ 악재'}</div><div style="font-size:13px;font-weight:500;line-height:1.5;color:#efefef;margin-bottom:10px;">${n.title}</div><div style="display:flex;justify-content:space-between;"><span style="font-size:10px;color:#333;">${n.media}</span><span style="font-size:10px;color:#2a2a2a;">${n.time}</span></div></div>`).join('');
   switchTab('flags');
   showOnly('result-screen');
-
   setTimeout(()=>{
     animateScore(total,col);
     document.getElementById('b1').style.width=Math.round(d.s1/40*100)+'%';
@@ -1590,322 +1300,178 @@ function renderResult(code){
   },80);
 }
 
-function animateScore(target, col) {
-  const arc = document.getElementById('gauge-arc');
-  const num = document.getElementById('r-score');
-  arc.style.stroke = col;
-  
-  // ✅ target이 0이면 그냥 바로 표시
-  if (target === 0) {
-    arc.setAttribute('stroke-dasharray', '0 302');
-    num.textContent = '0';
-    return;
-  }
-  
-  const total = 302, start = performance.now(), dur = 1000;
-  function frame(now) {
-    const p = Math.min((now - start) / dur, 1), e = 1 - Math.pow(1 - p, 3);
-    arc.setAttribute('stroke-dasharray', (e * target / 100 * total) + ' ' + total);
-    num.textContent = Math.round(target * e);
-    if (p < 1) requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-}
-
-document.getElementById('main-input').addEventListener('keydown',e=>{ if(e.key==='Enter') doSearch(); });
-
-// ── 실제 서버 연결 함수 ──
-// 서버가 켜져 있으면 진짜 데이터, 꺼져 있으면 가짜 데이터로 자동 전환
-function showSearchError(msg) {
-  const inp = document.getElementById('main-input');
-  inp.style.borderColor = 'rgba(255,49,49,0.6)';
-  inp.style.background = 'rgba(255,49,49,0.05)';
-  let errEl = document.getElementById('search-error');
-  if (!errEl) {
-    errEl = document.createElement('div');
-    errEl.id = 'search-error';
-    errEl.style.cssText = 'font-size:13px;color:#ff6060;margin-top:10px;text-align:center;line-height:1.8;max-width:460px;';
-    inp.closest('.search-main').appendChild(errEl);
-  }
-  errEl.innerHTML = msg;
-  setTimeout(() => {
-    inp.style.borderColor = '';
-    inp.style.background = '';
-    errEl.innerHTML = '';
-  }, 5000);
-}
-
-async function fetchRealData(name, code) {
-  try {
-    const res = await fetch(
-      `https://sgjisu-production.up.railway.app/analyze?name=${encodeURIComponent(name)}`,
-      { signal: AbortSignal.timeout(30000) }
-    );
-    const data = await res.json();
-    // ✅ error 키가 있을 때만 null 반환
-    if (data && typeof data.error === 'string') return null;
-    return data;
-  } catch(e) {
-    return null;
-  }
-}
-
-// 기존 startAnalysis 함수에 실제 데이터 연결
-const _origStart = startAnalysis;
-async function startAnalysisReal(name, code) {
+function startAnalysis(name,code){
   showOnly('loading-screen');
-  document.getElementById('load-name').textContent = name + (code ? ' · ' + code : '');
-  ['s1','s2','s3','s4','s5'].forEach(s => document.getElementById(s).className = 'step');
+  document.getElementById('load-name').textContent=name+' · '+code;
+  ['s1','s2','s3','s4','s5'].forEach(s=>document.getElementById(s).className='step');
+  let i=0;const ids=['s1','s2','s3','s4','s5'];
+  function tick(){
+    if(i>0)document.getElementById(ids[i-1]).className='step done';
+    if(i<ids.length){document.getElementById(ids[i]).className='step active';i++;setTimeout(tick,380+Math.random()*220);}
+    else{setTimeout(()=>renderResult(code),400);}
+  }
+  tick();
+}
 
-  const ids = ['s1','s2','s3','s4','s5'];
-  let i = 0;
-  const ticker = setInterval(() => {
-    if (i > 0) document.getElementById(ids[i-1]).className = 'step done';
-    if (i < ids.length) { document.getElementById(ids[i]).className = 'step active'; i++; }
-  }, 400);
+function showSearchError(msg){
+  const inp=document.getElementById('main-input');
+  inp.style.borderColor='rgba(255,49,49,0.6)';
+  inp.style.background='rgba(255,49,49,0.05)';
+  let errEl=document.getElementById('search-error');
+  if(!errEl){errEl=document.createElement('div');errEl.id='search-error';errEl.style.cssText='font-size:13px;color:#ff6060;margin-top:10px;text-align:center;line-height:1.8;max-width:460px;';inp.closest('.search-main').appendChild(errEl);}
+  errEl.innerHTML=msg;
+  setTimeout(()=>{inp.style.borderColor='';inp.style.background='';errEl.innerHTML='';},5000);
+}
 
-  const real = await fetchRealData(name, code);
+async function fetchRealData(name,code){
+  try{
+    const res=await fetch(`https://sgjisu-production.up.railway.app/analyze?name=${encodeURIComponent(name)}`,{signal:AbortSignal.timeout(30000)});
+    const data=await res.json();
+    if(data&&typeof data.error==='string')return null;
+    return data;
+  }catch(e){return null;}
+}
+
+async function startAnalysisReal(name,code){
+  showOnly('loading-screen');
+  document.getElementById('load-name').textContent=name+(code?' · '+code:'');
+  ['s1','s2','s3','s4','s5'].forEach(s=>document.getElementById(s).className='step');
+  const ids=['s1','s2','s3','s4','s5'];
+  let i=0;
+  const ticker=setInterval(()=>{
+    if(i>0)document.getElementById(ids[i-1]).className='step done';
+    if(i<ids.length){document.getElementById(ids[i]).className='step active';i++;}
+  },400);
+
+  // 프로그레스바
+  let pct=0;
+  const fill=document.getElementById('progress-fill');
+  const pctEl=document.getElementById('progress-pct');
+  fill.style.width='0%';pctEl.textContent='0%';
+  const progTimer=setInterval(()=>{
+    if(pct<95){pct+=(95-pct)*0.04;fill.style.width=pct.toFixed(1)+'%';pctEl.textContent=Math.floor(pct)+'%';}
+  },100);
+
+  const real=await fetchRealData(name,code);
 
   clearInterval(ticker);
-  ids.forEach(s => document.getElementById(s).className = 'step done');
+  clearInterval(progTimer);
+  fill.style.width='100%';pctEl.textContent='100%';
+  await new Promise(r=>setTimeout(r,300));
+  ids.forEach(s=>document.getElementById(s).className='step done');
 
-  if (real === null || real === undefined) {
+  if(real===null||real===undefined){
+    showOnly('search-screen');
+    showSearchError(`❌ <b>"${name}"</b> 을 찾을 수 없어요.<br>종목명을 정확히 입력하거나 종목코드(예: 005930)로 검색해보세요.`);
+    return;
+  }
+  if(real.error){
     showOnly('search-screen');
     showSearchError(`❌ <b>"${name}"</b> 을 찾을 수 없어요.<br>종목명을 정확히 입력하거나 종목코드(예: 005930)로 검색해보세요.`);
     return;
   }
 
-  if (real.error) {
-    showOnly('search-screen');
-    showSearchError(`❌ <b>"${name}"</b> 을 찾을 수 없어요.<br>종목명을 정확히 입력하거나 종목코드(예: 005930)로 검색해보세요.`);
-    return;
+  const today=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'});
+  document.getElementById('r-code').textContent=real.stock_code||real.corp_code||'—';
+  document.getElementById('r-name').textContent=real.종목||name;
+
+  try{
+    const priceRes=await fetch(`https://sgjisu-production.up.railway.app/price?stock_code=${real.stock_code}`);
+    const price=await priceRes.json();
+    if(price&&!price.error&&price['현재가']!=null){
+      const 상승=price['등락']>=0;
+      const 색=상승?'#00e676':'#ff3131';
+      const 부호=상승?'+':'';
+      document.getElementById('r-price').textContent=price['현재가'].toLocaleString()+'원';
+      document.getElementById('r-price').style.color=색;
+      document.getElementById('r-change').innerHTML=`<span style="color:${색}">${부호}${price['등락'].toLocaleString()}원 (${부호}${price['등락률']}%)</span>`;
+      document.getElementById('r-date').textContent=price['날짜']+' 기준';
+    }else{
+      document.getElementById('r-price').textContent='조회 불가';
+      document.getElementById('r-price').style.color='#555';
+      document.getElementById('r-date').textContent=today+' 기준';
+    }
+  }catch(e){
+    document.getElementById('r-price').textContent='조회 불가';
+    document.getElementById('r-price').style.color='#555';
+    document.getElementById('r-date').textContent=today+' 기준';
   }
-  const today = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'});
 
-  document.getElementById('r-code').textContent = real.stock_code || real.corp_code || '—';
-  document.getElementById('r-name').textContent = real.종목 || name;
+  const realS1=real.s1??0,realS2=real.s2??0,realS3=real.s3??0,realS4=real.s4??0,realS5=real.s5??0,realS6=real.s6??0,realS7=real.s7??0;
+  const realTotal=real.score??Math.min(120,realS1+realS2+realS3+realS4+realS5+realS6+realS7);
+  const realCol=scoreColor(realTotal);
+  const vEl=document.getElementById('r-verdict');
+  vEl.innerHTML=`<div class="vdot"></div>${verdictText(realTotal)}`;
+  vEl.style.cssText=`display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:1px;margin-top:8px;color:${realCol};background:${realCol}22;border:1px solid ${realCol}44;`;
+  document.getElementById('r-score').style.color=realCol;
+  document.getElementById('pt1').textContent=realS1+'pt';
+  document.getElementById('pt2').textContent=realS2+'pt';
+  document.getElementById('pt3').textContent=realS3+'pt';
+  document.getElementById('pt4').textContent=realS4+'pt';
+  document.getElementById('cd1').textContent=real.cb_count>0?`CB/BW ${real.cb_count}회 발행 감지`:'발행 이력 없음';
+  document.getElementById('cd2').textContent=realS2>=20?'불성실공시 이력 확인':'공시 신뢰도 양호';
+  document.getElementById('cd3').textContent=realS3>=30?'대주주 매도 감지':'내부자 매도 미미';
+  const 재무위험=real.재무위험항목||[];
+  const 재무상세=real.재무분석||{};
+  document.getElementById('cd4').textContent=재무위험.length>0?재무위험.slice(0,2).map(v=>v.split('(')[0].trim()).join(' · '):'재무상태 양호';
+  ['b1','b2','b3','b4'].forEach(b=>document.getElementById(b).style.width='0%');
 
-  // 주가 실시간 조회
-  try {
-  const priceRes = await fetch(`https://sgjisu-production.up.railway.app/price?stock_code=${real.stock_code}`);
-  const price = await priceRes.json();
-  if (price && !price.error && price['현재가'] != null) {
-    const 상승 = price['등락'] >= 0;
-    const 색 = 상승 ? '#00e676' : '#ff3131';
-    const 부호 = 상승 ? '+' : '';
-    document.getElementById('r-price').textContent = price['현재가'].toLocaleString() + '원';
-    document.getElementById('r-price').style.color = 색;
-    document.getElementById('r-change').innerHTML = `<span style="color:${색}">${부호}${price['등락'].toLocaleString()}원 (${부호}${price['등락률']}%)</span>`;
-    document.getElementById('r-date').textContent = price['날짜'] + ' 기준';
-  } else {
-    document.getElementById('r-price').textContent = '조회 불가';
-    document.getElementById('r-price').style.color = '#555';
-    document.getElementById('r-date').textContent = today + ' 기준';
+  const flags=[];
+  if(real.cb_list&&real.cb_list.length>0){real.cb_list.forEach(t=>flags.push({lv:'high',title:`<b>${t}</b>`,tag:'고위험',detail:`🔴 <b>한 줄 요약:</b> DART 공시에서 실제 확인된 CB/BW 발행이에요.`,source:'공시 출처: DART 실시간 조회'}));}
+  else{flags.push({lv:'low',title:'최근 1년 CB/BW <b>발행 없음</b>',tag:'안전',detail:'✅ <b>한 줄 요약:</b> 의심스러운 자금 조달 이력이 없어요.',source:'공시 출처: DART 실시간 조회'});}
+  if(realS2>0){flags.push({lv:'high',title:`불성실공시법인 지정 이력 <b>${real.불성실_count}건</b> 확인`,tag:'위험',detail:`🔴 <b>한 줄 요약:</b> 금융감독원이 공식 경고한 이력이 있어요.`,source:'공시 출처: DART 실시간 조회'});}
+  else{flags.push({lv:'low',title:'불성실공시 이력 <b>없음</b>',tag:'안전',detail:'✅ <b>한 줄 요약:</b> 금감원 경고 이력 없어요.',source:'공시 출처: DART 실시간 조회'});}
+  if(realS3>0&&real.매도_list&&real.매도_list.length>0){flags.push({lv:'high',title:`최근 1개월 내 <b>대주주 매도 ${real.매도_list.length}건</b> 감지`,tag:'고위험',detail:`🔴 <b>한 줄 요약:</b> 대주주/임원이 주식을 팔고 있어요.`,source:'공시 출처: DART 실시간 조회'});}
+  else{flags.push({lv:'low',title:'최근 1개월 내부자 매도 <b>없음</b>',tag:'안전',detail:'✅ <b>한 줄 요약:</b> 최근 1개월간 장내 매도 감지 없어요.',source:'공시 출처: DART 실시간 조회'});}
+  const 급락률=real.급락률??0;
+  if(realS7>0){flags.push({lv:realS7>=35?'high':'mid',title:`⚡ 주가 <b>${Math.abs(급락률).toFixed(1)}%</b> 급락 — ${realS7>=35?'허위공시 강력 의심':'시장 신뢰 훼손 의심'}`,tag:realS7>=35?'위험':'주의',detail:`⚡ <b>한 줄 요약:</b> 공식 악재 없이 주가가 ${Math.abs(급락률).toFixed(1)}% 급락했어요.`,source:'데이터 출처: KRX 실시간 주가'});}
+  if(realS4>0&&재무위험.length>0){const 상세텍스트=Object.entries(재무상세).map(([k,v])=>`• ${k}: ${v}`).join('\n');flags.push({lv:realS4>=25?'high':'mid',title:`재무 위험 신호 <b>${재무위험.length}건</b> 감지`,tag:realS4>=25?'위험':'주의',detail:`📊 <b>감지된 위험:</b>\n${재무위험.map(v=>`🔴 ${v}`).join('\n')}\n\n<b>주요 지표:</b>\n${상세텍스트}`,source:'데이터 출처: DART 재무제표 실시간 조회'});}
+  else{flags.push({lv:'low',title:'재무제표 <b>위험 신호 없음</b>',tag:'안전',detail:`✅ <b>주요 지표:</b>\n${Object.entries(재무상세).map(([k,v])=>`• ${k}: ${v}`).join('\n')}`,source:'데이터 출처: DART 재무제표 실시간 조회'});}
+
+  document.getElementById('r-flags').innerHTML=flags.map(f=>`<div class="flag-card"><div class="flag-card-header" onclick="toggleFlag(this)"><div class="fdot" style="background:${C[f.lv]}"></div><div class="flag-title">${f.title}</div><div class="ftag" style="color:${C[f.lv]};background:${BG[f.lv]}">${f.tag}</div><div class="flag-expand">▼</div></div><div class="flag-detail"><div class="flag-detail-label">공시 내용 요약</div><div class="flag-detail-text">${f.detail.replace(/\n/g,'<br>')}</div><div class="flag-source">${f.source}</div></div></div>`).join('');
+  document.getElementById('news-cards').innerHTML=`<div style="grid-column:span 2;text-align:center;padding:24px;color:#333;font-size:12px;letter-spacing:1px;">뉴스 API 연동 후 자동 표시됩니다</div>`;
+
+  const 재무항목들=Object.entries(재무상세);
+  if(재무항목들.length>0){
+    document.getElementById('fin-profit').innerHTML=재무항목들.slice(0,4).map(([k,v])=>{const isGood=!v.includes('적자')&&!v.includes('-')&&!v.includes('위험');const color=isGood?'#00e676':'#ff3131';return `<div class="fin-row"><span class="fin-label">${k}</span><span class="fin-val" style="color:${color}">${v}</span></div>`;}).join('');
+    document.getElementById('fin-stable').innerHTML=재무항목들.slice(4).map(([k,v])=>{const isGood=!v.includes('적자')&&!v.includes('위험');const color=isGood?'#00e676':'#ff3131';return `<div class="fin-row"><span class="fin-label">${k}</span><span class="fin-val" style="color:${color}">${v}</span></div>`;}).join('');
   }
-} catch(e) {
-  console.error('price error:', e);
-  document.getElementById('r-price').textContent = '조회 불가';
-  document.getElementById('r-price').style.color = '#555';
-  document.getElementById('r-date').textContent = today + ' 기준';
-}
-  document.getElementById('r-score').style.color = '#555';
-  document.getElementById('r-score').textContent = '0';
+  document.getElementById('fin-strengths').innerHTML=(재무위험.length===0?['재무 위험 신호 없음 — 안정적인 재무 구조입니다']:[]).map(s=>`<div class="eval-item"><div class="eval-dot" style="background:#00e676"></div><div class="eval-text">${s}</div></div>`).join('')||'<div class="eval-item" style="color:#333;font-size:12px;">분석 데이터 없음</div>';
+  document.getElementById('fin-weaknesses').innerHTML=재무위험.map(s=>`<div class="eval-item"><div class="eval-dot" style="background:#ff3131"></div><div class="eval-text">${s}</div></div>`).join('')||'<div class="eval-item" style="color:#333;font-size:12px;">취약점 없음</div>';
 
-    // 실제 서버 점수로 교체 (즉사판정 포함)
-    const realS1 = real.s1 ?? 0;
-    const realS2 = real.s2 ?? 0;
-    const realS3 = real.s3 ?? 0;
-    const realS4 = real.s4 ?? 0;
-    const realS5 = real.s5 ?? 0;
-    const realS6 = real.s6 ?? 0;
-    // 서버가 계산한 최종 score 사용 (즉사판정 시 95점 포함)
-    const realTotal = real.score ?? Math.min(120, realS1 + realS2 + realS3 + realS4 + realS5 + realS6);
-    const realCol = scoreColor(realTotal);
-
-    // total, col 재정의
-    Object.assign(window, { _rt: realTotal, _rc: realCol });
-
-    const vEl = document.getElementById('r-verdict');
-    vEl.innerHTML = `<div class="vdot"></div>${verdictText(realTotal)}`;
-    vEl.style.cssText = `display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:1px;margin-top:8px;color:${realCol};background:${realCol}22;border:1px solid ${realCol}44;`;
-    document.getElementById('r-score').style.color = realCol;
-
-    document.getElementById('pt1').textContent = realS1 + 'pt';
-    document.getElementById('pt2').textContent = realS2 + 'pt';
-    document.getElementById('pt3').textContent = realS3 + 'pt';
-    document.getElementById('pt4').textContent = realS4 + 'pt';
-    document.getElementById('cd1').textContent = real.cb_count > 0 ? `CB/BW ${real.cb_count}회 발행 감지` : '발행 이력 없음';
-    document.getElementById('cd2').textContent = realS2 >= 20 ? '불성실공시 이력 확인' : '공시 신뢰도 양호';
-    document.getElementById('cd3').textContent = realS3 >= 30 ? '대주주 매도 감지' : '내부자 매도 미미';
-
-    const 재무위험 = real.재무위험항목 || [];
-    const 재무상세 = real.재무분석 || {};
-    document.getElementById('pt4').textContent = realS4 + 'pt';
-    document.getElementById('cd4').textContent = 재무위험.length > 0
-      ? 재무위험.slice(0, 2).map(v => v.split('(')[0].trim()).join(' · ')
-      : '재무상태 양호';
-
-    ['b1','b2','b3','b4'].forEach(b => document.getElementById(b).style.width = '0%');
-
-    // 레드플래그 실제 데이터로 구성
-    const flags = [];
-
-    // CB/BW
-    if (real.cb_list && real.cb_list.length > 0) {
-      real.cb_list.forEach(t => flags.push({
-        lv:'high', title:`<b>${t}</b>`, tag:'고위험',
-        detail:`🔴 <b>한 줄 요약:</b> DART 공시에서 실제 확인된 CB/BW 발행이에요.\n\n"나중에 주식으로 갚을게" 방식의 자금 조달이에요. 발행 횟수가 많고 투자조합이 대상이면 위험 신호예요.`,
-        source:'공시 출처: 금융감독원 전자공시시스템(DART) 실시간 조회'
-      }));
-    } else {
-      flags.push({ lv:'low', title:'최근 1년 CB/BW <b>발행 없음</b>', tag:'안전',
-        detail:'✅ <b>한 줄 요약:</b> 의심스러운 자금 조달 이력이 없어요. 비교적 안전한 종목이에요.',
-        source:'공시 출처: DART 실시간 조회' });
-    }
-
-    // 불성실공시
-    if (realS2 > 0) {
-      flags.push({ lv:'high', title:`불성실공시법인 지정 이력 <b>${real.불성실_count}건</b> 확인`, tag:'위험',
-        detail:`🔴 <b>한 줄 요약:</b> 금융감독원이 "이 회사 약속 안 지킨다"고 공식 경고한 이력이 있어요.\n\n공시 내용대로 실제로 이행하지 않은 전적이 있다는 뜻이에요.`,
-        source:'공시 출처: DART 불성실공시법인 지정 이력 실시간 조회' });
-    } else {
-      flags.push({ lv:'low', title:'불성실공시 이력 <b>없음</b>', tag:'안전',
-        detail:'✅ <b>한 줄 요약:</b> 금감원으로부터 불성실공시 경고를 받은 이력이 없어요.',
-        source:'공시 출처: DART 실시간 조회' });
-    }
-
-    // 내부자 매도
-    if (realS3 > 0 && real.매도_list && real.매도_list.length > 0) {
-      flags.push({ lv:'high', title:`최근 1개월 내 <b>대주주 매도 ${real.매도_list.length}건</b> 감지`, tag:'고위험',
-        detail:`🔴 <b>한 줄 요약:</b> 주가가 오르는 시점에 대주주나 임원이 주식을 팔고 있어요.\n\n내부 사정을 가장 잘 아는 사람이 파는 건 나쁜 신호예요.`,
-        source:'공시 출처: DART 지분공시 실시간 조회' });
-    } else {
-      flags.push({ lv:'low', title:'최근 1개월 내부자 매도 <b>없음</b>', tag:'안전',
-        detail:'✅ <b>한 줄 요약:</b> 최근 1개월간 대주주/임원의 장내 매도가 감지되지 않았어요.',
-        source:'공시 출처: DART 실시간 조회' });
-    }
-
-    // 주가 급락 이상 감지 카드 (s7)
-    const realS7 = real.s7 ?? 0;
-    const 급락률 = real.급락률 ?? 0;
-    if (realS7 > 0) {
-      flags.push({
-        lv: realS7 >= 35 ? 'high' : 'mid',
-        title: `⚡ 주가 <b>${Math.abs(급락률).toFixed(1)}%</b> 급락 — ${realS7 >= 35 ? '허위공시 강력 의심' : '시장 신뢰 훼손 의심'}`,
-        tag: realS7 >= 35 ? '위험' : '주의',
-        detail: `⚡ <b>한 줄 요약:</b> 공식 악재 공시 없이 주가가 ${Math.abs(급락률).toFixed(1)}% 급락했어요.\n\n이는 미공개 악재, 허위공시, 또는 내부자 선행매도의 신호일 수 있어요.\n\n주가가 먼저 떨어지고 공시가 나중에 나오는 패턴은 작전주의 전형적인 탈출 패턴이에요.`,
-        source: '데이터 출처: KRX 실시간 주가'
-      });
-    }
-
-    // 재무 레드플래그
-    if (realS4 > 0 && 재무위험.length > 0) {
-      const 상세텍스트 = Object.entries(재무상세).map(([k,v]) => `• ${k}: ${v}`).join('\n');
-      flags.push({
-        lv: realS4 >= 25 ? 'high' : 'mid',
-        title: `재무 위험 신호 <b>${재무위험.length}건</b> 감지`,
-        tag: realS4 >= 25 ? '위험' : '주의',
-        detail: `📊 <b>한 줄 요약:</b> 재무제표에서 위험 신호가 감지됐어요.\n\n<b>감지된 위험:</b>\n${재무위험.map(v=>`🔴 ${v}`).join('\n')}\n\n<b>주요 지표:</b>\n${상세텍스트}\n\n재무 상태가 나쁜 회사는 세력이 주가를 올려도 결국 본질 가치로 돌아와요.`,
-        source: '데이터 출처: DART 사업보고서 재무제표 실시간 조회'
-      });
-    } else {
-      flags.push({
-        lv: 'low',
-        title: '재무제표 <b>위험 신호 없음</b>',
-        tag: '안전',
-        detail: `✅ <b>한 줄 요약:</b> 주요 재무지표가 모두 양호해요.\n\n<b>주요 지표:</b>\n${Object.entries(재무상세).map(([k,v])=>`• ${k}: ${v}`).join('\n')}`,
-        source: '데이터 출처: DART 사업보고서 재무제표 실시간 조회'
-      });
-    }
-
-    document.getElementById('r-flags').innerHTML = flags.map(f=>`
-      <div class="flag-card">
-        <div class="flag-card-header" onclick="toggleFlag(this)">
-          <div class="fdot" style="background:${C[f.lv]}"></div>
-          <div class="flag-title">${f.title}</div>
-          <div class="ftag" style="color:${C[f.lv]};background:${BG[f.lv]}">${f.tag}</div>
-          <div class="flag-expand">▼</div>
-        </div>
-        <div class="flag-detail">
-          <div class="flag-detail-label">공시 내용 요약</div>
-          <div class="flag-detail-text">${f.detail.replace(/\n/g,'<br>')}</div>
-          <div class="flag-source">${f.source}</div>
-        </div>
-      </div>`).join('');
-
-    // 뉴스 카드 (가짜 유지)
-    // 뉴스 카드 (뉴스 API 연동 전까지 안내 문구)
-    document.getElementById('news-cards').innerHTML = `
-      <div style="grid-column:span 2;text-align:center;padding:24px;color:#333;font-size:12px;letter-spacing:1px;">
-        뉴스 API 연동 후 자동 표시됩니다
-      </div>`;
-
-    // 재무 탭 - 실제 DART 데이터로 표시
-    const 재무항목들 = Object.entries(재무상세);
-    if (재무항목들.length > 0) {
-      document.getElementById('fin-profit').innerHTML = 재무항목들.slice(0, 4).map(([k,v]) => {
-        const isGood = !v.includes('적자') && !v.includes('-') && !v.includes('위험') && !v.includes('음수');
-        const color = isGood ? '#00e676' : '#ff3131';
-        return `<div class="fin-row"><span class="fin-label">${k}</span><span class="fin-val" style="color:${color}">${v}</span></div>`;
-      }).join('');
-      document.getElementById('fin-stable').innerHTML = 재무항목들.slice(4).map(([k,v]) => {
-        const isGood = !v.includes('적자') && !v.includes('위험') && !v.includes('음수');
-        const color = isGood ? '#00e676' : '#ff3131';
-        return `<div class="fin-row"><span class="fin-label">${k}</span><span class="fin-val" style="color:${color}">${v}</span></div>`;
-      }).join('');
-    }
-    // 강점/취약점
-    const 강점 = 재무위험.length === 0 ? ['재무 위험 신호 없음 — 안정적인 재무 구조입니다'] : [];
-    const 취약점 = 재무위험;
-    document.getElementById('fin-strengths').innerHTML = 강점.map(s=>`<div class="eval-item"><div class="eval-dot" style="background:#00e676"></div><div class="eval-text">${s}</div></div>`).join('') || '<div class="eval-item" style="color:#333;font-size:12px;">분석 데이터 없음</div>';
-    document.getElementById('fin-weaknesses').innerHTML = 취약점.map(s=>`<div class="eval-item"><div class="eval-dot" style="background:#ff3131"></div><div class="eval-text">${s}</div></div>`).join('') || '<div class="eval-item" style="color:#333;font-size:12px;">취약점 없음</div>';
-
-    switchTab('flags');
-    showOnly('result-screen');
-
-    // 체류시간 측정 시작
-    window._logData = {
-      company: real.종목 || name,
-      stock_code: real.stock_code || '',
-      score: real.score || 0,
-    };
-    window._sessionStart = Date.now();
-
-    setTimeout(()=>{
-      animateScore(realTotal, realCol);
-      document.getElementById('b1').style.width = Math.round(realS1/40*100) + '%';
-      document.getElementById('b2').style.width = Math.round(realS2/30*100) + '%';
-      document.getElementById('b3').style.width = Math.round(realS3/30*100) + '%';
-      document.getElementById('b4').style.width = Math.round(realS4/30*100) + '%';
-    }, 80);
-
-    console.log('✅ 실제 DART 데이터 사용:', real);
+  switchTab('flags');
+  showOnly('result-screen');
+  window._logData={company:real.종목||name,stock_code:real.stock_code||'',score:real.score||0};
+  window._sessionStart=Date.now();
+  setTimeout(()=>{
+    animateScore(realTotal,realCol);
+    document.getElementById('b1').style.width=Math.round(realS1/40*100)+'%';
+    document.getElementById('b2').style.width=Math.round(realS2/30*100)+'%';
+    document.getElementById('b3').style.width=Math.round(realS3/30*100)+'%';
+    document.getElementById('b4').style.width=Math.round(realS4/30*100)+'%';
+  },80);
 }
 
-// doSearch, quick 함수를 실제 데이터 버전으로 덮어쓰기
 function doSearch(){
-  const v = document.getElementById('main-input').value.trim();
-  if (!v) return;
-  // 에러 메시지 초기화
-  const errEl = document.getElementById('search-error');
-  if (errEl) errEl.innerHTML = '';
-  startAnalysisReal(v, '');
+  const v=document.getElementById('main-input').value.trim();
+  if(!v)return;
+  const errEl=document.getElementById('search-error');
+  if(errEl)errEl.innerHTML='';
+  startAnalysisReal(v,'');
 }
 
-function quick(name, code){
-  document.getElementById('main-input').value = name;
-  startAnalysisReal(name, code);
+function quick(name,code){
+  document.getElementById('main-input').value=name;
+  startAnalysisReal(name,code);
 }
 
+document.getElementById('main-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
 showOnly('search-screen');
 
-// 창 닫거나 이탈 시에도 로그 전송
-window.addEventListener('beforeunload', () => {
-  if (window._sessionStart && window._logData) {
-    const session_time = Math.round((Date.now() - window._sessionStart) / 1000);
-    navigator.sendBeacon('https://sgjisu-production.up.railway.app/log',
-      JSON.stringify({ ...window._logData, session_time })
-    );
+window.addEventListener('beforeunload',()=>{
+  if(window._sessionStart&&window._logData){
+    const session_time=Math.round((Date.now()-window._sessionStart)/1000);
+    navigator.sendBeacon('https://sgjisu-production.up.railway.app/log',JSON.stringify({...window._logData,session_time}));
   }
 });
 </script>

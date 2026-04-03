@@ -820,8 +820,11 @@ def get_top_movers_debug():
     url = "https://finance.naver.com/sise/sise_rise.naver?sosok=0"
     try:
         r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
-        logs.append(f"status: {r.status_code}, len: {len(r.text)}")
-        logs.append(f"preview: {r.text[:800]}")
+        r.encoding = "euc-kr"
+        html = r.text
+        idx = html.find("code=")
+        logs.append(f"first 'code=' at: {idx}")
+        logs.append(f"around code=: {html[idx:idx+400]}")
     except Exception as e:
         logs.append(f"ERROR: {e}")
     return {"logs": logs}

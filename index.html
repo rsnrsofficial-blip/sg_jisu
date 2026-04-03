@@ -1514,7 +1514,11 @@ async function loadTopMovers(){
   try{
     const res=await fetch('https://sgjisu-production.up.railway.app/top-movers',{signal:AbortSignal.timeout(15000)});
     const data=await res.json();
-    if(data.error||!data.상승){return;}
+    if(data.error||!data.상승){
+      document.getElementById('movers-up').innerHTML='<div class="movers-loading">데이터 없음</div>';
+      document.getElementById('movers-dn').innerHTML='<div class="movers-loading">데이터 없음</div>';
+      return;
+    }
     if(data.date)document.getElementById('movers-date').textContent=data.date+' 기준';
     function renderList(items,cls){
       return items.map((s,i)=>`

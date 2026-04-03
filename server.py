@@ -782,20 +782,16 @@ def get_top_movers():
         df = df[df["등락률"] != 0]
         df_sorted = df.sort_values("등락률", ascending=False)
 
+        code_to_name = {c["stock_code"]: c["corp_name"] for c in CORP_LIST}
+
         상승 = []
         for ticker, row in df_sorted.head(10).iterrows():
-            try:
-                name = krx.get_market_ticker_name(ticker)
-            except Exception:
-                name = ticker
+            name = code_to_name.get(ticker, ticker)
             상승.append({"code": ticker, "name": name, "rate": round(float(row["등락률"]), 2), "price": int(row["종가"])})
 
         하락 = []
         for ticker, row in df_sorted.tail(10).iloc[::-1].iterrows():
-            try:
-                name = krx.get_market_ticker_name(ticker)
-            except Exception:
-                name = ticker
+            name = code_to_name.get(ticker, ticker)
             하락.append({"code": ticker, "name": name, "rate": round(float(row["등락률"]), 2), "price": int(row["종가"])})
 
         formatted_date = f"{actual_date[4:6]}/{actual_date[6:8]}"

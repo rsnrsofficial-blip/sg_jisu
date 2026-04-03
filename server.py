@@ -755,33 +755,34 @@ def get_price(stock_code: str = ""):
 _top_movers_cache = {"ts": 0, "data": None}
 _NAVER_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-    "Referer": "https://m.stock.naver.com/",
+    "Referer": "https://finance.naver.com/",
 }
 
-def _fetch_naver_movers(direction: str):
-    """direction: 'rising' or 'falling'"""
-    items = []
-    for market in ["KOSPI", "KOSDAQ"]:
-        url = f"https://m.stock.naver.com/api/stocks/{direction}?market={market}&page=1&pageSize=20"
-        try:
-            r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
-            data = r.json()
-            stocks = data.get("stocks", data) if isinstance(data, dict) else data
-            for s in stocks:
-                cd = s.get("stockCode") or s.get("itemCode") or ""
-                nm = s.get("stockName") or s.get("itemName") or cd
-                rt = s.get("fluctuationsRatio") or s.get("changeRate") or 0
-                pr = s.get("closePrice") or s.get("localTradedAt") or 0
-                try:
-                    rt = float(str(rt).replace(",", "").replace("%", ""))
-                    pr = int(str(pr).replace(",", ""))
-                except Exception:
-                    pass
-                if cd:
-                    items.append({"code": cd, "name": nm, "rate": round(rt, 2), "price": pr})
-        except Exception as e:
-            print(f"naver movers {direction}/{market} 오류: {e}")
-    return items
+def _parse_naver_sise(sosok: str, direction: str):
+    """sosok: '0'=KOSPI, '1'=KOSDAQ / direction: 'rise' or 'fall'"""
+    url = f"https://finance.naver.com/sise/sise_{direction}.naver?sosok={sosok}"
+    try:
+        r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
+        r.encoding = "euc-kr"
+        html = r.text
+        # 종목코드: /item/main.naver?code=XXXXXX, 종목명, 등락률
+        rows = re.findall(
+            r'code=([A-Z0-9]{6})[^"]*"[^>]*>([^<]+)</a>.*?'
+            r'class="rate_up[^"]*"[^>]*>\+?([\d.]+)%',
+            html, re.DOTALL
+        )
+        items = []
+        for code, name, rate in rows[:10]:
+            name = name.strip()
+            try:
+                rate_f = float(rate) if direction == "rise" else -float(rate)
+            except Exception:
+                rate_f = 0.0
+            items.append({"code": code, "name": name, "rate": rate_f, "price": 0})
+        return items
+    except Exception as e:
+        print(f"naver sise {direction}/{sosok} 오류: {e}")
+        return []
 
 @app.get("/top-movers")
 def get_top_movers():
@@ -790,10 +791,16 @@ def get_top_movers():
     if now - _top_movers_cache["ts"] < 300 and _top_movers_cache["data"]:
         return _top_movers_cache["data"]
     try:
-        상승_raw = _fetch_naver_movers("rising")
-        하락_raw = _fetch_naver_movers("falling")
+        kospi_up   = _parse_naver_sise("0", "rise")
+        kosdaq_up  = _parse_naver_sise("1", "rise")
+        kospi_dn   = _parse_naver_sise("0", "fall")
+        kosdaq_dn  = _parse_naver_sise("1", "fall")
+
+        상승_raw = kospi_up + kosdaq_up
+        하락_raw = kospi_dn + kosdaq_dn
         상승_raw.sort(key=lambda x: x["rate"], reverse=True)
         하락_raw.sort(key=lambda x: x["rate"])
+
         상승 = 상승_raw[:10]
         하락 = 하락_raw[:10]
         if not 상승 and not 하락:
@@ -810,11 +817,11 @@ def get_top_movers():
 @app.get("/top-movers-debug")
 def get_top_movers_debug():
     logs = []
-    url = "https://m.stock.naver.com/api/stocks/rising?market=KOSPI&page=1&pageSize=3"
+    url = "https://finance.naver.com/sise/sise_rise.naver?sosok=0"
     try:
         r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
-        logs.append(f"status: {r.status_code}")
-        logs.append(f"raw: {r.text[:500]}")
+        logs.append(f"status: {r.status_code}, len: {len(r.text)}")
+        logs.append(f"preview: {r.text[:800]}")
     except Exception as e:
         logs.append(f"ERROR: {e}")
     return {"logs": logs}

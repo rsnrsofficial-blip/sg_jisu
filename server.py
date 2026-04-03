@@ -654,11 +654,20 @@ def health():
 
 
 @app.get("/analyze")
-async def analyze(name: str = "", request: Request = None):
+async def analyze(name: str = "", code: str = "", request: Request = None):
     if not CORP_LIST_READY:
         return {"error": "서버 준비 중이에요. 잠시 후 다시 시도해주세요 (약 30초)"}
 
-    corp_code, corp_name, stock_code = search_corp(name)
+    # 종목코드가 주어지면 코드로 직접 매칭 (동명이인 방지)
+    if code:
+        matched = next((c for c in CORP_LIST if c["stock_code"] == code), None)
+        if matched:
+            corp_code, corp_name, stock_code = matched["corp_code"], matched["corp_name"], matched["stock_code"]
+        else:
+            corp_code, corp_name, stock_code = search_corp(name)
+    else:
+        corp_code, corp_name, stock_code = search_corp(name)
+
     if not corp_code:
         return {"error": f"'{name}' 을 찾을 수 없어요. 종목명을 정확히 입력하거나 종목코드(예: 005930)로 검색해보세요."}
 

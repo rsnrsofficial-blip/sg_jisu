@@ -1109,7 +1109,17 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
       </div>
     </div>
   </div>
-  <div class="ad-slot"><div class="ad-label">advertisement</div><div class="ad-box">광고 영역 (728×90)</div></div>
+  <div class="ad-slot">
+  <div class="ad-label">ADVERTISEMENT</div>
+  <div class="ad-box pc-ad">
+    <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-WJFMOwQyhWvfEfP8" data-ad-width="728" data-ad-height="90"></ins>
+    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+  </div>
+  <div class="ad-box mobile-ad">
+    <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-aB8kUXx9LEx9BCNV" data-ad-width="320" data-ad-height="50"></ins>
+    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+  </div>
+</div>
   <div class="footer-legal">
     <div class="legal-box"><div class="legal-title">법적 고지 및 면책 조항</div><div class="legal-text">본 서비스는 <b>금융투자상품에 대한 투자를 권유하지 않으며</b>, 제공되는 모든 정보는 투자 참고 목적으로만 활용되어야 합니다. 설거지 지수는 금융감독원 전자공시시스템(DART)의 공개 공시 데이터를 기반으로 알고리즘이 산출한 참고값으로, <b>투자 결과에 대한 법적 책임을 지지 않습니다.</b> 모든 투자 판단과 그에 따른 손익은 투자자 본인에게 귀속됩니다.</div></div>
     <div class="dart-credit">데이터 출처: 금융감독원 전자공시시스템(DART) · dart.fss.or.kr</div>
@@ -1144,7 +1154,17 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
 <!-- 결과 화면 -->
 <div id="result-screen">
   <div class="disclaimer-bar" style="width:100%"><b>투자 위험 고지</b> · 본 서비스는 공시 데이터 기반 참고 정보이며, 특정 종목에 대한 투자를 권유하지 않습니다. 모든 투자 판단과 손익 책임은 투자자 본인에게 있습니다.</div>
-  <div class="ad-slot"><div class="ad-label">advertisement</div><div class="ad-box">광고 영역 (728×90)</div></div>
+  <div class="ad-slot">
+  <div class="ad-label">ADVERTISEMENT</div>
+  <div class="ad-box pc-ad">
+    <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-WJFMOwQyhWvfEfP8" data-ad-width="728" data-ad-height="90"></ins>
+    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+  </div>
+  <div class="ad-box mobile-ad">
+    <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-aB8kUXx9LEx9BCNV" data-ad-width="320" data-ad-height="50"></ins>
+    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+  </div>
+</div>
   <div class="result-inner">
     <div class="back-btn" onclick="goBack()">← 다시 검색</div>
     <div class="result-header">
@@ -1261,7 +1281,17 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
     <div class="warning-grid" id="warning-grid"></div>
   </div>
 
-  <div class="ad-slot"><div class="ad-label">advertisement</div><div class="ad-box">광고 영역 (728×90)</div></div>
+  <div class="ad-slot">
+  <div class="ad-label">ADVERTISEMENT</div>
+  <div class="ad-box pc-ad">
+    <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-WJFMOwQyhWvfEfP8" data-ad-width="728" data-ad-height="90"></ins>
+    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+  </div>
+  <div class="ad-box mobile-ad">
+    <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-aB8kUXx9LEx9BCNV" data-ad-width="320" data-ad-height="50"></ins>
+    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+  </div>
+</div>
   <div class="footer-legal">
     <div class="legal-box"><div class="legal-title">법적 고지 및 면책 조항</div><div class="legal-text">본 서비스는 <b>금융투자상품에 대한 투자를 권유하지 않으며</b>, 제공되는 모든 정보는 투자 참고 목적으로만 활용되어야 합니다. 설거지 지수는 금융감독원 전자공시시스템(DART)의 공개 공시 데이터를 기반으로 알고리즘이 산출한 참고값이며, <b>투자 결과에 대한 법적 책임을 지지 않습니다.</b></div></div>
     <div class="dart-credit">데이터 출처: 금융감독원 전자공시시스템(DART) · dart.fss.or.kr</div>
@@ -1415,7 +1445,8 @@ function showSearchError(msg){
 
 async function fetchRealData(name,code){
   try{
-    const res=await fetch(`https://sgjisu-production.up.railway.app/analyze?name=${encodeURIComponent(name)}`,{signal:AbortSignal.timeout(30000)});
+    const url=`https://sgjisu-production.up.railway.app/analyze?name=${encodeURIComponent(name)}${code?'&code='+encodeURIComponent(code):''}`;
+    const res=await fetch(url,{signal:AbortSignal.timeout(30000)});
     const data=await res.json();
     if(data&&typeof data.error==='string')return null;
     return data;
@@ -1442,7 +1473,7 @@ async function startAnalysisReal(name,code){
     if(pct<95){pct+=(95-pct)*0.04;fill.style.width=pct.toFixed(1)+'%';pctEl.textContent=Math.floor(pct)+'%';}
   },100);
 
-  const real=await fetchRealData(name,code);
+  const real=await fetchRealData(name, code);
 
   clearInterval(ticker);
   clearInterval(progTimer);
@@ -1577,7 +1608,10 @@ function doSearch(){
   if(!v)return;
   const errEl=document.getElementById('search-error');
   if(errEl)errEl.innerHTML='';
-  startAnalysisReal(v,'');
+  // 자동완성 항목이 있으면 첫 번째 항목의 코드 사용
+  const firstCode=_acItems.length>0?_acItems[0].code:'';
+  _acClose();
+  startAnalysisReal(v, firstCode);
 }
 
 function quick(name,code){

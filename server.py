@@ -753,6 +753,35 @@ def get_price(stock_code: str = ""):
 
 
 _top_movers_cache = {"ts": 0, "data": None}
+_NAVER_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "Referer": "https://m.stock.naver.com/",
+}
+
+def _fetch_naver_movers(direction: str):
+    """direction: 'rising' or 'falling'"""
+    items = []
+    for market in ["KOSPI", "KOSDAQ"]:
+        url = f"https://m.stock.naver.com/api/stocks/{direction}?market={market}&page=1&pageSize=20"
+        try:
+            r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
+            data = r.json()
+            stocks = data.get("stocks", data) if isinstance(data, dict) else data
+            for s in stocks:
+                cd = s.get("stockCode") or s.get("itemCode") or ""
+                nm = s.get("stockName") or s.get("itemName") or cd
+                rt = s.get("fluctuationsRatio") or s.get("changeRate") or 0
+                pr = s.get("closePrice") or s.get("localTradedAt") or 0
+                try:
+                    rt = float(str(rt).replace(",", "").replace("%", ""))
+                    pr = int(str(pr).replace(",", ""))
+                except Exception:
+                    pass
+                if cd:
+                    items.append({"code": cd, "name": nm, "rate": round(rt, 2), "price": pr})
+        except Exception as e:
+            print(f"naver movers {direction}/{market} 오류: {e}")
+    return items
 
 @app.get("/top-movers")
 def get_top_movers():
@@ -761,41 +790,16 @@ def get_top_movers():
     if now - _top_movers_cache["ts"] < 300 and _top_movers_cache["data"]:
         return _top_movers_cache["data"]
     try:
-        actual_date = None
-        df = None
-        for days_back in range(0, 5):
-            date_str = (datetime.now() - timedelta(days=days_back)).strftime("%Y%m%d")
-            try:
-                df_kospi = krx.get_market_ohlcv_by_ticker(date_str, market="KOSPI")
-                df_kosdaq = krx.get_market_ohlcv_by_ticker(date_str, market="KOSDAQ")
-                combined = pd.concat([df_kospi, df_kosdaq])
-                if not combined.empty and combined["거래량"].sum() > 0:
-                    df = combined
-                    actual_date = date_str
-                    break
-            except Exception:
-                continue
-        if df is None or df.empty:
+        상승_raw = _fetch_naver_movers("rising")
+        하락_raw = _fetch_naver_movers("falling")
+        상승_raw.sort(key=lambda x: x["rate"], reverse=True)
+        하락_raw.sort(key=lambda x: x["rate"])
+        상승 = 상승_raw[:10]
+        하락 = 하락_raw[:10]
+        if not 상승 and not 하락:
             return {"error": "데이터 없음", "상승": [], "하락": []}
-
-        df = df[df["거래량"] > 50000]
-        df = df[df["등락률"] != 0]
-        df_sorted = df.sort_values("등락률", ascending=False)
-
-        code_to_name = {c["stock_code"]: c["corp_name"] for c in CORP_LIST}
-
-        상승 = []
-        for ticker, row in df_sorted.head(10).iterrows():
-            name = code_to_name.get(ticker, ticker)
-            상승.append({"code": ticker, "name": name, "rate": round(float(row["등락률"]), 2), "price": int(row["종가"])})
-
-        하락 = []
-        for ticker, row in df_sorted.tail(10).iloc[::-1].iterrows():
-            name = code_to_name.get(ticker, ticker)
-            하락.append({"code": ticker, "name": name, "rate": round(float(row["등락률"]), 2), "price": int(row["종가"])})
-
-        formatted_date = f"{actual_date[4:6]}/{actual_date[6:8]}"
-        result = {"상승": 상승, "하락": 하락, "date": formatted_date}
+        today_str = datetime.now().strftime("%m/%d")
+        result = {"상승": 상승, "하락": 하락, "date": today_str}
         _top_movers_cache = {"ts": now, "data": result}
         return result
     except Exception as e:
@@ -806,17 +810,13 @@ def get_top_movers():
 @app.get("/top-movers-debug")
 def get_top_movers_debug():
     logs = []
-    for days_back in [1, 3, 5, 7]:
-        try:
-            end = datetime.now().strftime("%Y%m%d")
-            start = (datetime.now() - timedelta(days=days_back)).strftime("%Y%m%d")
-            df = krx.get_market_price_change_by_ticker(start, end, market="KOSPI")
-            logs.append(f"days_back={days_back} shape={df.shape} columns={list(df.columns)}")
-            if not df.empty:
-                logs.append(f"sample: {df.head(2).to_dict()}")
-                break
-        except Exception as e:
-            logs.append(f"days_back={days_back} ERROR: {e}")
+    url = "https://m.stock.naver.com/api/stocks/rising?market=KOSPI&page=1&pageSize=3"
+    try:
+        r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
+        logs.append(f"status: {r.status_code}")
+        logs.append(f"raw: {r.text[:500]}")
+    except Exception as e:
+        logs.append(f"ERROR: {e}")
     return {"logs": logs}
 
 

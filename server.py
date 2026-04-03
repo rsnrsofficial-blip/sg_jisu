@@ -72,6 +72,26 @@ _doc_cache = {}
 
 CORP_LIST = []
 CORP_LIST_READY = False
+ACTIVE_STOCK_CODES: set = set()  # 현재 거래 중인 종목코드
+
+
+def load_active_tickers():
+    global ACTIVE_STOCK_CODES
+    try:
+        for days_back in range(0, 5):
+            date = (datetime.now() - timedelta(days=days_back)).strftime("%Y%m%d")
+            try:
+                kospi = set(krx.get_market_ticker_list(date, market="KOSPI"))
+                kosdaq = set(krx.get_market_ticker_list(date, market="KOSDAQ"))
+                if kospi or kosdaq:
+                    ACTIVE_STOCK_CODES = kospi | kosdaq
+                    print(f"✅ 활성 종목 {len(ACTIVE_STOCK_CODES)}개 로드 완료 ({date})")
+                    return
+            except Exception:
+                continue
+        print("⚠️ 활성 종목 목록 로드 실패 — 전체 목록 사용")
+    except Exception as e:
+        print(f"⚠️ 활성 종목 로드 오류: {e}")
 
 
 def load_corp_list():
@@ -97,24 +117,38 @@ def load_corp_list():
 
 
 threading.Thread(target=load_corp_list, daemon=True).start()
+threading.Thread(target=load_active_tickers, daemon=True).start()
+
+
+def _is_active(stock_code: str) -> bool:
+    """활성 종목 여부 — ACTIVE_STOCK_CODES 로드 전이면 True로 fallback"""
+    if not ACTIVE_STOCK_CODES:
+        return True
+    return stock_code in ACTIVE_STOCK_CODES
 
 
 def search_corp(name):
-    exact = [c for c in CORP_LIST if c["corp_name"] == name]
-    if len(exact) == 1:
-        c = exact[0]
-        return c["corp_code"], c["corp_name"], c["stock_code"]
-    if len(exact) > 1:
-        # 거래량 있는 (실제 거래 중인) 종목 우선
-        for c in exact:
-            try:
-                df = get_price_data(c["stock_code"])
-                if df is not None and len(df) > 0 and int(df["거래량"].iloc[-1]) > 0:
-                    return c["corp_code"], c["corp_name"], c["stock_code"]
-            except Exception:
-                continue
-        c = exact[0]
-        return c["corp_code"], c["corp_name"], c["stock_code"]
+    # 종목코드 직접 입력 처리
+    if re.fullmatch(r'\d{6}', name):
+        for c in CORP_LIST:
+            if c["stock_code"] == name:
+                return c["corp_code"], c["corp_name"], c["stock_code"]
+        return None, None, None
+
+    # 활성 종목 중 정확히 일치하는 것 먼저
+    exact_active = [c for c in CORP_LIST if c["corp_name"] == name and _is_active(c["stock_code"])]
+    if exact_active:
+        return exact_active[0]["corp_code"], exact_active[0]["corp_name"], exact_active[0]["stock_code"]
+
+    # 활성 종목 중 이름 포함 검색
+    for c in CORP_LIST:
+        if name in c["corp_name"] and _is_active(c["stock_code"]):
+            return c["corp_code"], c["corp_name"], c["stock_code"]
+
+    # fallback: 활성 필터 없이 재시도
+    for c in CORP_LIST:
+        if c["corp_name"] == name:
+            return c["corp_code"], c["corp_name"], c["stock_code"]
     for c in CORP_LIST:
         if name in c["corp_name"]:
             return c["corp_code"], c["corp_name"], c["stock_code"]
@@ -835,9 +869,9 @@ def search_autocomplete(q: str = ""):
         if c["stock_code"] == q and c["stock_code"] not in seen:
             results.append({"name": c["corp_name"], "code": c["stock_code"]})
             seen.add(c["stock_code"])
-    # 이름 포함 검색
+    # 이름 포함 검색 (활성 종목만)
     for c in CORP_LIST:
-        if q in c["corp_name"] and c["stock_code"] not in seen:
+        if q in c["corp_name"] and c["stock_code"] not in seen and _is_active(c["stock_code"]):
             results.append({"name": c["corp_name"], "code": c["stock_code"]})
             seen.add(c["stock_code"])
         if len(results) >= 8:

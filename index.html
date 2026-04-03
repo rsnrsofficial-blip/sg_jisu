@@ -1557,8 +1557,8 @@ async function startAnalysisReal(name,code){
   const flags=[];
   if(real.cb_list&&real.cb_list.length>0){real.cb_list.forEach(t=>flags.push({lv:'high',title:`<b>${t}</b>`,tag:'고위험',detail:`🔴 <b>한 줄 요약:</b> DART 공시에서 실제 확인된 CB/BW 발행이에요.`,source:'공시 출처: DART 실시간 조회'}));}
   else{flags.push({lv:'low',title:'최근 1년 CB/BW <b>발행 없음</b>',tag:'안전',detail:'✅ <b>한 줄 요약:</b> 의심스러운 자금 조달 이력이 없어요.',source:'공시 출처: DART 실시간 조회'});}
-  if(realS2>0){flags.push({lv:'high',title:`불성실공시법인 지정 이력 <b>${real.불성실_count}건</b> 확인`,tag:'위험',detail:`🔴 <b>한 줄 요약:</b> 금융감독원이 공식 경고한 이력이 있어요.`,source:'공시 출처: DART 실시간 조회'});}
-  else{flags.push({lv:'low',title:'불성실공시 이력 <b>없음</b>',tag:'안전',detail:'✅ <b>한 줄 요약:</b> 금감원 경고 이력 없어요.',source:'공시 출처: DART 실시간 조회'});}
+  if((real.불성실_count||0)>0){flags.push({lv:'high',title:`불성실공시법인 지정 이력 <b>${real.불성실_count}건</b> 확인`,tag:'위험',detail:`🔴 <b>한 줄 요약:</b> 금융감독원이 공식 경고한 이력이 있어요.`,source:'공시 출처: DART 실시간 조회'});}
+  else{flags.push({lv:'low',title:'불성실공시법인 지정 이력 <b>없음</b>',tag:'안전',detail:'✅ <b>한 줄 요약:</b> 금감원 경고 이력 없어요.',source:'공시 출처: DART 실시간 조회'});}
   if(realS3>0&&real.매도_list&&real.매도_list.length>0){flags.push({lv:'high',title:`최근 1개월 내 <b>대주주 매도 ${real.매도_list.length}건</b> 감지`,tag:'고위험',detail:`🔴 <b>한 줄 요약:</b> 대주주/임원이 주식을 팔고 있어요.`,source:'공시 출처: DART 실시간 조회'});}
   else{flags.push({lv:'low',title:'최근 1개월 내부자 매도 <b>없음</b>',tag:'안전',detail:'✅ <b>한 줄 요약:</b> 최근 1개월간 장내 매도 감지 없어요.',source:'공시 출처: DART 실시간 조회'});}
   const 급락률=real.급락률??0;

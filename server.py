@@ -169,7 +169,15 @@ async def get_stock_market(client, corp_code):
         return "KOSDAQ"
     elif "코넥스" in mkt:
         return "KONEX"
-    return mkt or "—"
+    # corp_cls 필드로 fallback: Y=유가증권(KOSPI), K=코스닥, N=코넥스
+    cls = data.get("corp_cls", "")
+    if cls == "Y":
+        return "KOSPI"
+    elif cls == "K":
+        return "KOSDAQ"
+    elif cls == "N":
+        return "KONEX"
+    return "—"
 
 
 # ──────────────────────────────────────────

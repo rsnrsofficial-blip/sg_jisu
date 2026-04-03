@@ -806,16 +806,17 @@ def get_top_movers():
 @app.get("/top-movers-debug")
 def get_top_movers_debug():
     logs = []
-    try:
-        today = datetime.now().strftime("%Y%m%d")
-        yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y%m%d")
-        logs.append(f"date range: {yesterday} ~ {today}")
-        df = krx.get_market_price_change_by_ticker(yesterday, today, market="KOSPI")
-        logs.append(f"shape: {df.shape}, columns: {list(df.columns)}")
-        logs.append(f"index sample: {list(df.index[:3])}")
-        logs.append(f"head: {df.head(2).to_dict()}")
-    except Exception as e:
-        logs.append(f"ERROR: {e}")
+    for days_back in [1, 3, 5, 7]:
+        try:
+            end = datetime.now().strftime("%Y%m%d")
+            start = (datetime.now() - timedelta(days=days_back)).strftime("%Y%m%d")
+            df = krx.get_market_price_change_by_ticker(start, end, market="KOSPI")
+            logs.append(f"days_back={days_back} shape={df.shape} columns={list(df.columns)}")
+            if not df.empty:
+                logs.append(f"sample: {df.head(2).to_dict()}")
+                break
+        except Exception as e:
+            logs.append(f"days_back={days_back} ERROR: {e}")
     return {"logs": logs}
 
 

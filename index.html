@@ -159,6 +159,38 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
   #search-screen, #result-screen, #loading-screen { width: 100% !important; overflow-x: hidden !important; }
 }
 
+/* 자동완성 */
+.autocomplete-wrap { position: relative; width: 100%; max-width: 460px; }
+.autocomplete-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; z-index: 100; overflow: hidden; display: none; }
+.ac-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.ac-item:last-child { border-bottom: none; }
+.ac-item:hover, .ac-item.selected { background: rgba(255,255,255,0.05); }
+.ac-name { font-size: 13px; color: #ccc; }
+.ac-code { font-size: 11px; color: #444; font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; }
+/* 마켓 배지 */
+.market-badge { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 2px; padding: 2px 7px; border-radius: 2px; margin-top: 5px; }
+.market-badge.kospi { background: rgba(0,102,255,0.15); color: #4488ff; border: 1px solid rgba(0,102,255,0.2); }
+.market-badge.kosdaq { background: rgba(0,230,118,0.1); color: #00e676; border: 1px solid rgba(0,230,118,0.15); }
+.market-badge.other { background: rgba(255,255,255,0.05); color: #444; border: 1px solid rgba(255,255,255,0.08); }
+/* 공시 타임라인 */
+.timeline-list { display: flex; flex-direction: column; gap: 0; }
+.tl-item { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); align-items: flex-start; }
+.tl-item:last-child { border-bottom: none; }
+.tl-date { font-size: 10px; color: #333; letter-spacing: 0.5px; flex-shrink: 0; width: 72px; margin-top: 2px; }
+.tl-title { font-size: 12px; color: #777; line-height: 1.5; flex: 1; }
+.tl-title a { color: inherit; text-decoration: none; }
+.tl-title a:hover { color: #efefef; }
+/* 업종 경고 카드 */
+.warning-section { width: 100%; max-width: 640px; padding: 0 24px 32px; }
+.warning-grid { display: flex; flex-direction: column; gap: 8px; }
+.warn-item { display: flex; align-items: center; gap: 12px; background: rgba(255,49,49,0.05); border: 1px solid rgba(255,49,49,0.12); border-radius: 4px; padding: 10px 14px; cursor: pointer; }
+.warn-item:hover { background: rgba(255,49,49,0.08); }
+.warn-score { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: #ff3131; flex-shrink: 0; width: 40px; text-align: center; }
+.warn-info { flex: 1; }
+.warn-name { font-size: 13px; color: #ccc; }
+.warn-verdict { font-size: 10px; color: #ff3131; margin-top: 2px; letter-spacing: 1px; }
+/* 뉴스 카드 클릭 가능 */
+.news-card-link { text-decoration: none; display: block; }
 .movers-section { width: 100%; max-width: 840px; padding: 0 20px 40px; margin: 0 auto; }
 .movers-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
 .movers-title { font-size: 11px; color: #333; letter-spacing: 3px; }
@@ -1046,9 +1078,12 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
       <div style="font-size:16px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;margin-bottom:16px;line-height:1.5;">29층에서 떨어져도<br><span style="color:#ff3131;">개미는 죽지 않는다.</span></div>
       <div style="font-size:13px;color:#555;line-height:2.0;">CB 발행 · 대주주 매도 · 불성실공시를 실시간 자동 분석해<br><span style="color:#efefef;font-weight:500;">개미가 물리기 전에</span> 먼저 알려주는 주식 정보 <span style="color:#efefef;font-weight:500;">AI 서비스</span></div>
     </div>
-    <div class="search-row">
-      <input class="search-input" id="main-input" type="text" placeholder="종목명 또는 종목코드 입력" />
-      <button class="search-btn" onclick="doSearch()">분석하기</button>
+    <div class="autocomplete-wrap">
+      <div class="search-row">
+        <input class="search-input" id="main-input" type="text" placeholder="종목명 또는 종목코드 입력" autocomplete="off" />
+        <button class="search-btn" onclick="doSearch()">분석하기</button>
+      </div>
+      <div class="autocomplete-dropdown" id="ac-dropdown"></div>
     </div>
     <div class="chips">
       <div class="chip" onclick="quick('삼성전자','005930')">005930 삼성전자</div>
@@ -1115,6 +1150,7 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
       <div>
         <div class="stock-code" id="r-code"></div>
         <div class="stock-name" id="r-name"></div>
+        <div id="r-market"></div>
       </div>
       <div>
         <div class="stock-price" id="r-price"></div>
@@ -1176,8 +1212,12 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
       <div class="tab active" onclick="switchTab('flags')">위험 공시 상세</div>
       <div class="tab" onclick="switchTab('price')">주가 & 시세</div>
       <div class="tab" onclick="switchTab('finance')">재무제표 분석</div>
+      <div class="tab" onclick="switchTab('timeline')">공시 타임라인</div>
     </div>
     <div class="tab-panel active" id="tab-flags"><div id="r-flags"></div></div>
+    <div class="tab-panel" id="tab-timeline">
+      <div class="timeline-list" id="r-timeline"><div style="padding:24px;text-align:center;color:#333;font-size:12px;">로딩 중...</div></div>
+    </div>
     <div class="tab-panel" id="tab-price">
       <div class="price-summary">
         <div class="price-box"><div class="price-box-label">현재가</div><div class="price-box-val" id="p-cur" style="color:#efefef">—</div></div>
@@ -1211,6 +1251,13 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
       <div style="font-size:10px;color:#2a2a2a;letter-spacing:1px;">뉴스 API 연결 후 자동 표시</div>
     </div>
     <div id="news-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
+  </div>
+
+  <div class="warning-section" id="warning-section" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div style="font-size:11px;color:#444;letter-spacing:3px;">최근 분석 경고 종목</div>
+    </div>
+    <div class="warning-grid" id="warning-grid"></div>
   </div>
 
   <div class="ad-slot"><div class="ad-label">advertisement</div><div class="ad-box">광고 영역 (728×90)</div></div>
@@ -1255,7 +1302,7 @@ function goBack(){
 }
 
 function switchTab(name){
-  document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.toggle('active',['flags','price','finance'][i]===name);});
+  document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.toggle('active',['flags','price','finance','timeline'][i]===name);});
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
 }
@@ -1416,10 +1463,17 @@ async function startAnalysisReal(name,code){
   const today=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'});
   document.getElementById('r-code').textContent=real.stock_code||real.corp_code||'—';
   document.getElementById('r-name').textContent=real.종목||name;
+  const mkt=real.market||'';
+  const mktEl=document.getElementById('r-market');
+  if(mkt&&mkt!=='—'){
+    const cls=mkt==='KOSPI'?'kospi':mkt==='KOSDAQ'?'kosdaq':'other';
+    mktEl.innerHTML=`<span class="market-badge ${cls}">${mkt}</span>`;
+  }else{mktEl.innerHTML='';}
 
   try{
     const priceRes=await fetch(`https://sgjisu-production.up.railway.app/price?stock_code=${real.stock_code}`);
     const price=await priceRes.json();
+    _priceData=price;
     if(price&&!price.error&&price['현재가']!=null){
       const 상승=price['등락']>=0;
       const 색=상승?'#00e676':'#ff3131';
@@ -1428,6 +1482,15 @@ async function startAnalysisReal(name,code){
       document.getElementById('r-price').style.color=색;
       document.getElementById('r-change').innerHTML=`<span style="color:${색}">${부호}${price['등락'].toLocaleString()}원 (${부호}${price['등락률']}%)</span>`;
       document.getElementById('r-date').textContent=price['날짜']+' 기준';
+      document.getElementById('p-cur').textContent=price['현재가'].toLocaleString()+'원';
+      document.getElementById('p-high').textContent=(price['52주고']||0).toLocaleString()+'원';
+      document.getElementById('p-low').textContent=(price['52주저']||0).toLocaleString()+'원';
+      document.getElementById('p-vol').textContent=(price['거래량']||0).toLocaleString()+'주';
+      if(price.chart){
+        document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+        document.querySelector('.period-btn').classList.add('active');
+        _buildChart(price.chart['1m']);
+      }
     }else{
       document.getElementById('r-price').textContent='조회 불가';
       document.getElementById('r-price').style.color='#555';
@@ -1471,7 +1534,16 @@ async function startAnalysisReal(name,code){
   else{flags.push({lv:'low',title:'재무제표 <b>위험 신호 없음</b>',tag:'안전',detail:`✅ <b>주요 지표:</b>\n${Object.entries(재무상세).map(([k,v])=>`• ${k}: ${v}`).join('\n')}`,source:'데이터 출처: DART 재무제표 실시간 조회'});}
 
   document.getElementById('r-flags').innerHTML=flags.map(f=>`<div class="flag-card"><div class="flag-card-header" onclick="toggleFlag(this)"><div class="fdot" style="background:${C[f.lv]}"></div><div class="flag-title">${f.title}</div><div class="ftag" style="color:${C[f.lv]};background:${BG[f.lv]}">${f.tag}</div><div class="flag-expand">▼</div></div><div class="flag-detail"><div class="flag-detail-label">공시 내용 요약</div><div class="flag-detail-text">${f.detail.replace(/\n/g,'<br>')}</div><div class="flag-source">${f.source}</div></div></div>`).join('');
-  document.getElementById('news-cards').innerHTML=`<div style="grid-column:span 2;text-align:center;padding:24px;color:#333;font-size:12px;letter-spacing:1px;">뉴스 API 연동 후 자동 표시됩니다</div>`;
+
+  // 공시 타임라인
+  const tl=real.공시목록||[];
+  document.getElementById('r-timeline').innerHTML=tl.length?tl.map(c=>{
+    const d=c.date||'';
+    const fmt=d.length===8?`${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6,8)}`:d;
+    return `<div class="tl-item"><div class="tl-date">${fmt}</div><div class="tl-title"><a href="${c.url}" target="_blank" rel="noopener">${c.title}</a></div></div>`;
+  }).join(''):'<div style="padding:24px;text-align:center;color:#333;font-size:12px;">공시 데이터 없음</div>';
+
+  document.getElementById('news-cards').innerHTML=`<div style="grid-column:span 2;text-align:center;padding:24px;color:#333;font-size:12px;letter-spacing:1px;">뉴스 로딩 중...</div>`;
 
   const 재무항목들=Object.entries(재무상세);
   if(재무항목들.length>0){
@@ -1483,8 +1555,13 @@ async function startAnalysisReal(name,code){
 
   switchTab('flags');
   showOnly('result-screen');
+  history.pushState({screen:'result'}, '', '');
   window._logData={company:real.종목||name,stock_code:real.stock_code||'',score:real.score||0};
   window._sessionStart=Date.now();
+
+  // 비동기 로드 (뉴스, 경고종목)
+  loadNews(real.stock_code||'');
+  loadWarningStocks(real.stock_code||'');
   setTimeout(()=>{
     animateScore(realTotal,realCol);
     document.getElementById('b1').style.width=Math.round(realS1/40*100)+'%';
@@ -1507,7 +1584,110 @@ function quick(name,code){
   startAnalysisReal(name,code);
 }
 
-document.getElementById('main-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
+// ── 뒤로가기 처리 ──
+window.addEventListener('popstate', ()=>{
+  showOnly('search-screen');
+  document.getElementById('main-input').value='';
+});
+
+// ── 자동완성 ──
+let _acTimer=null, _acIdx=-1, _acItems=[];
+const _inp=document.getElementById('main-input');
+const _drop=document.getElementById('ac-dropdown');
+
+function _acClose(){ _drop.style.display='none'; _acIdx=-1; }
+function _acRender(items){
+  _acItems=items;_acIdx=-1;
+  if(!items.length){_acClose();return;}
+  _drop.innerHTML=items.map((it,i)=>`<div class="ac-item" data-i="${i}" onmousedown="event.preventDefault()" onclick="_acSelect(${i})"><span class="ac-name">${it.name}</span><span class="ac-code">${it.code}</span></div>`).join('');
+  _drop.style.display='block';
+}
+function _acSelect(i){
+  const it=_acItems[i];
+  _inp.value=it.name;
+  _acClose();
+  startAnalysisReal(it.name, it.code);
+}
+_inp.addEventListener('input',()=>{
+  clearTimeout(_acTimer);
+  const v=_inp.value.trim();
+  if(v.length<1){_acClose();return;}
+  _acTimer=setTimeout(async()=>{
+    try{
+      const r=await fetch(`https://sgjisu-production.up.railway.app/search?q=${encodeURIComponent(v)}`);
+      const d=await r.json();
+      _acRender(d||[]);
+    }catch(e){_acClose();}
+  },200);
+});
+_inp.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){_acClose();doSearch();return;}
+  if(!_acItems.length)return;
+  if(e.key==='ArrowDown'){e.preventDefault();_acIdx=Math.min(_acIdx+1,_acItems.length-1);_drop.querySelectorAll('.ac-item').forEach((el,i)=>el.classList.toggle('selected',i===_acIdx));}
+  else if(e.key==='ArrowUp'){e.preventDefault();_acIdx=Math.max(_acIdx-1,0);_drop.querySelectorAll('.ac-item').forEach((el,i)=>el.classList.toggle('selected',i===_acIdx));}
+  else if(e.key==='Escape'){_acClose();}
+  else if(e.key==='Enter'&&_acIdx>=0){_acSelect(_acIdx);}
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.autocomplete-wrap'))_acClose();});
+
+// ── 차트 인스턴스 & 기간 전환 ──
+let _priceData=null;
+function _buildChart(chartData){
+  if(priceChartInst)priceChartInst.destroy();
+  priceChartInst=new Chart(document.getElementById('priceChart'),{type:'line',data:{labels:chartData.labels,datasets:[{data:chartData.prices,borderColor:'#ff3131',borderWidth:1.5,pointRadius:0,fill:true,backgroundColor:'rgba(255,49,49,0.05)',tension:0.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#333',font:{size:10},maxTicksLimit:8},grid:{color:'rgba(255,255,255,0.03)'}},y:{ticks:{color:'#333',font:{size:10},callback:v=>v.toLocaleString()+'원'},grid:{color:'rgba(255,255,255,0.03)'}}}}});
+}
+document.querySelectorAll('.period-btn').forEach((btn,i)=>{
+  const keys=['1m','3m','6m','1y'];
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    if(_priceData&&_priceData.chart)_buildChart(_priceData.chart[keys[i]]);
+  });
+});
+
+// ── 뉴스 렌더 ──
+async function loadNews(stock_code){
+  try{
+    const r=await fetch(`https://sgjisu-production.up.railway.app/news?stock_code=${stock_code}`,{signal:AbortSignal.timeout(10000)});
+    const d=await r.json();
+    const all=[...( d.good||[]).map(n=>({...n,type:'good'})),...(d.bad||[]).map(n=>({...n,type:'bad'}))];
+    if(!all.length){document.getElementById('news-cards').innerHTML='<div style="grid-column:span 2;text-align:center;padding:24px;color:#333;font-size:12px;">관련 뉴스를 찾을 수 없습니다</div>';return;}
+    const col=t=>t==='good'?'#00e676':'#ff3131';
+    const bg=t=>t==='good'?'rgba(0,230,118,0.08)':'rgba(255,49,49,0.08)';
+    document.getElementById('news-cards').innerHTML=all.map(n=>`
+      <a class="news-card-link" href="${n.link}" target="_blank" rel="noopener">
+        <div style="background:#141414;border:1.5px solid ${col(n.type)}44;border-radius:4px;padding:14px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${col(n.type)};"></div>
+          <div style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:${col(n.type)};background:${bg(n.type)};padding:2px 8px;border-radius:2px;margin-bottom:8px;">${n.type==='good'?'▲ 호재':'▼ 악재'}</div>
+          <div style="font-size:13px;font-weight:500;line-height:1.5;color:#efefef;margin-bottom:10px;">${n.title}</div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="font-size:10px;color:#333;">${n.press||''}</span>
+            <span style="font-size:10px;color:#2a2a2a;">${n.date||''}</span>
+          </div>
+        </div>
+      </a>`).join('');
+  }catch(e){document.getElementById('news-cards').innerHTML='<div style="grid-column:span 2;text-align:center;padding:24px;color:#333;font-size:12px;">뉴스 로딩 실패</div>';}
+}
+
+// ── 경고 종목 렌더 ──
+async function loadWarningStocks(exclude_code){
+  try{
+    const r=await fetch(`https://sgjisu-production.up.railway.app/warning-stocks?exclude=${exclude_code}`);
+    const d=await r.json();
+    if(!d||!d.length){document.getElementById('warning-section').style.display='none';return;}
+    document.getElementById('warning-section').style.display='block';
+    document.getElementById('warning-grid').innerHTML=d.map(s=>`
+      <div class="warn-item" onclick="startAnalysisReal('${s.name}','${s.code}')">
+        <div class="warn-score">${s.score}</div>
+        <div class="warn-info">
+          <div class="warn-name">${s.name} <span style="color:#333;font-size:10px;">${s.code}</span></div>
+          <div class="warn-verdict">⚠ ${s.verdict} 구간</div>
+        </div>
+        <div style="font-size:10px;color:#333;">분석 보기 →</div>
+      </div>`).join('');
+  }catch(e){}
+}
+
 showOnly('search-screen');
 
 async function loadTopMovers(){

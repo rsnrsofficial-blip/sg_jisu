@@ -51,6 +51,7 @@ def log_to_sheets(data: dict):
 # ── 메모리 캐시 ──
 _cache = {}
 CACHE_TTL = 3600
+_analyzed_cache_list = []  # 최근 분석 종목 (업종 경고용)
 
 
 def get_cached(corp_code):
@@ -106,6 +107,23 @@ def search_corp(name):
         if name in c["corp_name"]:
             return c["corp_code"], c["corp_name"], c["stock_code"]
     return None, None, None
+
+
+# ──────────────────────────────────────────
+# 시장 구분 (KOSPI/KOSDAQ) 조회
+# ──────────────────────────────────────────
+async def get_stock_market(client, corp_code):
+    data = await dart_get(client, "https://opendart.fss.or.kr/api/company.json", {
+        "crtfc_key": API_KEY, "corp_code": corp_code
+    })
+    mkt = data.get("stock_mket", "")
+    if "유가" in mkt:
+        return "KOSPI"
+    elif "코스닥" in mkt:
+        return "KOSDAQ"
+    elif "코넥스" in mkt:
+        return "KONEX"
+    return mkt or "—"
 
 
 # ──────────────────────────────────────────
@@ -669,12 +687,13 @@ async def analyze(name: str = "", request: Request = None):
         )
         공시목록_3년, 공시목록_2년, 공시목록_1년, 공시목록_6개월, 공시목록_1개월 = 공시_results
 
-        # ── 핵심 분석 4개 병렬 실행 ──
-        s4_r, s1_r, s2_r, s3_r = await asyncio.gather(
+        # ── 핵심 분석 4개 + 시장구분 병렬 실행 ──
+        s4_r, s1_r, s2_r, s3_r, market = await asyncio.gather(
             calc_financial(client, corp_code),
             calc_funding(client, corp_code, 공시목록_1년),
             calc_trust(client, corp_code, 공시목록_2년, 공시목록_6개월),
             calc_insider(client, corp_code, stock_code, 공시목록_1개월),
+            get_stock_market(client, corp_code),
         )
 
     s4, 재무결과, 재무위험, 자본금, 자본총계 = s4_r
@@ -716,8 +735,11 @@ async def analyze(name: str = "", request: Request = None):
 
     print(f"✅ {corp_name}: 자금{s1}+신뢰{s2}+내부자{s3}+재무{s4}+주주{s5}+감사{s6}+주가이상{s7} = {total}점 [{verdict}]")
 
+    공시_timeline = sorted(공시목록_1년, key=lambda x: x.get("rcept_dt", ""), reverse=True)[:30]
+
     result = {
         "종목": corp_name, "corp_code": corp_code, "stock_code": stock_code,
+        "market": market,
         "score": total, "s1": s1, "s2": s2, "s3": s3, "s4": s4, "s5": s5, "s6": s6, "s7": s7,
         "즉사판정": 즉사여부, "관리종목": 관리종목_감지,
         "cb_count": cb수, "cb_list": [c["title"] for c in cb목록],
@@ -726,30 +748,123 @@ async def analyze(name: str = "", request: Request = None):
         "매도_list": 매도목록, "매도_주식수": 매도주식수, "매도비율": round(매도비율, 2),
         "급락률": krx_상태.get("급락률", 0),
         "재무분석": 재무결과, "재무위험항목": 전체위험, "verdict": verdict,
+        "공시목록": [
+            {
+                "date": c.get("rcept_dt", ""),
+                "title": c.get("report_nm", ""),
+                "url": f"https://dart.fss.or.kr/dsaf001/main.do?rcpNo={c.get('rcept_no', '')}"
+            }
+            for c in 공시_timeline
+        ],
     }
 
     set_cached(corp_code, result)
+
+    global _analyzed_cache_list
+    _analyzed_cache_list = [s for s in _analyzed_cache_list if s["code"] != stock_code]
+    _analyzed_cache_list.append({"name": corp_name, "code": stock_code, "score": total, "verdict": verdict})
+    if len(_analyzed_cache_list) > 100:
+        _analyzed_cache_list.pop(0)
+
     return result
 
 
 @app.get("/price")
 def get_price(stock_code: str = ""):
     try:
-        df = get_price_data(stock_code)
+        오늘 = datetime.now().strftime("%Y%m%d")
+        일년전 = (datetime.now() - timedelta(days=365)).strftime("%Y%m%d")
+        df = krx.get_market_ohlcv_by_date(일년전, 오늘, stock_code)
         if df is None or len(df) == 0:
             return {"error": "주가 데이터 없음"}
-        최근 = df.iloc[-1]; 전일 = df.iloc[-2] if len(df) >= 2 else 최근
+        최근 = df.iloc[-1]
+        전일 = df.iloc[-2] if len(df) >= 2 else 최근
         현재가 = int(최근["종가"]); 전일종가 = int(전일["종가"])
         등락 = 현재가 - 전일종가; 등락률 = 등락 / 전일종가 * 100
+
+        def chart(days):
+            sl = df.tail(days)
+            return {
+                "labels": [d.strftime("%m/%d") for d in sl.index],
+                "prices": [int(v) for v in sl["종가"]]
+            }
+
         return {
             "현재가": 현재가, "전일종가": 전일종가,
             "등락": 등락, "등락률": round(등락률, 2),
             "고가": int(최근["고가"]), "저가": int(최근["저가"]),
             "거래량": int(최근["거래량"]),
+            "52주고": int(df["고가"].max()), "52주저": int(df["저가"].min()),
             "날짜": df.index[-1].strftime("%Y.%m.%d"),
+            "chart": {"1m": chart(22), "3m": chart(66), "6m": chart(132), "1y": chart(252)},
         }
     except Exception as e:
         return {"error": str(e)}
+
+
+@app.get("/search")
+def search_autocomplete(q: str = ""):
+    if not CORP_LIST_READY or not q:
+        return []
+    q = q.strip()
+    results = []
+    seen = set()
+    # 코드 완전 일치 우선
+    for c in CORP_LIST:
+        if c["stock_code"] == q and c["stock_code"] not in seen:
+            results.append({"name": c["corp_name"], "code": c["stock_code"]})
+            seen.add(c["stock_code"])
+    # 이름 포함 검색
+    for c in CORP_LIST:
+        if q in c["corp_name"] and c["stock_code"] not in seen:
+            results.append({"name": c["corp_name"], "code": c["stock_code"]})
+            seen.add(c["stock_code"])
+        if len(results) >= 8:
+            break
+    return results[:8]
+
+
+@app.get("/news")
+def get_news(stock_code: str = ""):
+    try:
+        url = f"https://finance.naver.com/item/news.naver?code={stock_code}&page=1"
+        r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
+        r.encoding = "euc-kr"
+        html = r.text
+        rows = re.findall(
+            r'href="(news_read\.naver\?[^"]+)"[^>]*class="[^"]*title[^"]*"[^>]*>([^<]+)</a>.*?'
+            r'class="[^"]*source[^"]*"[^>]*>([^<]+)<.*?'
+            r'class="[^"]*date[^"]*"[^>]*>([^<]+)<',
+            html, re.DOTALL
+        )
+        bad_kw = ["하락","적자","손실","횡령","배임","수사","폐지","위기","급락","부도","파산","소송","규제","제재","경고","정지","조사","검찰"]
+        good_kw = ["상승","흑자","성장","수주","계약","출시","호재","강세","급등","신규","협약","매출 증가","이익","턴어라운드"]
+        news = []
+        for href, title, press, date in rows[:30]:
+            title = title.strip(); press = press.strip(); date = date.strip()
+            link = "https://finance.naver.com/item/" + href.strip()
+            bad = sum(1 for k in bad_kw if k in title)
+            good = sum(1 for k in good_kw if k in title)
+            if bad == 0 and good == 0:
+                continue
+            ntype = "bad" if bad >= good else "good"
+            news.append({"type": ntype, "title": title, "link": link, "press": press, "date": date.strip()})
+        good_list = [n for n in news if n["type"] == "good"][:3]
+        bad_list  = [n for n in news if n["type"] == "bad"][:3]
+        return {"good": good_list, "bad": bad_list}
+    except Exception as e:
+        return {"error": str(e), "good": [], "bad": []}
+
+
+@app.get("/warning-stocks")
+def get_warning_stocks(exclude: str = ""):
+    danger = [s for s in _analyzed_cache_list if s["code"] != exclude and s["score"] >= 50]
+    seen = set(); unique = []
+    for s in reversed(danger):
+        if s["code"] not in seen:
+            seen.add(s["code"]); unique.append(s)
+    unique.sort(key=lambda x: x["score"], reverse=True)
+    return unique[:5]
 
 
 _top_movers_cache = {"ts": 0, "data": None}

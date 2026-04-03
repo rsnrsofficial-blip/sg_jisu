@@ -93,21 +93,18 @@ def load_corp_list():
                 })
         CORP_LIST_READY = True
         print(f"✅ 총 {len(CORP_LIST)}개 상장사 로드 완료")
+        filter_dead_codes()
     except Exception as e:
         print(f"❌ 회사 목록 로드 실패: {e}")
 
 
 def filter_dead_codes():
-    """동명 중복 종목 중 거래 데이터 없는 상폐 종목을 _dead_codes에 추가"""
+    """동명 중복 종목 중 거래 데이터 없는 상폐 종목을 _dead_codes에 추가 (load_corp_list 완료 직후 호출)"""
     global _dead_codes
     from collections import Counter
-    # CORP_LIST 로드 완료 대기
-    for _ in range(60):
-        if CORP_LIST_READY:
-            break
-        time.sleep(1)
     name_cnt = Counter(c["corp_name"] for c in CORP_LIST)
     dup_names = {n for n, cnt in name_cnt.items() if cnt > 1}
+    print(f"   🔍 중복 회사명 {len(dup_names)}개 검사 시작...")
     checked = 0
     for c in CORP_LIST:
         if c["corp_name"] not in dup_names:
@@ -116,15 +113,14 @@ def filter_dead_codes():
             df = get_price_data(c["stock_code"])
             if df is None or len(df) == 0 or df["거래량"].sum() == 0:
                 _dead_codes.add(c["stock_code"])
-                print(f"   🚫 상폐 종목 감지: {c['corp_name']} ({c['stock_code']})")
+                print(f"   🚫 상폐 감지: {c['corp_name']} ({c['stock_code']})")
             checked += 1
         except Exception:
             pass
-    print(f"✅ 중복명 종목 {checked}개 검사 완료, 상폐 {len(_dead_codes)}개 필터")
+    print(f"✅ 중복명 {checked}개 검사 완료, 상폐 {len(_dead_codes)}개 필터")
 
 
 threading.Thread(target=load_corp_list, daemon=True).start()
-threading.Thread(target=filter_dead_codes, daemon=True).start()
 
 
 def _is_active(stock_code: str) -> bool:

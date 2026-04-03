@@ -938,19 +938,23 @@ def get_news_debug(stock_code: str = "005930"):
         r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
         r.encoding = "euc-kr"
         html = r.text
-        # n.news.naver.com 링크 찾기
-        idx = html.find("n.news.naver.com")
-        # 또는 article 링크
-        idx2 = html.find("mnews/article")
-        # title 클래스 찾기
-        idx3 = html.find("class=\"title\"")
-        return {
-            "status": r.status_code,
-            "len": len(html),
-            "n_news_link": html[idx:idx+300] if idx >= 0 else "NOT FOUND",
-            "mnews_article": html[idx2:idx2+300] if idx2 >= 0 else "NOT FOUND",
-            "title_class": html[idx3:idx3+400] if idx3 >= 0 else "NOT FOUND",
-        }
+        logs = {}
+        for test_url in [
+            f"https://finance.naver.com/item/news_news.naver?code={stock_code}&page=1&sm=title_entity_id.basic&clusterId=",
+            f"https://finance.naver.com/item/news.naver?code={stock_code}",
+        ]:
+            r2 = sync_requests.get(test_url, headers=_NAVER_HEADERS, timeout=8)
+            r2.encoding = "euc-kr"
+            h = r2.text
+            idx = h.find("article_id")
+            idx2 = h.find("office_id")
+            idx3 = h.find("<td class")
+            logs[test_url[-50:]] = {
+                "status": r2.status_code, "len": len(h),
+                "article_id_at": h[idx:idx+200] if idx >= 0 else "NOT FOUND",
+                "td_class_at": h[idx3:idx3+300] if idx3 >= 0 else "NOT FOUND",
+            }
+        return logs
     except Exception as e:
         return {"error": str(e)}
 

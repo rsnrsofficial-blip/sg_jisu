@@ -100,9 +100,21 @@ threading.Thread(target=load_corp_list, daemon=True).start()
 
 
 def search_corp(name):
-    for c in CORP_LIST:
-        if c["corp_name"] == name:
-            return c["corp_code"], c["corp_name"], c["stock_code"]
+    exact = [c for c in CORP_LIST if c["corp_name"] == name]
+    if len(exact) == 1:
+        c = exact[0]
+        return c["corp_code"], c["corp_name"], c["stock_code"]
+    if len(exact) > 1:
+        # 거래량 있는 (실제 거래 중인) 종목 우선
+        for c in exact:
+            try:
+                df = get_price_data(c["stock_code"])
+                if df is not None and len(df) > 0 and int(df["거래량"].iloc[-1]) > 0:
+                    return c["corp_code"], c["corp_name"], c["stock_code"]
+            except Exception:
+                continue
+        c = exact[0]
+        return c["corp_code"], c["corp_name"], c["stock_code"]
     for c in CORP_LIST:
         if name in c["corp_name"]:
             return c["corp_code"], c["corp_name"], c["stock_code"]

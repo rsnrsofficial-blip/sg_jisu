@@ -938,8 +938,19 @@ def get_news_debug(stock_code: str = "005930"):
         r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
         r.encoding = "euc-kr"
         html = r.text
-        idx = html.find("news_read")
-        return {"status": r.status_code, "len": len(html), "first_news_read": html[idx:idx+500] if idx >= 0 else "NOT FOUND"}
+        # n.news.naver.com 링크 찾기
+        idx = html.find("n.news.naver.com")
+        # 또는 article 링크
+        idx2 = html.find("mnews/article")
+        # title 클래스 찾기
+        idx3 = html.find("class=\"title\"")
+        return {
+            "status": r.status_code,
+            "len": len(html),
+            "n_news_link": html[idx:idx+300] if idx >= 0 else "NOT FOUND",
+            "mnews_article": html[idx2:idx2+300] if idx2 >= 0 else "NOT FOUND",
+            "title_class": html[idx3:idx3+400] if idx3 >= 0 else "NOT FOUND",
+        }
     except Exception as e:
         return {"error": str(e)}
 

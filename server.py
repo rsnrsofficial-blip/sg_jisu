@@ -803,6 +803,21 @@ def get_top_movers():
         return {"error": str(e), "상승": [], "하락": []}
 
 
+@app.get("/top-movers-debug")
+def get_top_movers_debug():
+    logs = []
+    try:
+        date_str = (datetime.now() - timedelta(days=1)).strftime("%Y%m%d")
+        logs.append(f"date: {date_str}")
+        df_kospi = krx.get_market_ohlcv_by_ticker(date_str, market="KOSPI")
+        logs.append(f"kospi shape: {df_kospi.shape}, columns: {list(df_kospi.columns)}")
+        logs.append(f"kospi head index: {list(df_kospi.index[:3])}")
+        logs.append(f"kospi 거래량 sum: {df_kospi['거래량'].sum()}")
+    except Exception as e:
+        logs.append(f"ERROR: {e}")
+    return {"logs": logs}
+
+
 @app.post("/log")
 async def log_session(request: Request):
     try:

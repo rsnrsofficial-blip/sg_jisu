@@ -206,6 +206,7 @@ async def get_공시목록_async(client, corp_code, days, pblntf_ty=None):
         "crtfc_key": API_KEY, "corp_code": corp_code,
         "bgn_de": (datetime.now() - timedelta(days=days)).strftime("%Y%m%d"),
         "end_de": datetime.now().strftime("%Y%m%d"),
+        "page_count": 100,
     }
     if pblntf_ty:
         params["pblntf_ty"] = pblntf_ty
@@ -365,7 +366,9 @@ async def calc_funding(client, corp_code, 공시목록_1년):
 # S2. 신뢰도 결여 (공시 번복/정정 감지 포함)
 # ──────────────────────────────────────────
 async def calc_trust(client, corp_code, 공시목록_2년, 공시목록_6개월):
-    불성실_개수 = sum(1 for c in 공시목록_2년 if "불성실공시법인" in c.get("report_nm", ""))
+    # 거래소공시(I) 별도 조회 - 불성실공시법인지정은 page_count=10 기본값에 묻힐 수 있음
+    거래소공시 = await get_공시목록_async(client, corp_code, 730, pblntf_ty="I")
+    불성실_개수 = sum(1 for c in (공시목록_2년 + 거래소공시) if "불성실공시법인" in c.get("report_nm", ""))
     점수 = 30 if 불성실_개수 >= 2 else 20 if 불성실_개수 == 1 else 0
 
     번복_키워드 = ["[기재정정]", "[내용정정]", "[취소]", "[撤回]", "계약해지", "계약취소", "공급계약해지"]

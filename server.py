@@ -807,12 +807,13 @@ def get_top_movers():
 def get_top_movers_debug():
     logs = []
     try:
-        date_str = (datetime.now() - timedelta(days=1)).strftime("%Y%m%d")
-        logs.append(f"date: {date_str}")
-        df_kospi = krx.get_market_ohlcv_by_ticker(date_str, market="KOSPI")
-        logs.append(f"kospi shape: {df_kospi.shape}, columns: {list(df_kospi.columns)}")
-        logs.append(f"kospi head index: {list(df_kospi.index[:3])}")
-        logs.append(f"kospi 거래량 sum: {df_kospi['거래량'].sum()}")
+        today = datetime.now().strftime("%Y%m%d")
+        yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y%m%d")
+        logs.append(f"date range: {yesterday} ~ {today}")
+        df = krx.get_market_price_change_by_ticker(yesterday, today, market="KOSPI")
+        logs.append(f"shape: {df.shape}, columns: {list(df.columns)}")
+        logs.append(f"index sample: {list(df.index[:3])}")
+        logs.append(f"head: {df.head(2).to_dict()}")
     except Exception as e:
         logs.append(f"ERROR: {e}")
     return {"logs": logs}

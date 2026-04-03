@@ -931,6 +931,19 @@ def get_top_movers():
         return {"error": str(e), "상승": [], "하락": []}
 
 
+@app.get("/news-debug")
+def get_news_debug(stock_code: str = "005930"):
+    try:
+        url = f"https://finance.naver.com/item/news.naver?code={stock_code}&page=1"
+        r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
+        r.encoding = "euc-kr"
+        html = r.text
+        idx = html.find("news_read")
+        return {"status": r.status_code, "len": len(html), "first_news_read": html[idx:idx+500] if idx >= 0 else "NOT FOUND"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @app.get("/top-movers-debug")
 def get_top_movers_debug():
     logs = []

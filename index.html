@@ -158,6 +158,32 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
   body { overflow-x: hidden !important; }
   #search-screen, #result-screen, #loading-screen { width: 100% !important; overflow-x: hidden !important; }
 }
+
+.movers-section { width: 100%; max-width: 840px; padding: 0 20px 40px; margin: 0 auto; }
+.movers-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.movers-title { font-size: 11px; color: #333; letter-spacing: 3px; }
+.movers-date { font-size: 10px; color: #2a2a2a; }
+.movers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.movers-col { background: #111; border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
+.movers-col-header { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.movers-col-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+.movers-col-label.up { color: #ff3131; }
+.movers-col-label.dn { color: #4fc3f7; }
+.mover-item { display: flex; align-items: center; padding: 8px 14px; border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer; transition: background 0.12s; }
+.mover-item:last-child { border-bottom: none; }
+.mover-item:hover { background: rgba(255,255,255,0.03); }
+.mover-rank { font-family: 'Bebas Neue', sans-serif; font-size: 14px; color: #2a2a2a; width: 18px; flex-shrink: 0; }
+.mover-info { flex: 1; min-width: 0; padding: 0 8px; }
+.mover-name { font-size: 12px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mover-code { font-size: 10px; color: #333; margin-top: 1px; }
+.mover-rate { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 0.5px; flex-shrink: 0; }
+.mover-rate.up { color: #ff3131; }
+.mover-rate.dn { color: #4fc3f7; }
+.movers-loading { display: flex; align-items: center; justify-content: center; height: 120px; font-size: 11px; color: #2a2a2a; letter-spacing: 2px; }
+@media (max-width: 480px) {
+  .movers-grid { grid-template-columns: 1fr; gap: 8px; }
+  .movers-section { padding: 0 12px 32px; }
+}
 </style>
 </head>
 <body>
@@ -1031,6 +1057,22 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
       <div class="chip" onclick="quick('SV인베스트먼트','236340')">236340 SV인베스트먼트</div>
     </div>
   </div>
+  <div class="movers-section">
+    <div class="movers-header">
+      <div class="movers-title">TODAY'S MOVERS</div>
+      <div class="movers-date" id="movers-date"></div>
+    </div>
+    <div class="movers-grid" id="movers-grid">
+      <div class="movers-col">
+        <div class="movers-col-header"><span class="movers-col-label up">▲ 급등 TOP 10</span></div>
+        <div id="movers-up"><div class="movers-loading">로딩 중...</div></div>
+      </div>
+      <div class="movers-col">
+        <div class="movers-col-header"><span class="movers-col-label dn">▼ 급락 TOP 10</span></div>
+        <div id="movers-dn"><div class="movers-loading">로딩 중...</div></div>
+      </div>
+    </div>
+  </div>
   <div class="ad-slot"><div class="ad-label">advertisement</div><div class="ad-box">광고 영역 (728×90)</div></div>
   <div class="footer-legal">
     <div class="legal-box"><div class="legal-title">법적 고지 및 면책 조항</div><div class="legal-text">본 서비스는 <b>금융투자상품에 대한 투자를 권유하지 않으며</b>, 제공되는 모든 정보는 투자 참고 목적으로만 활용되어야 합니다. 설거지 지수는 금융감독원 전자공시시스템(DART)의 공개 공시 데이터를 기반으로 알고리즘이 산출한 참고값으로, <b>투자 결과에 대한 법적 책임을 지지 않습니다.</b> 모든 투자 판단과 그에 따른 손익은 투자자 본인에게 귀속됩니다.</div></div>
@@ -1467,6 +1509,32 @@ function quick(name,code){
 
 document.getElementById('main-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
 showOnly('search-screen');
+
+async function loadTopMovers(){
+  try{
+    const res=await fetch('https://sgjisu-production.up.railway.app/top-movers',{signal:AbortSignal.timeout(15000)});
+    const data=await res.json();
+    if(data.error||!data.상승){return;}
+    if(data.date)document.getElementById('movers-date').textContent=data.date+' 기준';
+    function renderList(items,cls){
+      return items.map((s,i)=>`
+        <div class="mover-item" onclick="quick('${s.name}','${s.code}')">
+          <div class="mover-rank">${i+1}</div>
+          <div class="mover-info">
+            <div class="mover-name">${s.name}</div>
+            <div class="mover-code">${s.code}</div>
+          </div>
+          <div class="mover-rate ${cls}">${s.rate>0?'+':''}${s.rate.toFixed(2)}%</div>
+        </div>`).join('');
+    }
+    document.getElementById('movers-up').innerHTML=renderList(data.상승,'up');
+    document.getElementById('movers-dn').innerHTML=renderList(data.하락,'dn');
+  }catch(e){
+    document.getElementById('movers-up').innerHTML='<div class="movers-loading">데이터 없음</div>';
+    document.getElementById('movers-dn').innerHTML='<div class="movers-loading">데이터 없음</div>';
+  }
+}
+loadTopMovers();
 
 window.addEventListener('beforeunload',()=>{
   if(window._sessionStart&&window._logData){

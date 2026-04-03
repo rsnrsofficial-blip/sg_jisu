@@ -1,5 +1,6 @@
 import zipfile, io, xml.etree.ElementTree as ET, re, os, time, threading
 import json, asyncio
+import pandas as pd
 import httpx
 import requests as sync_requests
 from fastapi.responses import JSONResponse
@@ -749,6 +750,61 @@ def get_price(stock_code: str = ""):
         }
     except Exception as e:
         return {"error": str(e)}
+
+
+_top_movers_cache = {"ts": 0, "data": None}
+
+@app.get("/top-movers")
+def get_top_movers():
+    global _top_movers_cache
+    now = time.time()
+    if now - _top_movers_cache["ts"] < 300 and _top_movers_cache["data"]:
+        return _top_movers_cache["data"]
+    try:
+        actual_date = None
+        df = None
+        for days_back in range(0, 5):
+            date_str = (datetime.now() - timedelta(days=days_back)).strftime("%Y%m%d")
+            try:
+                df_kospi = krx.get_market_ohlcv_by_ticker(date_str, market="KOSPI")
+                df_kosdaq = krx.get_market_ohlcv_by_ticker(date_str, market="KOSDAQ")
+                combined = pd.concat([df_kospi, df_kosdaq])
+                if not combined.empty and combined["거래량"].sum() > 0:
+                    df = combined
+                    actual_date = date_str
+                    break
+            except Exception:
+                continue
+        if df is None or df.empty:
+            return {"error": "데이터 없음", "상승": [], "하락": []}
+
+        df = df[df["거래량"] > 50000]
+        df = df[df["등락률"] != 0]
+        df_sorted = df.sort_values("등락률", ascending=False)
+
+        상승 = []
+        for ticker, row in df_sorted.head(10).iterrows():
+            try:
+                name = krx.get_market_ticker_name(ticker)
+            except Exception:
+                name = ticker
+            상승.append({"code": ticker, "name": name, "rate": round(float(row["등락률"]), 2), "price": int(row["종가"])})
+
+        하락 = []
+        for ticker, row in df_sorted.tail(10).iloc[::-1].iterrows():
+            try:
+                name = krx.get_market_ticker_name(ticker)
+            except Exception:
+                name = ticker
+            하락.append({"code": ticker, "name": name, "rate": round(float(row["등락률"]), 2), "price": int(row["종가"])})
+
+        formatted_date = f"{actual_date[4:6]}/{actual_date[6:8]}"
+        result = {"상승": 상승, "하락": 하락, "date": formatted_date}
+        _top_movers_cache = {"ts": now, "data": result}
+        return result
+    except Exception as e:
+        print(f"top-movers 오류: {e}")
+        return {"error": str(e), "상승": [], "하락": []}
 
 
 @app.post("/log")

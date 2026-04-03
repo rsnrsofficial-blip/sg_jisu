@@ -827,28 +827,29 @@ def search_autocomplete(q: str = ""):
 @app.get("/news")
 def get_news(stock_code: str = ""):
     try:
-        url = f"https://finance.naver.com/item/news.naver?code={stock_code}&page=1"
+        url = f"https://finance.naver.com/item/news_news.naver?code={stock_code}&page=1&sm=title_entity_id.basic&clusterId="
         r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
         r.encoding = "euc-kr"
         html = r.text
         rows = re.findall(
-            r'href="(news_read\.naver\?[^"]+)"[^>]*class="[^"]*title[^"]*"[^>]*>([^<]+)</a>.*?'
-            r'class="[^"]*source[^"]*"[^>]*>([^<]+)<.*?'
-            r'class="[^"]*date[^"]*"[^>]*>([^<]+)<',
+            r'href="(/item/news_read\.naver\?article_id=\d+&office_id=\d+[^"]*)"[^>]*class="tit"[^>]*>([^<]+)</a>.*?'
+            r'<td class="info">([^<]+)</td>.*?'
+            r'<td class="date">([^<]+)</td>',
             html, re.DOTALL
         )
         bad_kw = ["하락","적자","손실","횡령","배임","수사","폐지","위기","급락","부도","파산","소송","규제","제재","경고","정지","조사","검찰"]
-        good_kw = ["상승","흑자","성장","수주","계약","출시","호재","강세","급등","신규","협약","매출 증가","이익","턴어라운드"]
+        good_kw = ["상승","흑자","성장","수주","계약","출시","호재","강세","급등","신규","협약","이익","턴어라운드","매출"]
         news = []
         for href, title, press, date in rows[:30]:
-            title = title.strip(); press = press.strip(); date = date.strip()
-            link = "https://finance.naver.com/item/" + href.strip()
+            title = re.sub(r'&\w+;', '', title).strip()
+            press = press.strip(); date = date.strip()
+            link = "https://finance.naver.com" + href.strip()
             bad = sum(1 for k in bad_kw if k in title)
             good = sum(1 for k in good_kw if k in title)
             if bad == 0 and good == 0:
                 continue
             ntype = "bad" if bad >= good else "good"
-            news.append({"type": ntype, "title": title, "link": link, "press": press, "date": date.strip()})
+            news.append({"type": ntype, "title": title, "link": link, "press": press, "date": date})
         good_list = [n for n in news if n["type"] == "good"][:3]
         bad_list  = [n for n in news if n["type"] == "bad"][:3]
         return {"good": good_list, "bad": bad_list}

@@ -765,20 +765,22 @@ def _parse_naver_sise(sosok: str, direction: str):
         r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
         r.encoding = "euc-kr"
         html = r.text
-        # 종목코드: /item/main.naver?code=XXXXXX, 종목명, 등락률
         rows = re.findall(
-            r'code=([A-Z0-9]{6})[^"]*"[^>]*>([^<]+)</a>.*?'
-            r'class="rate_up[^"]*"[^>]*>\+?([\d.]+)%',
+            r'code=(\d{6})[^>]*class="tltle">([^<]+)</a></td>\s*'
+            r'<td class="number">([\d,]+)</td>.*?'
+            r'([+\-]?[\d.]+)%',
             html, re.DOTALL
         )
         items = []
-        for code, name, rate in rows[:10]:
-            name = name.strip()
+        for code, name, price_str, rate_str in rows[:10]:
             try:
-                rate_f = float(rate) if direction == "rise" else -float(rate)
+                price = int(price_str.replace(",", ""))
+                rate = float(rate_str)
+                if direction == "fall" and rate > 0:
+                    rate = -rate
             except Exception:
-                rate_f = 0.0
-            items.append({"code": code, "name": name, "rate": rate_f, "price": 0})
+                price, rate = 0, 0.0
+            items.append({"code": code, "name": name.strip(), "rate": rate, "price": price})
         return items
     except Exception as e:
         print(f"naver sise {direction}/{sosok} 오류: {e}")
@@ -822,9 +824,9 @@ def get_top_movers_debug():
         r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
         r.encoding = "euc-kr"
         html = r.text
-        idx = html.find("/item/main.naver?code=")
-        logs.append(f"first item link at: {idx}")
-        logs.append(f"around item: {html[idx:idx+600]}")
+        result = _parse_naver_sise("0", "rise")
+        logs.append(f"parsed {len(result)} items")
+        logs.append(f"sample: {result[:3]}")
     except Exception as e:
         logs.append(f"ERROR: {e}")
     return {"logs": logs}

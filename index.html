@@ -1382,7 +1382,7 @@ function renderResult(code){
   document.getElementById('pt2').textContent=d.s2+'pt';
   document.getElementById('pt3').textContent=d.s3+'pt';
   document.getElementById('cd1').textContent=d.s1>=30?'CB/BW 다수 발행 감지':'발행 이력 미미';
-  document.getElementById('cd2').textContent=d.s2>=20?'불성실공시 이력 확인':'공시 신뢰도 양호';
+  document.getElementById('cd2').textContent=d.s2>=20?'신뢰도 이슈 감지':'공시 신뢰도 양호';
   document.getElementById('cd3').textContent=d.s3>=30?'대주주 매도 패턴 확인':'내부자 매도 미미';
   ['b1','b2','b3'].forEach(b=>document.getElementById(b).style.width='0%');
   document.getElementById('r-flags').innerHTML=d.flags.map(f=>`
@@ -1547,7 +1547,7 @@ async function startAnalysisReal(name,code){
   document.getElementById('pt3').textContent=realS3+'pt';
   document.getElementById('pt4').textContent=realS4+'pt';
   document.getElementById('cd1').textContent=real.cb_count>0?`CB/BW ${real.cb_count}회 발행 감지`:'발행 이력 없음';
-  document.getElementById('cd2').textContent=realS2>=20?'불성실공시 이력 확인':'공시 신뢰도 양호';
+  document.getElementById('cd2').textContent=(real.불성실_count||0)>0?'불성실공시 이력 확인':(real.번복_count||0)>0?'번복/정정 공시 감지':'공시 신뢰도 양호';
   document.getElementById('cd3').textContent=realS3>=30?'대주주 매도 감지':'내부자 매도 미미';
   const 재무위험=real.재무위험항목||[];
   const 재무상세=real.재무분석||{};
@@ -1557,8 +1557,8 @@ async function startAnalysisReal(name,code){
   const flags=[];
   if(real.cb_list&&real.cb_list.length>0){real.cb_list.forEach(t=>flags.push({lv:'high',title:`<b>${t}</b>`,tag:'고위험',detail:`🔴 <b>한 줄 요약:</b> DART 공시에서 실제 확인된 CB/BW 발행이에요.`,source:'공시 출처: DART 실시간 조회'}));}
   else{flags.push({lv:'low',title:'최근 1년 CB/BW <b>발행 없음</b>',tag:'안전',detail:'✅ <b>한 줄 요약:</b> 의심스러운 자금 조달 이력이 없어요.',source:'공시 출처: DART 실시간 조회'});}
-  if((real.불성실_count||0)>0){flags.push({lv:'high',title:`불성실공시법인 지정 이력 <b>${real.불성실_count}건</b> 확인`,tag:'위험',detail:`🔴 <b>한 줄 요약:</b> 금융감독원이 공식 경고한 이력이 있어요.`,source:'공시 출처: DART 실시간 조회'});}
-  else{flags.push({lv:'low',title:'불성실공시법인 지정 이력 <b>없음</b>',tag:'안전',detail:'✅ <b>한 줄 요약:</b> 금감원 경고 이력 없어요.',source:'공시 출처: DART 실시간 조회'});}
+  if((real.불성실_count||0)>0){flags.push({lv:'high',title:`불성실공시법인 지정 이력 <b>${real.불성실_count}건</b> 확인`,tag:'위험',detail:`🔴 <b>한 줄 요약:</b> 거래소(KRX)가 공시의무 위반으로 공식 지정한 이력이 있어요.`,source:'공시 출처: DART 실시간 조회'});}
+  else{flags.push({lv:'low',title:'불성실공시법인 지정 이력 <b>없음</b>',tag:'안전',detail:'✅ <b>한 줄 요약:</b> 거래소 불성실공시 지정 이력 없어요.',source:'공시 출처: DART 실시간 조회'});}
   if(realS3>0&&real.매도_list&&real.매도_list.length>0){flags.push({lv:'high',title:`최근 1개월 내 <b>대주주 매도 ${real.매도_list.length}건</b> 감지`,tag:'고위험',detail:`🔴 <b>한 줄 요약:</b> 대주주/임원이 주식을 팔고 있어요.`,source:'공시 출처: DART 실시간 조회'});}
   else{flags.push({lv:'low',title:'최근 1개월 내부자 매도 <b>없음</b>',tag:'안전',detail:'✅ <b>한 줄 요약:</b> 최근 1개월간 장내 매도 감지 없어요.',source:'공시 출처: DART 실시간 조회'});}
   const 급락률=real.급락률??0;

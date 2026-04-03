@@ -365,7 +365,7 @@ async def calc_funding(client, corp_code, 공시목록_1년):
 # S2. 신뢰도 결여 (공시 번복/정정 감지 포함)
 # ──────────────────────────────────────────
 async def calc_trust(client, corp_code, 공시목록_2년, 공시목록_6개월):
-    불성실_개수 = sum(1 for c in 공시목록_2년 if c.get("pblntf_ty") == "F")
+    불성실_개수 = sum(1 for c in 공시목록_2년 if "불성실공시법인" in c.get("report_nm", ""))
     점수 = 30 if 불성실_개수 >= 2 else 20 if 불성실_개수 == 1 else 0
 
     번복_키워드 = ["[기재정정]", "[내용정정]", "[취소]", "[撤回]", "계약해지", "계약취소", "공급계약해지"]

@@ -6,6 +6,7 @@
 <meta name="naver-site-verification" content="9e3c41b94dee7e1b50bd7d3dc690691b30e30b9a" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>설거지수.AI | 주식 개미를 위한 세력이탈 감지 & DART 분석</title>
+<script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
 <meta name="description" content="내가 사면 고점? AI가 실시간 DART 공시를 분석해 세력의 이탈 징후를 점수로 알려드립니다. 개미들을 위한 가장 빠른 설거지 감지망, 개미는 죽지않는다.">
 <meta property="og:title" content="설거지수.AI | 세력이탈 감지">
 <meta property="og:description" content="내가 사면 고점? AI가 분석하는 가장 빠른 세력 탈출 신호, 지금 내 종목을 검색해보세요.">
@@ -229,16 +230,10 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 <!-- 검색 화면 -->
 <div id="search-screen">
   <div class="disclaimer-bar"><b>투자 위험 고지</b> · 본 서비스는 공시 데이터 기반 참고 정보이며, 특정 종목에 대한 투자를 권유하지 않습니다. 모든 투자 판단과 손익 책임은 투자자 본인에게 있습니다.</div>
-  <div class="ad-slot">
+  <div class="ad-slot" id="ad-search-top">
     <div class="ad-label">ADVERTISEMENT</div>
-    <div class="ad-box pc-ad">
-      <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-WJFMOwQyhWvfEfP8" data-ad-width="728" data-ad-height="90"></ins>
-      <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
-    </div>
-    <div class="ad-box mobile-ad">
-      <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-aB8kUXx9LEx9BCNV" data-ad-width="320" data-ad-height="50"></ins>
-      <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
-    </div>
+    <div class="ad-box pc-ad" id="ad-search-top-pc"></div>
+    <div class="ad-box mobile-ad" id="ad-search-top-mo"></div>
   </div>
   <div class="search-main">
     <div class="logo">설거지수<span>.ai</span></div>
@@ -1114,16 +1109,10 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
       </div>
     </div>
   </div>
-  <div class="ad-slot">
+  <div class="ad-slot" id="ad-search-bottom">
   <div class="ad-label">ADVERTISEMENT</div>
-  <div class="ad-box pc-ad">
-    <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-WJFMOwQyhWvfEfP8" data-ad-width="728" data-ad-height="90"></ins>
-    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
-  </div>
-  <div class="ad-box mobile-ad">
-    <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-aB8kUXx9LEx9BCNV" data-ad-width="320" data-ad-height="50"></ins>
-    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
-  </div>
+  <div class="ad-box pc-ad" id="ad-search-bottom-pc"></div>
+  <div class="ad-box mobile-ad" id="ad-search-bottom-mo"></div>
 </div>
   <div class="footer-legal">
     <div class="legal-box"><div class="legal-title">법적 고지 및 면책 조항</div><div class="legal-text">본 서비스는 <b>금융투자상품에 대한 투자를 권유하지 않으며</b>, 제공되는 모든 정보는 투자 참고 목적으로만 활용되어야 합니다. 설거지 지수는 금융감독원 전자공시시스템(DART)의 공개 공시 데이터를 기반으로 알고리즘이 산출한 참고값으로, <b>투자 결과에 대한 법적 책임을 지지 않습니다.</b> 모든 투자 판단과 그에 따른 손익은 투자자 본인에게 귀속됩니다.</div></div>
@@ -1159,16 +1148,10 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
 <!-- 결과 화면 -->
 <div id="result-screen">
   <div class="disclaimer-bar" style="width:100%"><b>투자 위험 고지</b> · 본 서비스는 공시 데이터 기반 참고 정보이며, 특정 종목에 대한 투자를 권유하지 않습니다. 모든 투자 판단과 손익 책임은 투자자 본인에게 있습니다.</div>
-  <div class="ad-slot">
+  <div class="ad-slot" id="ad-result-top">
   <div class="ad-label">ADVERTISEMENT</div>
-  <div class="ad-box pc-ad">
-    <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-WJFMOwQyhWvfEfP8" data-ad-width="728" data-ad-height="90"></ins>
-    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
-  </div>
-  <div class="ad-box mobile-ad">
-    <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-aB8kUXx9LEx9BCNV" data-ad-width="320" data-ad-height="50"></ins>
-    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
-  </div>
+  <div class="ad-box pc-ad" id="ad-result-top-pc"></div>
+  <div class="ad-box mobile-ad" id="ad-result-top-mo"></div>
 </div>
   <div class="result-inner">
     <div class="back-btn" onclick="goBack()">← 다시 검색</div>
@@ -1229,8 +1212,7 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
     <div style="display:flex;justify-content:center;margin-bottom:24px;">
       <div class="ad-box-rect">
         <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-j6XgecVn4nTQIv92" data-ad-width="300" data-ad-height="250"></ins>
-        <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
-      </div>
+        </div>
     </div>
 
     <!-- 탭 -->
@@ -1288,14 +1270,8 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
 
   <div class="ad-slot">
   <div class="ad-label">ADVERTISEMENT</div>
-  <div class="ad-box pc-ad">
-    <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-WJFMOwQyhWvfEfP8" data-ad-width="728" data-ad-height="90"></ins>
-    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
-  </div>
-  <div class="ad-box mobile-ad">
-    <ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-aB8kUXx9LEx9BCNV" data-ad-width="320" data-ad-height="50"></ins>
-    <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
-  </div>
+  <div class="ad-box pc-ad" id="ad-result-bottom-pc"></div>
+  <div class="ad-box mobile-ad" id="ad-result-bottom-mo"></div>
 </div>
   <div class="footer-legal">
     <div class="legal-box"><div class="legal-title">법적 고지 및 면책 조항</div><div class="legal-text">본 서비스는 <b>금융투자상품에 대한 투자를 권유하지 않으며</b>, 제공되는 모든 정보는 투자 참고 목적으로만 활용되어야 합니다. 설거지 지수는 금융감독원 전자공시시스템(DART)의 공개 공시 데이터를 기반으로 알고리즘이 산출한 참고값이며, <b>투자 결과에 대한 법적 책임을 지지 않습니다.</b></div></div>
@@ -1319,12 +1295,42 @@ let priceChartInst=null;
 function scoreColor(n){return n>=70?'#ff3131':n>=50?'#ff8800':n>=20?'#ffd000':'#00e676';}
 function verdictText(n){return n>=70?'⚠ 설거지 고위험':n>=50?'! 주의 요망':n>=20?'~ 경계 구간':'✓ 비교적 안전';}
 
+function _injectAd(pcId, moId, pcUnit, moUnit){
+  const isMobile=window.innerWidth<=768;
+  const targetId=isMobile?moId:pcId;
+  const unit=isMobile?moUnit:pcUnit;
+  const w=isMobile?'320':'728'; const h=isMobile?'50':'90';
+  const el=document.getElementById(targetId);
+  if(!el)return;
+  el.innerHTML='';
+  const ins=document.createElement('ins');
+  ins.className='kakao_ad_area';
+  ins.style.display='none';
+  ins.setAttribute('data-ad-unit',unit);
+  ins.setAttribute('data-ad-width',w);
+  ins.setAttribute('data-ad-height',h);
+  el.appendChild(ins);
+  if(window.kakaoAdfitInit){kakaoAdfitInit();}
+  else{const s=document.createElement('script');s.src='//t1.daumcdn.net/kas/static/ba.min.js';s.async=true;el.appendChild(s);}
+}
+function _clearAds(){
+  ['ad-search-top-pc','ad-search-top-mo','ad-search-bottom-pc','ad-search-bottom-mo','ad-result-top-pc','ad-result-top-mo','ad-result-bottom-pc','ad-result-bottom-mo'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
+}
 function showOnly(id){
   ['search-screen','loading-screen','result-screen'].forEach(s=>{document.getElementById(s).style.display='none';});
   const el=document.getElementById(id);
   el.style.display=(id==='loading-screen')?'flex':'flex';
   if(id==='result-screen'||id==='search-screen'){el.style.flexDirection='column';el.style.alignItems='center';}
   window.scrollTo(0,0);
+  _clearAds();
+  const PC='DAN-WJFMOwQyhWvfEfP8', MO='DAN-aB8kUXx9LEx9BCNV';
+  if(id==='search-screen'){
+    setTimeout(()=>{_injectAd('ad-search-top-pc','ad-search-top-mo',PC,MO);},100);
+    setTimeout(()=>{_injectAd('ad-search-bottom-pc','ad-search-bottom-mo',PC,MO);},200);
+  }else if(id==='result-screen'){
+    setTimeout(()=>{_injectAd('ad-result-top-pc','ad-result-top-mo',PC,MO);},100);
+    setTimeout(()=>{_injectAd('ad-result-bottom-pc','ad-result-bottom-mo',PC,MO);},200);
+  }
 }
 
 function goBack(){
@@ -1765,6 +1771,12 @@ async function loadTopMovers(){
   }
 }
 loadTopMovers();
+// 최초 검색 화면 광고 삽입
+setTimeout(()=>{
+  const PC='DAN-WJFMOwQyhWvfEfP8', MO='DAN-aB8kUXx9LEx9BCNV';
+  _injectAd('ad-search-top-pc','ad-search-top-mo',PC,MO);
+  setTimeout(()=>{_injectAd('ad-search-bottom-pc','ad-search-bottom-mo',PC,MO);},300);
+},500);
 
 window.addEventListener('beforeunload',()=>{
   if(window._sessionStart&&window._logData){

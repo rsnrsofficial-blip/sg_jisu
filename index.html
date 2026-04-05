@@ -152,6 +152,7 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 @media (max-width: 480px) {
   .logo { font-size: 38px !important; }
   .tagline { font-size: 9px !important; letter-spacing: 3px !important; }
+  .hero-character { width: 120px !important; margin-bottom: 12px !important; }
   .search-row { flex-direction: row; gap: 6px; }
   .search-input { font-size: 14px; padding: 12px 14px; }
   .search-btn { padding: 12px 16px; font-size: 13px; white-space: nowrap; }
@@ -208,9 +209,11 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .movers-col-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; }
 .movers-col-label.up { color: #ff3131; }
 .movers-col-label.dn { color: #4fc3f7; }
-.mover-item { display: flex; align-items: center; padding: 8px 14px; border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer; transition: background 0.12s; }
+.mover-item { display: flex; align-items: center; padding: 8px 14px; border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer; transition: background 0.15s, transform 0.1s; position: relative; }
 .mover-item:last-child { border-bottom: none; }
-.mover-item:hover { background: rgba(255,255,255,0.03); }
+.mover-item:hover { background: rgba(255,255,255,0.07); }
+.mover-item:hover::after { content: '→'; position: absolute; right: 14px; color: #444; font-size: 11px; }
+.mover-item:active { transform: scale(0.98); }
 .mover-rank { font-family: 'Bebas Neue', sans-serif; font-size: 14px; color: #2a2a2a; width: 18px; flex-shrink: 0; }
 .mover-info { flex: 1; min-width: 0; padding: 0 8px; }
 .mover-name { font-size: 12px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1075,7 +1078,7 @@ VLKHPN4bTXYAmxdfpN4hhFSnCSkuboARYqmmm5J9ibG2WwCqYmXsQfUANE8Hkm67AF8fjNUUOXGG
 XNGnyvmyAXQuIRbecleim+rALRK4i0luRALiOPcZAITfiDG4AQEQAhAiAAAAEAAEogAIAAAAAAgA
 ADAC0BhdwCYVb3+1J4Oe69Bq9bAKZ/VahpGVdRSNtpuSgsvqAZ4pTVYZoyRgvLcbhtMAjL4ReWsV
 CtGTSZnLujG406cH/FEAnBFcV1m0nb6rVgn8qZJZwWcrABHys6vYsqbAFqzqL6bHm34x9BhTu9K4
-ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;height:auto;margin-bottom:20px;display:block;margin-left:auto;margin-right:auto;mix-blend-mode:screen;" alt="개미 캐릭터" />
+ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;height:auto;margin-bottom:20px;display:block;margin-left:auto;margin-right:auto;mix-blend-mode:screen;" class="hero-character" alt="개미 캐릭터" />
       <div style="font-size:16px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;margin-bottom:16px;line-height:1.5;">29층에서 떨어져도<br><span style="color:#ff3131;">개미는 죽지 않는다.</span></div>
       <div style="font-size:13px;color:#555;line-height:2.0;">재무건전성 · CB 발행 · 대주주 매도 · 불성실공시 등<br>숫자와 팩트만으로 분석하는, <span style="color:#efefef;font-weight:700;">이성적 투자자</span>를 위한 주식 정보 <span style="color:#efefef;font-weight:500;">AI 서비스</span></div>
     </div>
@@ -1273,6 +1276,9 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
   <div class="ad-box pc-ad" id="ad-result-bottom-pc"></div>
   <div class="ad-box mobile-ad" id="ad-result-bottom-mo"></div>
 </div>
+  <div style="width:100%;max-width:640px;padding:0 24px 32px;">
+    <button onclick="goBack()" style="width:100%;padding:16px;background:#ff3131;color:#fff;border:none;border-radius:4px;font-size:15px;font-weight:700;letter-spacing:1px;cursor:pointer;">🔍 다른 종목 분석하기</button>
+  </div>
   <div class="footer-legal">
     <div class="legal-box"><div class="legal-title">법적 고지 및 면책 조항</div><div class="legal-text">본 서비스는 <b>금융투자상품에 대한 투자를 권유하지 않으며</b>, 제공되는 모든 정보는 투자 참고 목적으로만 활용되어야 합니다. 설거지 지수는 금융감독원 전자공시시스템(DART)의 공개 공시 데이터를 기반으로 알고리즘이 산출한 참고값이며, <b>투자 결과에 대한 법적 책임을 지지 않습니다.</b></div></div>
     <div class="dart-credit">데이터 출처: 금융감독원 전자공시시스템(DART) · dart.fss.or.kr</div>

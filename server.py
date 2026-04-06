@@ -1052,6 +1052,48 @@ def get_top_movers_debug():
     return {"logs": logs}
 
 
+@app.get("/investor")
+def get_investor(stock_code: str):
+    """네이버 금융 외국인/기관 순매매 5일치 스크래핑"""
+    url = f"https://finance.naver.com/item/frgn.naver?code={stock_code}"
+    try:
+        r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
+        r.encoding = "euc-kr"
+        html = r.text
+        # 날짜, 종가, 전일비, 등락률, 거래량, 기관순매매, 외국인순매매, 외국인보유율
+        rows = re.findall(
+            r'<td class="date">(\d{4}\.\d{2}\.\d{2})</td>\s*'
+            r'<td class="number_1"><span[^>]*>([\d,]+)</span></td>\s*'
+            r'<td[^>]*>.*?</td>\s*'   # 전일비
+            r'<td[^>]*>.*?</td>\s*'   # 등락률
+            r'<td class="number_1">([\d,]+)</td>\s*'   # 거래량
+            r'<td class="number_1"><span[^>]*>([+\-]?[\d,]+)</span></td>\s*'  # 기관
+            r'<td class="number_1"><span[^>]*>([+\-]?[\d,]+)</span></td>\s*'  # 외국인
+            r'<td[^>]*>.*?</td>\s*'   # 보유주수
+            r'<td class="number_1">([\d.]+)</td>',      # 보유율
+            html, re.DOTALL
+        )
+        result = []
+        for row in rows[:5]:
+            try:
+                date, price, vol, inst, frgn, frgn_rate = row[0], row[1], row[2], row[3], row[4], row[5]
+                result.append({
+                    "date": date,
+                    "price": int(price.replace(",", "")),
+                    "volume": int(vol.replace(",", "")),
+                    "institution": int(inst.replace(",", "").replace("+", "")),
+                    "foreign": int(frgn.replace(",", "").replace("+", "")),
+                    "foreign_rate": float(frgn_rate),
+                })
+            except Exception:
+                continue
+        if not result:
+            return {"error": "데이터 파싱 실패", "days": []}
+        return {"days": result}
+    except Exception as e:
+        return {"error": str(e), "days": []}
+
+
 @app.post("/log")
 async def log_session(request: Request):
     try:

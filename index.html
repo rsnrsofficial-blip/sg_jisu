@@ -149,6 +149,25 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .dart-credit { text-align: center; font-size: 10px; color: #222; margin-bottom: 6px; }
 .copyright { text-align: center; font-size: 10px; color: #1e1e1e; padding-bottom: 20px; }
 
+/* 외국인/기관 순매매 */
+.investor-summary { width:100%;max-width:640px;padding:0 24px 8px;margin-top:8px; }
+.investor-summary-title { font-size:10px;color:#333;letter-spacing:2px;margin-bottom:10px; }
+.investor-row { display:flex;align-items:center;gap:10px;padding:10px 14px;background:#111;border:1px solid rgba(255,255,255,0.05);border-radius:4px;margin-bottom:8px; }
+.investor-icon { font-size:18px;width:28px;text-align:center; }
+.investor-label { font-size:12px;color:#888;width:48px; }
+.investor-bar-wrap { flex:1;height:6px;background:#1a1a1a;border-radius:3px;overflow:hidden; }
+.investor-bar { height:100%;border-radius:3px;transition:width 0.6s ease; }
+.investor-val { font-size:12px;font-weight:700;width:70px;text-align:right; }
+.investor-signal { font-size:10px;margin-top:2px;color:#555; }
+.investor-detail-wrap { margin-top:12px; }
+.investor-day-row { display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px; }
+.investor-day-row:last-child { border-bottom:none; }
+.investor-day-date { color:#444;width:70px;flex-shrink:0; }
+.investor-day-inst { width:80px;text-align:right; }
+.investor-day-frgn { width:80px;text-align:right; }
+.investor-day-rate { color:#555;font-size:10px;flex:1;text-align:right; }
+.investor-frgn-rate-bar { display:flex;align-items:center;gap:6px;margin-top:12px;padding:10px 14px;background:#111;border:1px solid rgba(255,255,255,0.05);border-radius:4px; }
+
 @media (max-width: 480px) {
   .logo { font-size: 38px !important; }
   .tagline { font-size: 9px !important; letter-spacing: 3px !important; }
@@ -1220,6 +1239,25 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
       </div>
     </div>
 
+    <!-- 외국인/기관 순매매 요약 -->
+    <div class="investor-summary" id="investor-summary" style="display:none;">
+      <div class="investor-summary-title">스마트머니 동향 (최근 5일)</div>
+      <div class="investor-row" id="inv-frgn-row">
+        <div class="investor-icon">🏢</div>
+        <div class="investor-label">외국인</div>
+        <div class="investor-bar-wrap"><div class="investor-bar" id="inv-frgn-bar" style="width:0%;background:#ff3131"></div></div>
+        <div class="investor-val" id="inv-frgn-val">—</div>
+      </div>
+      <div class="investor-signal" id="inv-frgn-signal" style="padding:0 14px 6px;"></div>
+      <div class="investor-row" id="inv-inst-row">
+        <div class="investor-icon">🏦</div>
+        <div class="investor-label">기관</div>
+        <div class="investor-bar-wrap"><div class="investor-bar" id="inv-inst-bar" style="width:0%;background:#ff3131"></div></div>
+        <div class="investor-val" id="inv-inst-val">—</div>
+      </div>
+      <div class="investor-signal" id="inv-inst-signal" style="padding:0 14px 6px;"></div>
+    </div>
+
     <!-- 광고: 카드 아래, 탭 위 -->
     <div style="display:flex;justify-content:center;margin-bottom:24px;">
       <div class="ad-box-rect">
@@ -1253,6 +1291,22 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
           <button class="period-btn">1년</button>
         </div>
         <div style="position:relative;height:220px;"><canvas id="priceChart"></canvas></div>
+      </div>
+
+      <!-- 외국인/기관 상세 -->
+      <div id="investor-detail" style="padding:0 4px;">
+        <div style="font-size:10px;color:#333;letter-spacing:2px;margin:20px 0 10px;">스마트머니 5일 상세</div>
+        <div style="display:grid;grid-template-columns:70px 1fr 1fr 1fr;gap:0;font-size:10px;color:#444;padding:6px 0;border-bottom:1px solid #1a1a1a;">
+          <span>날짜</span><span style="text-align:right">기관</span><span style="text-align:right">외국인</span><span style="text-align:right">외국인보유율</span>
+        </div>
+        <div id="investor-day-list"></div>
+        <div class="investor-frgn-rate-bar" id="investor-rate-wrap" style="display:none;">
+          <span style="font-size:11px;color:#555;">외국인 보유율</span>
+          <div style="flex:1;height:6px;background:#1a1a1a;border-radius:3px;overflow:hidden;">
+            <div id="investor-rate-bar" style="height:100%;background:#4488ff;border-radius:3px;transition:width 0.6s;"></div>
+          </div>
+          <span id="investor-rate-val" style="font-size:12px;font-weight:700;color:#4488ff;">—</span>
+        </div>
       </div>
     </div>
     <div class="tab-panel" id="tab-finance">
@@ -1632,6 +1686,7 @@ async function startAnalysisReal(name,code){
   // 비동기 로드 (뉴스, 경고종목)
   loadNews(real.stock_code||'');
   loadWarningStocks(real.stock_code||'');
+  if(real.stock_code) loadInvestor(real.stock_code);
   setTimeout(()=>{
     animateScore(realTotal,realCol);
     document.getElementById('b1').style.width=Math.round(realS1/40*100)+'%';
@@ -1719,6 +1774,74 @@ document.querySelectorAll('.period-btn').forEach((btn,i)=>{
 });
 
 // ── 뉴스 렌더 ──
+async function loadInvestor(stock_code){
+  try{
+    const res=await fetch(`https://sgjisu-production.up.railway.app/investor?stock_code=${stock_code}`);
+    const data=await res.json();
+    const days=data.days||[];
+    if(!days.length)return;
+
+    // 5일 합산
+    const totalFrgn=days.reduce((s,d)=>s+d.foreign,0);
+    const totalInst=days.reduce((s,d)=>s+d.institution,0);
+    const fmt=v=>{const abs=Math.abs(v);return (abs>=100000000?(abs/100000000).toFixed(1)+'억':(abs>=10000?(abs/10000).toFixed(0)+'만':abs.toLocaleString()))};
+    const sign=v=>v>=0?'+':'-';
+    const col=v=>v>=0?'#ff3131':'#4488ff';  // 매수=빨강(한국 관례), 매도=파랑
+    const arrow=v=>v>=0?'▲':'▼';
+
+    // 요약 카드 렌더
+    document.getElementById('investor-summary').style.display='';
+    const maxAbs=Math.max(Math.abs(totalFrgn),Math.abs(totalInst),1);
+    const frgnPct=Math.min(100,Math.abs(totalFrgn)/maxAbs*100);
+    const instPct=Math.min(100,Math.abs(totalInst)/maxAbs*100);
+
+    document.getElementById('inv-frgn-bar').style.width=frgnPct+'%';
+    document.getElementById('inv-frgn-bar').style.background=col(totalFrgn);
+    document.getElementById('inv-frgn-val').style.color=col(totalFrgn);
+    document.getElementById('inv-frgn-val').textContent=sign(totalFrgn)+fmt(totalFrgn);
+
+    document.getElementById('inv-inst-bar').style.width=instPct+'%';
+    document.getElementById('inv-inst-bar').style.background=col(totalInst);
+    document.getElementById('inv-inst-val').style.color=col(totalInst);
+    document.getElementById('inv-inst-val').textContent=sign(totalInst)+fmt(totalInst);
+
+    // 연속 매도/매수 감지
+    const frgnSignal=()=>{
+      const streak=days.filter((d,i)=>i<days.length&&d.foreign<0).length;
+      const streak2=days.filter((d,i)=>i<days.length&&d.foreign>0).length;
+      if(streak>=3)return`🏢 외국인 ${streak}일 연속 순매도 중 ⚠️`;
+      if(streak2>=3)return`🏢 외국인 ${streak2}일 연속 순매수 중 🚀`;
+      return totalFrgn>=0?'🏢 외국인 5일 합산 순매수':'🏢 외국인 5일 합산 순매도';
+    };
+    const instSignal=()=>{
+      const streak=days.filter(d=>d.institution<0).length;
+      const streak2=days.filter(d=>d.institution>0).length;
+      if(streak>=3)return`🏦 기관 ${streak}일 연속 순매도 중 ⚠️`;
+      if(streak2>=3)return`🏦 기관 ${streak2}일 연속 순매수 중 🚀`;
+      return totalInst>=0?'🏦 기관 5일 합산 순매수':'🏦 기관 5일 합산 순매도';
+    };
+    document.getElementById('inv-frgn-signal').textContent=frgnSignal();
+    document.getElementById('inv-frgn-signal').style.color=totalFrgn>=0?'#ff3131':'#4488ff';
+    document.getElementById('inv-inst-signal').textContent=instSignal();
+    document.getElementById('inv-inst-signal').style.color=totalInst>=0?'#ff3131':'#4488ff';
+
+    // 주가&시세 탭 상세
+    document.getElementById('investor-day-list').innerHTML=days.map(d=>`
+      <div class="investor-day-row">
+        <span class="investor-day-date">${d.date}</span>
+        <span class="investor-day-inst" style="color:${col(d.institution)}">${arrow(d.institution)} ${fmt(d.institution)}</span>
+        <span class="investor-day-frgn" style="color:${col(d.foreign)}">${arrow(d.foreign)} ${fmt(d.foreign)}</span>
+        <span class="investor-day-rate" style="color:#4488ff">${d.foreign_rate}%</span>
+      </div>`).join('');
+
+    // 외국인 보유율 바
+    const latestRate=days[0]?.foreign_rate||0;
+    document.getElementById('investor-rate-wrap').style.display='flex';
+    document.getElementById('investor-rate-bar').style.width=Math.min(100,latestRate*1.5)+'%';
+    document.getElementById('investor-rate-val').textContent=latestRate+'%';
+  }catch(e){console.warn('investor load err',e);}
+}
+
 async function loadNews(stock_code){
   try{
     const r=await fetch(`https://sgjisu-production.up.railway.app/news?stock_code=${stock_code}`,{signal:AbortSignal.timeout(10000)});

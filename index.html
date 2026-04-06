@@ -1340,11 +1340,11 @@ function showOnly(id){
 }
 
 function goBack(){
-  if(window._sessionStart&&window._logData){
+  if(window._sessionStart&&window._logData&&!window._usageLogged){
     const session_time=Math.round((Date.now()-window._sessionStart)/1000);
-    fetch('https://sgjisu-production.up.railway.app/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...window._logData,session_time})}).catch(()=>{});
-    window._sessionStart=null;window._logData=null;
+    fetch('https://sgjisu-production.up.railway.app/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'exit',...window._logData,session_time})}).catch(()=>{});
   }
+  window._sessionStart=null;window._logData=null;window._usageLogged=false;
   showOnly('search-screen');
   document.getElementById('main-input').value='';
 }
@@ -1613,6 +1613,12 @@ async function startAnalysisReal(name,code){
   history.pushState({screen:'result'}, '', '');
   window._logData={company:real.종목||name,stock_code:real.stock_code||'',score:real.score||0};
   window._sessionStart=Date.now();
+  window._usageLogged=false;
+  // 결과 수신 즉시 usage 기록 (강제 종료 시 유실 방지)
+  fetch('https://sgjisu-production.up.railway.app/log',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({type:'usage',company:real.종목||name,stock_code:real.stock_code||'',score:real.score||0,session_time:0})
+  }).then(()=>{window._usageLogged=true;}).catch(()=>{});
 
   // 비동기 로드 (뉴스, 경고종목)
   loadNews(real.stock_code||'');
@@ -1785,9 +1791,9 @@ setTimeout(()=>{
 },500);
 
 window.addEventListener('beforeunload',()=>{
-  if(window._sessionStart&&window._logData){
+  if(window._sessionStart&&window._logData&&!window._usageLogged){
     const session_time=Math.round((Date.now()-window._sessionStart)/1000);
-    navigator.sendBeacon('https://sgjisu-production.up.railway.app/log',JSON.stringify({...window._logData,session_time}));
+    navigator.sendBeacon('https://sgjisu-production.up.railway.app/log',JSON.stringify({type:'exit',...window._logData,session_time}));
   }
 });
 </script>

@@ -1058,8 +1058,21 @@ async def log_session(request: Request):
         data = await request.json()
         ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "unknown")
         ua = request.headers.get("user-agent", "")
-        device = "모바일" if any(k in ua.lower() for k in ["mobile", "android", "iphone", "ipad"]) else "PC"
+        ua_lower = ua.lower()
+        if "iphone" in ua_lower or "ipad" in ua_lower:
+            device = "iOS"
+        elif "android" in ua_lower:
+            device = "Android"
+        elif "windows" in ua_lower:
+            device = "Windows"
+        elif "mac" in ua_lower:
+            device = "macOS"
+        elif "mobile" in ua_lower:
+            device = "모바일(기타)"
+        else:
+            device = "PC(기타)"
         referrer = request.headers.get("referer", "")
+        log_type = data.get("type", "usage")
 
         region = ""
         try:
@@ -1070,9 +1083,11 @@ async def log_session(request: Request):
                 region = f"{geo_data.get('regionName', '')} {geo_data.get('city', '')}".strip()
         except: pass
 
+        company = data.get("company", "")
         log_to_sheets({
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "company": data.get("company", ""),
+            "type": "사용" if company else log_type,
+            "company": company,
             "stock_code": data.get("stock_code", ""),
             "score": data.get("score", 0),
             "ip": ip,

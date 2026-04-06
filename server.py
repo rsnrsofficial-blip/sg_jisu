@@ -1096,23 +1096,20 @@ def get_investor(stock_code: str):
 
 @app.get("/investor-debug")
 def get_investor_debug(stock_code: str = "005930"):
-    # 실제 데이터는 별도 URL에서 로드될 수 있음 - 여러 후보 시도
-    candidates = [
-        f"https://finance.naver.com/item/frgn.naver?code={stock_code}&page=1",
-        f"https://finance.naver.com/item/frgn_detail.naver?code={stock_code}",
-        f"https://finance.naver.com/fchart/api/getStockForeignInstitution.nhn?symbol={stock_code}&timeframe=day&count=5&requestType=0",
-        f"https://finance.naver.com/item/sise_investor.naver?code={stock_code}",
-    ]
-    results = {}
-    for url in candidates:
-        try:
-            r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=5)
-            r.encoding = "euc-kr"
-            txt = r.text
-            results[url] = {"status": r.status_code, "snippet": txt[:500]}
-        except Exception as e:
-            results[url] = {"error": str(e)}
-    return results
+    url = f"https://finance.naver.com/item/frgn.naver?code={stock_code}&page=1"
+    r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
+    html = r.text  # UTF-8
+    # number_3, td class 패턴 찾기
+    keywords = ["number_3", "frgn_hl", "기관", "외국인", "순매매", "tbl_type", "tbody"]
+    found = {}
+    for kw in keywords:
+        idx = html.find(kw)
+        if idx != -1:
+            found[kw] = {"pos": idx, "snippet": html[max(0,idx-50):idx+300]}
+    # 날짜 패턴 위치들
+    import re as _re
+    dates = [(m.start(), html[max(0,m.start()-200):m.start()+500]) for m in _re.finditer(r'\d{4}\.\d{2}\.\d{2}', html)]
+    return {"found_keywords": list(found.keys()), "details": found, "date_count": len(dates), "first_date_ctx": dates[0][1] if dates else "", "second_date_ctx": dates[1][1] if len(dates)>1 else ""}
 
 
 @app.post("/log")

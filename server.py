@@ -1096,24 +1096,23 @@ def get_investor(stock_code: str):
 
 @app.get("/investor-debug")
 def get_investor_debug(stock_code: str = "005930"):
-    url = f"https://finance.naver.com/item/frgn.naver?code={stock_code}"
-    r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
-    r.encoding = "euc-kr"
-    html = r.text
-    # 기관 순매매 테이블 위치 찾기
-    keywords = ["기관_순매매", "frgn_main", "investor", "순매매량", "number_3", "기관순매매"]
-    for kw in keywords:
-        idx = html.find(kw)
-        if idx != -1:
-            return {"keyword": kw, "snippet": html[max(0,idx-100):idx+2000]}
-    # 못찾으면 날짜 2026 패턴 전체 위치 목록
-    import re as _re
-    positions = [m.start() for m in _re.finditer(r'2026\.\d{2}\.\d{2}', html)]
-    if positions:
-        # 두번째 이후 날짜 (첫번째는 헤더)
-        idx = positions[1] if len(positions)>1 else positions[0]
-        return {"positions": positions[:10], "snippet": html[max(0,idx-500):idx+2000]}
-    return {"error": "not found", "len": len(html)}
+    # 실제 데이터는 별도 URL에서 로드될 수 있음 - 여러 후보 시도
+    candidates = [
+        f"https://finance.naver.com/item/frgn.naver?code={stock_code}&page=1",
+        f"https://finance.naver.com/item/frgn_detail.naver?code={stock_code}",
+        f"https://finance.naver.com/fchart/api/getStockForeignInstitution.nhn?symbol={stock_code}&timeframe=day&count=5&requestType=0",
+        f"https://finance.naver.com/item/sise_investor.naver?code={stock_code}",
+    ]
+    results = {}
+    for url in candidates:
+        try:
+            r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=5)
+            r.encoding = "euc-kr"
+            txt = r.text
+            results[url] = {"status": r.status_code, "snippet": txt[:500]}
+        except Exception as e:
+            results[url] = {"error": str(e)}
+    return results
 
 
 @app.post("/log")

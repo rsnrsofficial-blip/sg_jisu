@@ -1096,12 +1096,19 @@ def get_investor(stock_code: str):
 
 @app.get("/investor-debug")
 def get_investor_debug(stock_code: str = "005930"):
-    # 네이버는 실제 데이터를 iframe URL에서 제공
-    url = f"https://finance.naver.com/item/frgn_iframe.naver?code={stock_code}"
+    url = f"https://finance.naver.com/item/frgn.naver?code={stock_code}"
     r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
     r.encoding = "euc-kr"
     html = r.text
-    return {"snippet": html[:4000], "len": len(html)}
+    # 날짜 패턴이 있는 구간 찾기
+    import re as _re
+    m = _re.search(r'\d{4}\.\d{2}\.\d{2}', html)
+    if m:
+        start = max(0, m.start() - 200)
+        return {"snippet": html[start:start+3000], "found_at": m.start()}
+    # 못찾으면 중반부
+    mid = len(html) // 2
+    return {"snippet": html[mid:mid+3000], "found_at": -1, "len": len(html)}
 
 
 @app.post("/log")

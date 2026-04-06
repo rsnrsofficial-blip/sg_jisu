@@ -1096,13 +1096,12 @@ def get_investor(stock_code: str):
 
 @app.get("/investor-debug")
 def get_investor_debug(stock_code: str = "005930"):
-    url = f"https://finance.naver.com/item/frgn.naver?code={stock_code}"
+    # 네이버는 실제 데이터를 iframe URL에서 제공
+    url = f"https://finance.naver.com/item/frgn_iframe.naver?code={stock_code}"
     r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
     r.encoding = "euc-kr"
     html = r.text
-    # 테이블 부분만 추출
-    snip = html[html.find("frgn_hl_wrap"):html.find("frgn_hl_wrap")+3000] if "frgn_hl_wrap" in html else html[5000:8000]
-    return {"snippet": snip, "len": len(html)}
+    return {"snippet": html[:4000], "len": len(html)}
 
 
 @app.post("/log")

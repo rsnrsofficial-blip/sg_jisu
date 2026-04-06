@@ -1100,15 +1100,20 @@ def get_investor_debug(stock_code: str = "005930"):
     r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
     r.encoding = "euc-kr"
     html = r.text
-    # 날짜 패턴이 있는 구간 찾기
+    # 기관 순매매 테이블 위치 찾기
+    keywords = ["기관_순매매", "frgn_main", "investor", "순매매량", "number_3", "기관순매매"]
+    for kw in keywords:
+        idx = html.find(kw)
+        if idx != -1:
+            return {"keyword": kw, "snippet": html[max(0,idx-100):idx+2000]}
+    # 못찾으면 날짜 2026 패턴 전체 위치 목록
     import re as _re
-    m = _re.search(r'\d{4}\.\d{2}\.\d{2}', html)
-    if m:
-        start = max(0, m.start() - 200)
-        return {"snippet": html[start:start+3000], "found_at": m.start()}
-    # 못찾으면 중반부
-    mid = len(html) // 2
-    return {"snippet": html[mid:mid+3000], "found_at": -1, "len": len(html)}
+    positions = [m.start() for m in _re.finditer(r'2026\.\d{2}\.\d{2}', html)]
+    if positions:
+        # 두번째 이후 날짜 (첫번째는 헤더)
+        idx = positions[1] if len(positions)>1 else positions[0]
+        return {"positions": positions[:10], "snippet": html[max(0,idx-500):idx+2000]}
+    return {"error": "not found", "len": len(html)}
 
 
 @app.post("/log")

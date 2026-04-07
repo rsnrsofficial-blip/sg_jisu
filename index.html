@@ -33,13 +33,18 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 
 #search-screen { display: flex; flex-direction: column; align-items: center; }
 .search-main { min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px 20px; text-align: center; width: 100%; }
+.search-main .logo { order: 1; }
+.search-main .tagline { order: 2; }
+.search-main .autocomplete-wrap { order: 3; margin-top: 24px; }
+.search-main .chips { order: 4; }
+.search-main .hero-block { order: 5; margin-top: 32px; }
 .logo { font-family: 'Bebas Neue', sans-serif; font-size: 56px; letter-spacing: 4px; line-height: 1; margin-bottom: 8px; }
 .logo span { color: #ff3131; }
 .tagline { font-size: 11px; color: #444; letter-spacing: 4px; margin-bottom: 48px; }
 .search-row { display: flex; gap: 8px; width: 100%; max-width: 460px; margin-bottom: 16px; }
-.search-input { flex: 1; background: #141414; border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; padding: 14px 18px; font-size: 15px; font-family: 'Noto Sans KR', sans-serif; color: #efefef; outline: none; }
-.search-input:focus { border-color: rgba(255,255,255,0.2); }
-.search-input::placeholder { color: #333; }
+.search-input { flex: 1; background: #141414; border: 1px solid rgba(255,49,49,0.3); border-radius: 4px; padding: 14px 18px; font-size: 15px; font-family: 'Noto Sans KR', sans-serif; color: #efefef; outline: none; box-shadow: 0 0 12px rgba(255,49,49,0.12); transition: box-shadow 0.2s, border-color 0.2s; }
+.search-input:focus { border-color: rgba(255,49,49,0.7); box-shadow: 0 0 20px rgba(255,49,49,0.25); }
+.search-input::placeholder { color: #444; }
 .search-btn { background: #ff3131; border: none; border-radius: 4px; padding: 0 22px; font-size: 14px; font-family: 'Noto Sans KR', sans-serif; font-weight: 700; color: white; cursor: pointer; white-space: nowrap; }
 .search-btn:hover { opacity: 0.85; }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 460px; margin-bottom: 32px; }
@@ -260,7 +265,7 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
   <div class="search-main">
     <div class="logo">설거지수<span>.ai</span></div>
     <div class="tagline">EXIT LIQUIDITY DETECTOR</div>
-    <div style="max-width:460px;margin-bottom:28px;text-align:center;">
+    <div class="hero-block" style="max-width:460px;margin-bottom:28px;text-align:center;">
       <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdC
 IFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAA
 AADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlk
@@ -1202,6 +1207,7 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
         </div>
       </div>
       <div class="verdict" id="r-verdict"></div>
+      <div id="r-summary" style="font-size:12px;color:#666;margin-top:10px;line-height:1.6;text-align:center;min-height:18px;"></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px;">
         <span style="font-size:10px;color:#aaa;letter-spacing:0.5px;">0–19 <span style="color:#00e676">✓ 안전</span></span>
         <span style="font-size:10px;color:#555;">·</span>
@@ -1340,6 +1346,7 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
   <div class="ad-box mobile-ad" id="ad-result-bottom-mo"></div>
 </div>
   <div style="width:100%;max-width:640px;padding:0 24px 32px;">
+    <div style="text-align:center;font-size:12px;color:#333;font-style:italic;margin-bottom:14px;letter-spacing:0.3px;">"매수 전 한 번 더. 그 습관이 계좌를 지킵니다."</div>
     <button onclick="goBack()" style="width:100%;padding:16px;background:#ff3131;color:#fff;border:none;border-radius:4px;font-size:15px;font-weight:700;letter-spacing:1px;cursor:pointer;">🔍 다른 종목 분석하기</button>
   </div>
   <div class="footer-legal">
@@ -1396,6 +1403,7 @@ function showOnly(id){
   if(id==='search-screen'){
     setTimeout(()=>{_injectAd('ad-search-top-pc','ad-search-top-mo',PC,MO);},100);
     setTimeout(()=>{_injectAd('ad-search-bottom-pc','ad-search-bottom-mo',PC,MO);},200);
+    setTimeout(()=>{const inp=document.getElementById('main-input');if(inp)inp.focus();},300);
   }else if(id==='result-screen'){
     setTimeout(()=>{_injectAd('ad-result-top-pc','ad-result-top-mo',PC,MO);},100);
     setTimeout(()=>{_injectAd('ad-result-bottom-pc','ad-result-bottom-mo',PC,MO);},200);
@@ -1620,6 +1628,26 @@ async function startAnalysisReal(name,code){
   const vEl=document.getElementById('r-verdict');
   vEl.innerHTML=`<div class="vdot"></div>${verdictText(realTotal)}`;
   vEl.style.cssText=`display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:1px;margin-top:8px;color:${realCol};background:${realCol}22;border:1px solid ${realCol}44;`;
+  // 한 줄 요약
+  const summaryEl=document.getElementById('r-summary');
+  if(summaryEl){
+    const parts=[];
+    if((real.cb_count||0)>0) parts.push(`CB/BW ${real.cb_count}회 발행`);
+    if((real.불성실_count||0)>0) parts.push(`불성실공시 ${real.불성실_count}건`);
+    if((real.번복_count||0)>0) parts.push(`공시 번복·정정 ${real.번복_count}건`);
+    if(realS3>=20&&(real.매도_list||[]).length>0) parts.push(`대주주 매도 ${real.매도_list.length}건`);
+    if(realS4>=30) parts.push('재무 위험 다수');
+    else if(realS4>=15) parts.push('재무 주의 신호');
+    if(realS7>=35) parts.push('급락 이상 감지');
+    if(real.관리종목) parts.push('관리종목 지정');
+    if(parts.length===0){
+      summaryEl.textContent=realTotal<20?'분석된 위험 항목이 없습니다':'특이사항 없음 — 세부 내역을 확인하세요';
+      summaryEl.style.color='#444';
+    }else{
+      summaryEl.textContent=parts.join(' · ');
+      summaryEl.style.color=realCol;
+    }
+  }
   document.getElementById('r-score').style.color=realCol;
   document.getElementById('pt1').textContent=realS1+'pt';
   document.getElementById('pt2').textContent=realS2+'pt';

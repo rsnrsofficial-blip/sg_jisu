@@ -1786,7 +1786,7 @@ async function loadInvestor(stock_code){
     const totalInst=days.reduce((s,d)=>s+d.institution,0);
     const fmt=v=>{const abs=Math.abs(v);return (abs>=100000000?(abs/100000000).toFixed(1)+'억':(abs>=10000?(abs/10000).toFixed(0)+'만':abs.toLocaleString()))};
     const sign=v=>v>=0?'+':'-';
-    const col=v=>v>=0?'#ff3131':'#4488ff';  // 매수=빨강(한국 관례), 매도=파랑
+    const col=v=>v>=0?'#4488ff':'#ff3131';  // 순매수=파랑, 순매도=빨강
     const arrow=v=>v>=0?'▲':'▼';
 
     // 요약 카드 렌더
@@ -1821,9 +1821,9 @@ async function loadInvestor(stock_code){
       return totalInst>=0?'🏦 기관 5일 합산 순매수':'🏦 기관 5일 합산 순매도';
     };
     document.getElementById('inv-frgn-signal').textContent=frgnSignal();
-    document.getElementById('inv-frgn-signal').style.color=totalFrgn>=0?'#ff3131':'#4488ff';
+    document.getElementById('inv-frgn-signal').style.color=totalFrgn>=0?'#4488ff':'#ff3131';
     document.getElementById('inv-inst-signal').textContent=instSignal();
-    document.getElementById('inv-inst-signal').style.color=totalInst>=0?'#ff3131':'#4488ff';
+    document.getElementById('inv-inst-signal').style.color=totalInst>=0?'#4488ff':'#ff3131';
 
     // 주가&시세 탭 상세
     document.getElementById('investor-day-list').innerHTML=days.map(d=>`

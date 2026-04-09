@@ -87,28 +87,31 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .progress-pct { font-size: 11px; color: #333; letter-spacing: 2px; margin-top: 8px; text-align: right; }
 
 #result-screen { display: none; flex-direction: column; align-items: center; }
-.result-inner { width: 100%; max-width: 640px; padding: 40px 24px 20px; }
-.back-btn { display: inline-block; font-size: 12px; color: #444; cursor: pointer; letter-spacing: 1px; margin-bottom: 32px; }
-.back-btn:hover { color: #efefef; }
-.result-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; flex-wrap: wrap; gap: 12px; }
-.stock-code { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 2px; line-height: 1; }
-.stock-name { font-size: 13px; color: #444; margin-top: 6px; }
-.stock-price { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 1px; text-align: right; line-height: 1; }
-.stock-change { font-size: 12px; text-align: right; margin-top: 4px; }
-.result-date { font-size: 11px; color: #2e2e2e; margin-top: 4px; text-align: right; }
+.result-topbar { width: 100%; max-width: 100%; background: #0b1422; border-bottom: 1px solid rgba(99,130,190,0.1); display: flex; align-items: center; gap: 0; padding: 0; }
+.result-topbar-inner { width: 100%; max-width: 640px; margin: 0 auto; display: flex; align-items: center; gap: 12px; padding: 11px 20px; }
+.result-topbar-back { font-size: 13px; color: #475569; cursor: pointer; flex-shrink: 0; padding-right: 14px; border-right: 1px solid rgba(99,130,190,0.15); }
+.result-topbar-back:hover { color: #94a3b8; }
+.result-topbar-stock { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; overflow: hidden; }
+.result-topbar-code { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; color: #e2e8f0; flex-shrink: 0; }
+.result-topbar-name { font-size: 13px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.result-topbar-price { display: flex; align-items: baseline; gap: 8px; flex-shrink: 0; }
+.result-topbar-pricenum { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 0.5px; color: #e2e8f0; }
+.result-topbar-change { font-size: 12px; font-weight: 600; }
+.result-inner { width: 100%; max-width: 640px; padding: 32px 24px 20px; }
+.result-date { display: none; }
 
-.gauge-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 40px; }
-.gauge-wrap { position: relative; width: 240px; height: 145px; margin-bottom: 16px; }
-.gauge-svg { width: 240px; height: 145px; display: block; }
+.gauge-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 36px; }
+.gauge-wrap { position: relative; width: 290px; height: 175px; margin-bottom: 16px; }
+.gauge-svg { width: 290px; height: 175px; display: block; }
 .gauge-center { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); text-align: center; white-space: nowrap; }
-.gauge-num { font-family: 'Bebas Neue', sans-serif; font-size: 60px; letter-spacing: -2px; line-height: 1; }
-.gauge-unit { font-size: 10px; color: #444; letter-spacing: 2px; margin-top: 2px; }
+.gauge-num { font-family: 'Bebas Neue', sans-serif; font-size: 76px; letter-spacing: -2px; line-height: 1; }
+.gauge-unit { font-size: 11px; color: #475569; letter-spacing: 2px; margin-top: 4px; }
 .verdict { display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; border-radius: 2px; font-size: 13px; font-weight: 700; letter-spacing: 1px; margin-top: 8px; }
 .vdot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: blink 1.4s ease-in-out infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
-.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 32px; }
-.card { background: #162032; border: 1px solid rgba(99,130,190,0.12); border-radius: 4px; padding: 14px; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 32px; }
+.card { background: #131c2e; border: none; border-radius: 6px; padding: 14px; }
 .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .card-icon { font-size: 18px; }
 .card-pt { font-family: 'Bebas Neue', sans-serif; font-size: 22px; }
@@ -124,7 +127,7 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
-.flag-card { background: #162032; border: 1px solid rgba(99,130,190,0.12); border-radius: 4px; margin-bottom: 12px; overflow: hidden; }
+.flag-card { background: #131c2e; border: none; border-radius: 6px; margin-bottom: 8px; overflow: hidden; }
 .flag-card-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; }
 .flag-card-header:hover { background: rgba(255,255,255,0.02); }
 .fdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
@@ -140,7 +143,7 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .flag-source { font-size: 10px; color: #334155; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(99,130,190,0.06); }
 
 .price-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
-.price-box { background: #162032; border: 1px solid rgba(99,130,190,0.12); border-radius: 4px; padding: 12px; }
+.price-box { background: #131c2e; border: none; border-radius: 6px; padding: 12px; }
 .price-box-label { font-size: 10px; color: #333; letter-spacing: 1px; margin-bottom: 6px; }
 .price-box-val { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.5px; }
 .chart-wrap { background: #162032; border: 1px solid rgba(99,130,190,0.12); border-radius: 4px; padding: 16px; }
@@ -149,7 +152,7 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .period-btn.active { background: #ff3131; border-color: #ff3131; color: white; }
 
 .fin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-.fin-card { background: #162032; border: 1px solid rgba(99,130,190,0.12); border-radius: 4px; padding: 16px; }
+.fin-card { background: #131c2e; border: none; border-radius: 6px; padding: 16px; }
 .fin-card-title { font-size: 11px; color: #444; letter-spacing: 1px; margin-bottom: 12px; }
 .fin-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(99,130,190,0.06); }
 .fin-row:last-child { border-bottom: none; }
@@ -166,7 +169,7 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .eval-text b { color: #aaa; }
 
 .footer-legal { width: 100%; max-width: 640px; padding: 24px 24px 48px; }
-.legal-box { background: #111827; border: 1px solid rgba(99,130,190,0.08); border-radius: 4px; padding: 16px 20px; margin-bottom: 12px; }
+.legal-box { background: #111827; border: none; border-radius: 6px; padding: 16px 20px; margin-bottom: 12px; }
 .legal-title { font-size: 10px; color: #333; letter-spacing: 2px; margin-bottom: 8px; }
 .legal-text { font-size: 11px; color: #334155; line-height: 1.9; }
 .legal-text b { color: #3a3a3a; }
@@ -202,9 +205,12 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
   .search-btn { padding: 14px 16px; font-size: 14px; white-space: nowrap; flex-shrink: 0; }
   .chips { gap: 6px; }
   .chip { font-size: 12px; padding: 8px 12px; }
-  .result-inner { padding: 24px 16px 16px; }
-  .gauge-wrap { width: 200px; height: 120px; }
-  .gauge-svg { width: 200px; height: 120px; }
+  .result-inner { padding: 20px 16px 16px; }
+  .result-topbar-name { display: none; }
+  .result-topbar-inner { padding: 10px 14px; gap: 8px; }
+  .gauge-wrap { width: 250px; height: 150px; }
+  .gauge-svg { width: 250px; height: 150px; }
+  .gauge-num { font-size: 64px !important; }
   .gauge-num { font-size: 44px !important; }
   .ad-box { width: 100% !important; max-width: 100% !important; }
   body { overflow-x: hidden !important; }
@@ -1195,20 +1201,22 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
   <div class="ad-box pc-ad" id="ad-result-top-pc"></div>
   <div class="ad-box mobile-ad" id="ad-result-top-mo"></div>
 </div>
-  <div class="result-inner">
-    <div class="back-btn" onclick="goBack()">← 다시 검색</div>
-    <div class="result-header">
-      <div>
-        <div class="stock-code" id="r-code"></div>
-        <div class="stock-name" id="r-name"></div>
-        <div id="r-market"></div>
+  <div class="result-topbar">
+    <div class="result-topbar-inner">
+      <span class="result-topbar-back" onclick="goBack()">← 다시 검색</span>
+      <div class="result-topbar-stock">
+        <span class="result-topbar-code" id="r-code"></span>
+        <span class="result-topbar-name" id="r-name"></span>
+        <span id="r-market"></span>
       </div>
-      <div>
-        <div class="stock-price" id="r-price"></div>
-        <div class="stock-change" id="r-change"></div>
-        <div class="result-date" id="r-date"></div>
+      <div class="result-topbar-price">
+        <span class="result-topbar-pricenum" id="r-price"></span>
+        <span class="result-topbar-change" id="r-change"></span>
       </div>
     </div>
+  </div>
+  <div class="result-inner">
+    <div id="r-date" style="display:none"></div>
     <div class="gauge-section">
       <div class="gauge-wrap">
         <svg class="gauge-svg" viewBox="0 0 240 145">
@@ -1235,28 +1243,28 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
     </div>
     <div class="cards">
       <div class="card">
-        <div class="card-top"><span class="card-icon">💰</span><span class="card-pt" id="pt1" style="color:#ff3131">0pt</span></div>
+        <div class="card-top"><span class="card-icon">💰</span><span class="card-pt" id="pt1" style="color:#475569">0pt</span></div>
         <div class="card-title">자금 오염도</div>
         <div class="card-desc" id="cd1">CB/BW 발행 이력</div>
-        <div class="card-bar"><div class="card-fill" id="b1" style="background:#ff3131"></div></div>
+        <div class="card-bar"><div class="card-fill" id="b1" style="background:#475569"></div></div>
       </div>
       <div class="card">
-        <div class="card-top"><span class="card-icon">📋</span><span class="card-pt" id="pt2" style="color:#ff8800">0pt</span></div>
+        <div class="card-top"><span class="card-icon">📋</span><span class="card-pt" id="pt2" style="color:#475569">0pt</span></div>
         <div class="card-title">신뢰도 결여</div>
         <div class="card-desc" id="cd2">불성실공시 이력</div>
-        <div class="card-bar"><div class="card-fill" id="b2" style="background:#ff8800"></div></div>
+        <div class="card-bar"><div class="card-fill" id="b2" style="background:#475569"></div></div>
       </div>
       <div class="card">
-        <div class="card-top"><span class="card-icon">🚪</span><span class="card-pt" id="pt3" style="color:#ffd000">0pt</span></div>
+        <div class="card-top"><span class="card-icon">🚪</span><span class="card-pt" id="pt3" style="color:#475569">0pt</span></div>
         <div class="card-title">내부자 엑시트</div>
         <div class="card-desc" id="cd3">대주주 매도 여부</div>
-        <div class="card-bar"><div class="card-fill" id="b3" style="background:#ffd000"></div></div>
+        <div class="card-bar"><div class="card-fill" id="b3" style="background:#475569"></div></div>
       </div>
       <div class="card" style="grid-column:span 3;">
-        <div class="card-top"><span class="card-icon">📊</span><span class="card-pt" id="pt4" style="color:#ff3131">0pt</span></div>
+        <div class="card-top"><span class="card-icon">📊</span><span class="card-pt" id="pt4" style="color:#475569">0pt</span></div>
         <div class="card-title">재무 위험도</div>
         <div class="card-desc" id="cd4">재무제표 실시간 분석</div>
-        <div class="card-bar"><div class="card-fill" id="b4" style="background:#ff3131"></div></div>
+        <div class="card-bar"><div class="card-fill" id="b4" style="background:#475569"></div></div>
       </div>
     </div>
 
@@ -1385,6 +1393,7 @@ const BG={high:'rgba(255,49,49,0.1)',mid:'rgba(255,136,0,0.1)',low:'rgba(0,230,1
 let priceChartInst=null;
 
 function scoreColor(n){return n>=70?'#ff3131':n>=50?'#ff8800':n>=20?'#ffd000':'#00e676';}
+function cardColor(v){return v===0?'#00e676':v>=30?'#ff3131':v>=20?'#ff8800':'#ffd000';}
 function verdictText(n){return n>=70?'⚠ 설거지 고위험':n>=50?'! 주의 요망':n>=20?'~ 경계 구간':'✓ 비교적 안전';}
 
 function _injectAd(pcId, moId, pcUnit, moUnit){
@@ -1501,9 +1510,10 @@ function renderResult(code){
   const vEl=document.getElementById('r-verdict');
   vEl.innerHTML=`<div class="vdot"></div>${verdictText(total)}`;
   vEl.style.cssText=`display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:1px;margin-top:8px;color:${col};background:${col}22;border:1px solid ${col}44;`;
-  document.getElementById('pt1').textContent=d.s1+'pt';
-  document.getElementById('pt2').textContent=d.s2+'pt';
-  document.getElementById('pt3').textContent=d.s3+'pt';
+  [[d.s1,'pt1','b1'],[d.s2,'pt2','b2'],[d.s3,'pt3','b3']].forEach(([v,pid,bid])=>{
+    const ptEl=document.getElementById(pid); ptEl.textContent=v+'pt'; ptEl.style.color=cardColor(v);
+    document.getElementById(bid).style.background=cardColor(v);
+  });
   document.getElementById('cd1').textContent=d.s1>=30?'CB/BW 다수 발행 감지':'발행 이력 미미';
   document.getElementById('cd2').textContent=d.s2>=20?'신뢰도 이슈 감지':'공시 신뢰도 양호';
   document.getElementById('cd3').textContent=d.s3>=30?'대주주 매도 패턴 확인':'내부자 매도 미미';
@@ -1685,10 +1695,10 @@ async function startAnalysisReal(name,code){
     }
   }
   document.getElementById('r-score').style.color=realCol;
-  document.getElementById('pt1').textContent=realS1+'pt';
-  document.getElementById('pt2').textContent=realS2+'pt';
-  document.getElementById('pt3').textContent=realS3+'pt';
-  document.getElementById('pt4').textContent=realS4+'pt';
+  [[realS1,'pt1','b1'],[realS2,'pt2','b2'],[realS3,'pt3','b3'],[realS4,'pt4','b4']].forEach(([v,pid,bid])=>{
+    const ptEl=document.getElementById(pid); ptEl.textContent=v+'pt'; ptEl.style.color=cardColor(v);
+    document.getElementById(bid).style.background=cardColor(v);
+  });
   document.getElementById('cd1').textContent=real.cb_count>0?`CB/BW ${real.cb_count}회 발행 감지`:'발행 이력 없음';
   document.getElementById('cd2').textContent=(real.불성실_count||0)>0?'불성실공시 이력 확인':(real.번복_count||0)>0?'번복/정정 공시 감지':'공시 신뢰도 양호';
   document.getElementById('cd3').textContent=realS3>=30?'대주주 매도 감지':'내부자 매도 미미';
@@ -1860,34 +1870,39 @@ async function loadInvestor(stock_code){
     const instPct=Math.min(100,Math.abs(totalInst)/maxAbs*100);
 
     document.getElementById('inv-frgn-bar').style.width=frgnPct+'%';
-    document.getElementById('inv-frgn-bar').style.background=col(totalFrgn);
-    document.getElementById('inv-frgn-val').style.color=col(totalFrgn);
     document.getElementById('inv-frgn-val').textContent=sign(totalFrgn)+fmt(totalFrgn);
 
     document.getElementById('inv-inst-bar').style.width=instPct+'%';
-    document.getElementById('inv-inst-bar').style.background=col(totalInst);
-    document.getElementById('inv-inst-val').style.color=col(totalInst);
     document.getElementById('inv-inst-val').textContent=sign(totalInst)+fmt(totalInst);
 
-    // 연속 매도/매수 감지
+    // 연속 매도/매수 감지 (최근일부터 실제 연속 카운트)
+    const consec=(arr,key,pos)=>{let n=0;for(const d of arr){if(pos?d[key]>0:d[key]<0)n++;else break;}return n;};
+    const frgnNeg=consec(days,'foreign',false), frgnPos=consec(days,'foreign',true);
+    const instNeg=consec(days,'institution',false), instPos=consec(days,'institution',true);
+    // 방향: 연속 streak이 있으면 streak 방향, 없으면 5일 합산 방향
+    const frgnDir=frgnPos>=3?1:frgnNeg>=3?-1:(totalFrgn>=0?1:-1);
+    const instDir=instPos>=3?1:instNeg>=3?-1:(totalInst>=0?1:-1);
+    const colFrgn=frgnDir>=0?'#4488ff':'#ff3131';
+    const colInst=instDir>=0?'#4488ff':'#ff3131';
     const frgnSignal=()=>{
-      const streak=days.filter((d,i)=>i<days.length&&d.foreign<0).length;
-      const streak2=days.filter((d,i)=>i<days.length&&d.foreign>0).length;
-      if(streak>=3)return`🏢 외국인 ${streak}일 연속 순매도 중 ⚠️`;
-      if(streak2>=3)return`🏢 외국인 ${streak2}일 연속 순매수 중 🚀`;
+      if(frgnNeg>=3)return`🏢 외국인 ${frgnNeg}일 연속 순매도 중 ⚠️`;
+      if(frgnPos>=3)return`🏢 외국인 ${frgnPos}일 연속 순매수 중 🚀`;
       return totalFrgn>=0?'🏢 외국인 5일 합산 순매수':'🏢 외국인 5일 합산 순매도';
     };
     const instSignal=()=>{
-      const streak=days.filter(d=>d.institution<0).length;
-      const streak2=days.filter(d=>d.institution>0).length;
-      if(streak>=3)return`🏦 기관 ${streak}일 연속 순매도 중 ⚠️`;
-      if(streak2>=3)return`🏦 기관 ${streak2}일 연속 순매수 중 🚀`;
+      if(instNeg>=3)return`🏦 기관 ${instNeg}일 연속 순매도 중 ⚠️`;
+      if(instPos>=3)return`🏦 기관 ${instPos}일 연속 순매수 중 🚀`;
       return totalInst>=0?'🏦 기관 5일 합산 순매수':'🏦 기관 5일 합산 순매도';
     };
+    // 바 색상·수치·신호 모두 동일 방향 색상으로 통일
+    document.getElementById('inv-frgn-bar').style.background=colFrgn;
+    document.getElementById('inv-frgn-val').style.color=colFrgn;
+    document.getElementById('inv-inst-bar').style.background=colInst;
+    document.getElementById('inv-inst-val').style.color=colInst;
     document.getElementById('inv-frgn-signal').textContent=frgnSignal();
-    document.getElementById('inv-frgn-signal').style.color=totalFrgn>=0?'#4488ff':'#ff3131';
+    document.getElementById('inv-frgn-signal').style.color=colFrgn;
     document.getElementById('inv-inst-signal').textContent=instSignal();
-    document.getElementById('inv-inst-signal').style.color=totalInst>=0?'#4488ff':'#ff3131';
+    document.getElementById('inv-inst-signal').style.color=colInst;
 
     // 주가&시세 탭 상세
     document.getElementById('investor-day-list').innerHTML=days.map(d=>`

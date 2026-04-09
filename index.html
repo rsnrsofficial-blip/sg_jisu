@@ -25,6 +25,7 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 @media (max-width: 768px) {
     .pc-ad { display: none !important; }
     .mobile-ad { display: flex !important; width: 320px !important; height: 50px !important; margin: 0 auto; }
+    #ad-search-top { display: none !important; }
 }
 .ad-box-rect { width: 300px; height: 250px; background: #141414; border: 1px dashed #1e1e1e; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #252525; letter-spacing: 1px; margin: 8px auto; overflow: hidden; }
 
@@ -42,14 +43,33 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .logo span { color: #ff3131; }
 .tagline { font-size: 11px; color: #444; letter-spacing: 4px; margin-bottom: 48px; }
 .search-row { display: flex; gap: 8px; width: 100%; max-width: 460px; margin-bottom: 16px; }
-.search-input { flex: 1; background: #141414; border: 1px solid rgba(255,49,49,0.3); border-radius: 4px; padding: 14px 18px; font-size: 15px; font-family: 'Noto Sans KR', sans-serif; color: #efefef; outline: none; box-shadow: 0 0 12px rgba(255,49,49,0.12); transition: box-shadow 0.2s, border-color 0.2s; }
-.search-input:focus { border-color: rgba(255,49,49,0.7); box-shadow: 0 0 20px rgba(255,49,49,0.25); }
-.search-input::placeholder { color: #444; }
-.search-btn { background: #ff3131; border: none; border-radius: 4px; padding: 0 22px; font-size: 14px; font-family: 'Noto Sans KR', sans-serif; font-weight: 700; color: white; cursor: pointer; white-space: nowrap; }
+.search-input { flex: 1; background: #1a1a1a; border: 1.5px solid rgba(255,49,49,0.4); border-radius: 6px; padding: 16px 20px; font-size: 17px; font-family: 'Noto Sans KR', sans-serif; color: #efefef; outline: none; box-shadow: 0 0 16px rgba(255,49,49,0.15); transition: box-shadow 0.2s, border-color 0.2s; font-weight: 500; }
+.search-input:focus { border-color: rgba(255,49,49,0.8); box-shadow: 0 0 24px rgba(255,49,49,0.3); }
+.search-input::placeholder { color: #555; }
+.search-btn { background: #ff3131; border: none; border-radius: 6px; padding: 0 24px; font-size: 16px; font-family: 'Noto Sans KR', sans-serif; font-weight: 700; color: white; cursor: pointer; white-space: nowrap; }
 .search-btn:hover { opacity: 0.85; }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 460px; margin-bottom: 32px; }
-.chip { background: #141414; border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 6px 14px; font-size: 12px; color: #444; cursor: pointer; }
-.chip:hover { color: #efefef; border-color: rgba(255,255,255,0.2); }
+.chip { background: #1e1e1e; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 8px 16px; font-size: 13px; color: #888; cursor: pointer; font-weight: 500; }
+.chip:hover { color: #efefef; border-color: rgba(255,255,255,0.35); background: #252525; }
+
+/* 시니어 가독성: 주요 콘텐츠 폰트 1.2배 */
+.card-title { font-size: 14px !important; font-weight: 700 !important; }
+.card-desc { font-size: 13px !important; line-height: 1.6 !important; color: #555 !important; }
+.card-pt { font-size: 26px !important; }
+.flag-title { font-size: 15px !important; font-weight: 600 !important; }
+.flag-detail-text { font-size: 14px !important; line-height: 2 !important; color: #777 !important; }
+.fin-label { font-size: 14px !important; color: #666 !important; }
+.fin-val { font-size: 14px !important; font-weight: 600 !important; }
+.fin-card-title { font-size: 12px !important; }
+.eval-text { font-size: 14px !important; color: #777 !important; line-height: 1.8 !important; }
+.tab { font-size: 14px !important; font-weight: 600 !important; }
+.tl-title { font-size: 13px !important; color: #888 !important; }
+.tl-date { font-size: 11px !important; }
+.price-box-label { font-size: 11px !important; color: #444 !important; }
+.price-box-val { font-size: 22px !important; }
+.legal-text { font-size: 12px !important; line-height: 2 !important; }
+.stock-name { font-size: 15px !important; color: #555 !important; }
+.back-btn { font-size: 14px !important; }
 
 #loading-screen { display: none; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 20px; }
 .spinner { width: 44px; height: 44px; border: 1px solid #1c1c1c; border-top-color: #ff3131; border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 20px; }
@@ -175,13 +195,13 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 
 @media (max-width: 480px) {
   .logo { font-size: 38px !important; }
-  .tagline { font-size: 9px !important; letter-spacing: 3px !important; }
-  .hero-character { width: 120px !important; margin-bottom: 12px !important; }
+  .tagline { font-size: 13px !important; letter-spacing: 0 !important; color: #aaa !important; font-weight: 600 !important; }
+  .hero-character { width: 80px !important; margin-bottom: 8px !important; }
   .search-row { flex-direction: row; gap: 6px; }
-  .search-input { font-size: 14px; padding: 12px 14px; }
-  .search-btn { padding: 12px 16px; font-size: 13px; white-space: nowrap; }
+  .search-input { font-size: 16px; padding: 14px 16px; }
+  .search-btn { padding: 14px 18px; font-size: 15px; white-space: nowrap; }
   .chips { gap: 6px; }
-  .chip { font-size: 11px; padding: 7px 10px; }
+  .chip { font-size: 12px; padding: 8px 12px; }
   .result-inner { padding: 24px 16px 16px; }
   .gauge-wrap { width: 200px; height: 120px; }
   .gauge-svg { width: 200px; height: 120px; }
@@ -264,7 +284,7 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
   </div>
   <div class="search-main">
     <div class="logo">설거지수<span>.ai</span></div>
-    <div class="tagline" style="font-size:13px;letter-spacing:0;color:#888;font-weight:500;margin-bottom:42px;">매수 버튼 누르기 전 10초, 설거지 위험도 확인</div>
+    <div class="tagline" style="font-size:15px;letter-spacing:0;color:#aaa;font-weight:600;margin-bottom:42px;line-height:1.5;">내 종목, 세력의 설거지 물량일까?<br><span style="font-size:13px;color:#777;font-weight:400;">DART 공시 기반 팩트 체크</span></div>
     <div class="hero-block" style="max-width:460px;margin-bottom:28px;text-align:center;">
       <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdC
 IFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAA
@@ -1108,7 +1128,7 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
     </div>
     <div class="autocomplete-wrap">
       <div class="search-row">
-        <input class="search-input" id="main-input" type="text" placeholder="지금 가장 불안한 종목명을 입력하세요" autocomplete="off" />
+        <input class="search-input" id="main-input" type="text" placeholder="종목명이나 종목코드를 입력하세요" autocomplete="off" />
         <button class="search-btn" onclick="doSearch()">분석하기</button>
       </div>
       <div class="autocomplete-dropdown" id="ac-dropdown"></div>
@@ -1346,8 +1366,9 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
   <div class="ad-box mobile-ad" id="ad-result-bottom-mo"></div>
 </div>
   <div style="width:100%;max-width:640px;padding:0 24px 32px;">
-    <div style="text-align:center;font-size:12px;color:#333;font-style:italic;margin-bottom:14px;letter-spacing:0.3px;">"매수 전 한 번 더. 그 습관이 계좌를 지킵니다."</div>
-    <button onclick="goBack()" style="width:100%;padding:16px;background:#ff3131;color:#fff;border:none;border-radius:4px;font-size:15px;font-weight:700;letter-spacing:1px;cursor:pointer;">🔍 다른 종목 분석하기</button>
+    <div style="text-align:center;font-size:13px;color:#444;font-style:italic;margin-bottom:20px;letter-spacing:0.3px;">"매수 전 한 번 더. 그 습관이 계좌를 지킵니다."</div>
+    <button onclick="shareKakao()" style="width:100%;padding:16px;background:#FAE300;color:#3A1D1D;border:none;border-radius:6px;font-size:16px;font-weight:700;letter-spacing:0.5px;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;"><img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" style="width:22px;height:22px;border-radius:4px;" onerror="this.style.display='none'"> 카카오톡으로 이 종목 위험도 공유하기</button>
+    <button onclick="goBack()" style="width:100%;padding:16px;background:#ff3131;color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:700;letter-spacing:1px;cursor:pointer;">🔍 다른 종목 분석하기</button>
   </div>
   <div class="footer-legal">
     <div class="legal-box"><div class="legal-title">법적 고지 및 면책 조항</div><div class="legal-text">본 서비스는 <b>금융투자상품에 대한 투자를 권유하지 않으며</b>, 제공되는 모든 정보는 투자 참고 목적으로만 활용되어야 합니다. 설거지 지수는 금융감독원 전자공시시스템(DART)의 공개 공시 데이터를 기반으로 알고리즘이 산출한 참고값이며, <b>투자 결과에 대한 법적 책임을 지지 않습니다.</b></div></div>
@@ -1407,6 +1428,27 @@ function showOnly(id){
   }else if(id==='result-screen'){
     setTimeout(()=>{_injectAd('ad-result-top-pc','ad-result-top-mo',PC,MO);},100);
     setTimeout(()=>{_injectAd('ad-result-bottom-pc','ad-result-bottom-mo',PC,MO);},200);
+  }
+}
+
+function shareKakao(){
+  const nameEl=document.getElementById('r-name');
+  const codeEl=document.getElementById('r-code');
+  const verdictEl=document.getElementById('r-verdict');
+  const summaryEl=document.getElementById('r-summary');
+  const name=nameEl?nameEl.textContent.trim():'';
+  const code=codeEl?codeEl.textContent.trim():'';
+  const verdict=verdictEl?verdictEl.textContent.replace(/^[▪◉⚠!~✓]\s*/,'').trim():'';
+  const summary=summaryEl?summaryEl.textContent.trim():'';
+  const text=`📊 설거지수 AI 분석 결과\n종목: ${name}(${code})\n판정: ${verdict}\n${summary?summary+'\n':''}\n🔍 내 종목도 확인하기 → https://www.sgjisu.xyz/`;
+  if(navigator.share){
+    navigator.share({title:`${name} 설거지 위험도 분석`,text,url:'https://www.sgjisu.xyz/'}).catch(()=>{});
+  } else {
+    const btn=document.querySelector('[onclick="shareKakao()"]');
+    navigator.clipboard.writeText(text).then(()=>{
+      const orig=btn?btn.innerHTML:'';
+      if(btn){btn.textContent='✅ 클립보드에 복사됨!';setTimeout(()=>{btn.innerHTML=orig;},2000);}
+    }).catch(()=>{window.open('https://www.sgjisu.xyz/','_blank');});
   }
 }
 

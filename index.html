@@ -15,7 +15,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-serif; min-height: 100vh; }
+body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-serif; min-height: 100vh; }
 
 .ad-slot { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0; gap: 0; min-height: 0; }
 .ad-label { font-size: 9px; color: #252525; letter-spacing: 2px; }
@@ -42,13 +42,13 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .logo span { color: #ff3131; }
 .tagline { font-size: 11px; color: #444; letter-spacing: 4px; margin-bottom: 48px; }
 .search-row { display: flex; gap: 8px; width: 100%; max-width: 460px; margin-bottom: 16px; }
-.search-input { flex: 1; background: #1a1a1a; border: 1.5px solid rgba(255,49,49,0.4); border-radius: 6px; padding: 16px 20px; font-size: 17px; font-family: 'Noto Sans KR', sans-serif; color: #efefef; outline: none; box-shadow: 0 0 16px rgba(255,49,49,0.15); transition: box-shadow 0.2s, border-color 0.2s; font-weight: 500; }
+.search-input { flex: 1; background: #131c2e; border: 1.5px solid rgba(255,49,49,0.4); border-radius: 6px; padding: 16px 20px; font-size: 17px; font-family: 'Noto Sans KR', sans-serif; color: #efefef; outline: none; box-shadow: 0 0 16px rgba(255,49,49,0.15); transition: box-shadow 0.2s, border-color 0.2s; font-weight: 500; }
 .search-input:focus { border-color: rgba(255,49,49,0.8); box-shadow: 0 0 24px rgba(255,49,49,0.3); }
 .search-input::placeholder { color: #555; }
 .search-btn { background: #ff3131; border: none; border-radius: 6px; padding: 0 24px; font-size: 16px; font-family: 'Noto Sans KR', sans-serif; font-weight: 700; color: white; cursor: pointer; white-space: nowrap; }
 .search-btn:hover { opacity: 0.85; }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 460px; margin-bottom: 32px; }
-.chip { background: #1e1e1e; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 8px 16px; font-size: 13px; color: #888; cursor: pointer; font-weight: 500; }
+.chip { background: #1e2d42; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 8px 16px; font-size: 13px; color: #888; cursor: pointer; font-weight: 500; }
 .chip:hover { color: #efefef; border-color: rgba(255,255,255,0.35); background: #252525; }
 
 /* 시니어 가독성: 주요 콘텐츠 폰트 1.2배 */
@@ -71,7 +71,7 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .back-btn { font-size: 14px !important; }
 
 #loading-screen { display: none; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 20px; }
-.spinner { width: 44px; height: 44px; border: 1px solid #1c1c1c; border-top-color: #ff3131; border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 20px; }
+.spinner { width: 44px; height: 44px; border: 1px solid #1a2840; border-top-color: #ff3131; border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 20px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .load-name { font-size: 13px; color: #444; letter-spacing: 1px; margin-bottom: 28px; }
 .steps { display: flex; flex-direction: column; gap: 10px; text-align: left; width: 220px; }
@@ -82,7 +82,7 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .step.done { color: #444; }
 .step.done::before { color: #00e676; }
 .progress-wrap { width: 220px; margin-top: 24px; }
-.progress-bar-bg { width: 100%; height: 2px; background: #1c1c1c; border-radius: 1px; overflow: hidden; }
+.progress-bar-bg { width: 100%; height: 2px; background: #1a2840; border-radius: 1px; overflow: hidden; }
 .progress-bar-fill { height: 100%; width: 0%; background: #ff3131; border-radius: 1px; transition: width 0.3s ease; }
 .progress-pct { font-size: 11px; color: #333; letter-spacing: 2px; margin-top: 8px; text-align: right; }
 
@@ -108,23 +108,23 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
 .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 32px; }
-.card { background: #141414; border: 1px solid rgba(255,255,255,0.07); border-radius: 4px; padding: 14px; }
+.card { background: #162032; border: 1px solid rgba(99,130,190,0.12); border-radius: 4px; padding: 14px; }
 .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .card-icon { font-size: 18px; }
 .card-pt { font-family: 'Bebas Neue', sans-serif; font-size: 22px; }
 .card-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
 .card-desc { font-size: 11px; color: #444; line-height: 1.5; }
-.card-bar { margin-top: 10px; height: 2px; background: #1c1c1c; border-radius: 1px; overflow: hidden; }
+.card-bar { margin-top: 10px; height: 2px; background: #1a2840; border-radius: 1px; overflow: hidden; }
 .card-fill { height: 100%; border-radius: 1px; width: 0%; transition: width 1.2s ease; }
 
-.tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.07); margin-bottom: 24px; gap: 0; }
+.tabs { display: flex; border-bottom: 1px solid rgba(99,130,190,0.12); margin-bottom: 24px; gap: 0; }
 .tab { padding: 12px 20px; font-size: 13px; font-weight: 500; color: #444; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; white-space: nowrap; }
 .tab:hover { color: #efefef; }
 .tab.active { color: #efefef; border-bottom-color: #ff3131; }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
-.flag-card { background: #141414; border: 1px solid rgba(255,255,255,0.07); border-radius: 4px; margin-bottom: 12px; overflow: hidden; }
+.flag-card { background: #162032; border: 1px solid rgba(99,130,190,0.12); border-radius: 4px; margin-bottom: 12px; overflow: hidden; }
 .flag-card-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; }
 .flag-card-header:hover { background: rgba(255,255,255,0.02); }
 .fdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
@@ -132,65 +132,65 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .ftag { font-size: 10px; padding: 3px 8px; border-radius: 2px; font-weight: 700; flex-shrink: 0; }
 .flag-expand { font-size: 11px; color: #333; flex-shrink: 0; transition: transform 0.2s; }
 .flag-expand.open { transform: rotate(180deg); }
-.flag-detail { display: none; padding: 0 16px 16px 35px; border-top: 1px solid rgba(255,255,255,0.05); }
+.flag-detail { display: none; padding: 0 16px 16px 35px; border-top: 1px solid rgba(99,130,190,0.08); }
 .flag-detail.open { display: block; }
 .flag-detail-label { font-size: 10px; color: #333; letter-spacing: 2px; margin: 12px 0 6px; }
 .flag-detail-text { font-size: 12px; color: #666; line-height: 1.9; }
 .flag-detail-text b { color: #aaa; }
-.flag-source { font-size: 10px; color: #2a2a2a; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.04); }
+.flag-source { font-size: 10px; color: #334155; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(99,130,190,0.06); }
 
 .price-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
-.price-box { background: #141414; border: 1px solid rgba(255,255,255,0.07); border-radius: 4px; padding: 12px; }
+.price-box { background: #162032; border: 1px solid rgba(99,130,190,0.12); border-radius: 4px; padding: 12px; }
 .price-box-label { font-size: 10px; color: #333; letter-spacing: 1px; margin-bottom: 6px; }
 .price-box-val { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.5px; }
-.chart-wrap { background: #141414; border: 1px solid rgba(255,255,255,0.07); border-radius: 4px; padding: 16px; }
+.chart-wrap { background: #162032; border: 1px solid rgba(99,130,190,0.12); border-radius: 4px; padding: 16px; }
 .chart-period { display: flex; gap: 6px; margin-bottom: 14px; }
-.period-btn { background: none; border: 1px solid rgba(255,255,255,0.07); border-radius: 2px; padding: 4px 10px; font-size: 11px; color: #444; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
+.period-btn { background: none; border: 1px solid rgba(99,130,190,0.12); border-radius: 2px; padding: 4px 10px; font-size: 11px; color: #444; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; }
 .period-btn.active { background: #ff3131; border-color: #ff3131; color: white; }
 
 .fin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-.fin-card { background: #141414; border: 1px solid rgba(255,255,255,0.07); border-radius: 4px; padding: 16px; }
+.fin-card { background: #162032; border: 1px solid rgba(99,130,190,0.12); border-radius: 4px; padding: 16px; }
 .fin-card-title { font-size: 11px; color: #444; letter-spacing: 1px; margin-bottom: 12px; }
-.fin-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.fin-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(99,130,190,0.06); }
 .fin-row:last-child { border-bottom: none; }
 .fin-label { font-size: 12px; color: #555; }
 .fin-val { font-size: 12px; font-weight: 500; }
-.fin-bar-wrap { margin-top: 4px; height: 3px; background: #1c1c1c; border-radius: 1px; overflow: hidden; }
+.fin-bar-wrap { margin-top: 4px; height: 3px; background: #1a2840; border-radius: 1px; overflow: hidden; }
 .fin-bar { height: 100%; border-radius: 1px; }
 .eval-section { margin-bottom: 16px; }
 .eval-title { font-size: 11px; color: #333; letter-spacing: 2px; margin-bottom: 10px; }
-.eval-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.eval-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(99,130,190,0.06); }
 .eval-item:last-child { border-bottom: none; }
 .eval-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
 .eval-text { font-size: 12px; color: #666; line-height: 1.7; }
 .eval-text b { color: #aaa; }
 
 .footer-legal { width: 100%; max-width: 640px; padding: 24px 24px 48px; }
-.legal-box { background: #111; border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 16px 20px; margin-bottom: 12px; }
+.legal-box { background: #111827; border: 1px solid rgba(99,130,190,0.08); border-radius: 4px; padding: 16px 20px; margin-bottom: 12px; }
 .legal-title { font-size: 10px; color: #333; letter-spacing: 2px; margin-bottom: 8px; }
-.legal-text { font-size: 11px; color: #2a2a2a; line-height: 1.9; }
+.legal-text { font-size: 11px; color: #334155; line-height: 1.9; }
 .legal-text b { color: #3a3a3a; }
 .dart-credit { text-align: center; font-size: 10px; color: #222; margin-bottom: 6px; }
-.copyright { text-align: center; font-size: 10px; color: #1e1e1e; padding-bottom: 20px; }
+.copyright { text-align: center; font-size: 10px; color: #1e2d42; padding-bottom: 20px; }
 
 /* 외국인/기관 순매매 */
 .investor-summary { width:100%;max-width:640px;padding:0 24px 8px;margin-top:8px; }
 .investor-summary-title { font-size:10px;color:#333;letter-spacing:2px;margin-bottom:10px; }
-.investor-row { display:flex;align-items:center;gap:10px;padding:10px 14px;background:#111;border:1px solid rgba(255,255,255,0.05);border-radius:4px;margin-bottom:8px; }
+.investor-row { display:flex;align-items:center;gap:10px;padding:10px 14px;background:#111827;border:1px solid rgba(99,130,190,0.08);border-radius:4px;margin-bottom:8px; }
 .investor-icon { font-size:18px;width:28px;text-align:center; }
 .investor-label { font-size:12px;color:#888;width:48px; }
-.investor-bar-wrap { flex:1;height:6px;background:#1a1a1a;border-radius:3px;overflow:hidden; }
+.investor-bar-wrap { flex:1;height:6px;background:#131c2e;border-radius:3px;overflow:hidden; }
 .investor-bar { height:100%;border-radius:3px;transition:width 0.6s ease; }
 .investor-val { font-size:12px;font-weight:700;width:70px;text-align:right; }
 .investor-signal { font-size:10px;margin-top:2px;color:#555; }
 .investor-detail-wrap { margin-top:12px; }
-.investor-day-row { display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px; }
+.investor-day-row { display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(99,130,190,0.06);font-size:11px; }
 .investor-day-row:last-child { border-bottom:none; }
 .investor-day-date { color:#444;width:70px;flex-shrink:0; }
 .investor-day-inst { width:80px;text-align:right; }
 .investor-day-frgn { width:80px;text-align:right; }
 .investor-day-rate { color:#555;font-size:10px;flex:1;text-align:right; }
-.investor-frgn-rate-bar { display:flex;align-items:center;gap:6px;margin-top:12px;padding:10px 14px;background:#111;border:1px solid rgba(255,255,255,0.05);border-radius:4px; }
+.investor-frgn-rate-bar { display:flex;align-items:center;gap:6px;margin-top:12px;padding:10px 14px;background:#111827;border:1px solid rgba(99,130,190,0.08);border-radius:4px; }
 
 @media (max-width: 480px) {
   .logo { font-size: 38px !important; }
@@ -213,20 +213,20 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 
 /* 자동완성 */
 .autocomplete-wrap { position: relative; width: 100%; max-width: 460px; }
-.autocomplete-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; z-index: 100; overflow: hidden; display: none; }
-.ac-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.autocomplete-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #131c2e; border: 1px solid rgba(99,130,190,0.2); border-radius: 4px; z-index: 100; overflow: hidden; display: none; }
+.ac-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; cursor: pointer; border-bottom: 1px solid rgba(99,130,190,0.06); }
 .ac-item:last-child { border-bottom: none; }
-.ac-item:hover, .ac-item.selected { background: rgba(255,255,255,0.05); }
+.ac-item:hover, .ac-item.selected { background: rgba(99,130,190,0.08); }
 .ac-name { font-size: 13px; color: #ccc; }
 .ac-code { font-size: 11px; color: #444; font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; }
 /* 마켓 배지 */
 .market-badge { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 2px; padding: 2px 7px; border-radius: 2px; margin-top: 5px; }
 .market-badge.kospi { background: rgba(0,102,255,0.15); color: #4488ff; border: 1px solid rgba(0,102,255,0.2); }
 .market-badge.kosdaq { background: rgba(0,230,118,0.1); color: #00e676; border: 1px solid rgba(0,230,118,0.15); }
-.market-badge.other { background: rgba(255,255,255,0.05); color: #444; border: 1px solid rgba(255,255,255,0.08); }
+.market-badge.other { background: rgba(99,130,190,0.08); color: #444; border: 1px solid rgba(255,255,255,0.08); }
 /* 공시 타임라인 */
 .timeline-list { display: flex; flex-direction: column; gap: 0; }
-.tl-item { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); align-items: flex-start; }
+.tl-item { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid rgba(99,130,190,0.06); align-items: flex-start; }
 .tl-item:last-child { border-bottom: none; }
 .tl-date { font-size: 10px; color: #333; letter-spacing: 0.5px; flex-shrink: 0; width: 72px; margin-top: 2px; }
 .tl-title { font-size: 12px; color: #777; line-height: 1.5; flex: 1; }
@@ -246,26 +246,26 @@ body { background: #0a0a0a; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .movers-section { width: 100%; max-width: 840px; padding: 0 20px 40px; margin: 0 auto; }
 .movers-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
 .movers-title { font-size: 11px; color: #333; letter-spacing: 3px; }
-.movers-date { font-size: 10px; color: #2a2a2a; }
+.movers-date { font-size: 10px; color: #334155; }
 .movers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.movers-col { background: #111; border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
-.movers-col-header { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.movers-col { background: #111827; border: 1px solid rgba(99,130,190,0.08); border-radius: 4px; overflow: hidden; }
+.movers-col-header { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid rgba(99,130,190,0.08); }
 .movers-col-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; }
 .movers-col-label.up { color: #ff3131; }
 .movers-col-label.dn { color: #4fc3f7; }
 .mover-item { display: flex; align-items: center; padding: 8px 14px; border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer; transition: background 0.15s, transform 0.1s; position: relative; }
 .mover-item:last-child { border-bottom: none; }
-.mover-item:hover { background: rgba(255,255,255,0.07); }
+.mover-item:hover { background: rgba(99,130,190,0.12); }
 .mover-item:hover::after { content: '→'; position: absolute; right: 14px; color: #444; font-size: 11px; }
 .mover-item:active { transform: scale(0.98); }
-.mover-rank { font-family: 'Bebas Neue', sans-serif; font-size: 14px; color: #2a2a2a; width: 18px; flex-shrink: 0; }
+.mover-rank { font-family: 'Bebas Neue', sans-serif; font-size: 14px; color: #334155; width: 18px; flex-shrink: 0; }
 .mover-info { flex: 1; min-width: 0; padding: 0 8px; }
 .mover-name { font-size: 12px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mover-code { font-size: 10px; color: #333; margin-top: 1px; }
 .mover-rate { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 0.5px; flex-shrink: 0; }
 .mover-rate.up { color: #ff3131; }
 .mover-rate.dn { color: #4fc3f7; }
-.movers-loading { display: flex; align-items: center; justify-content: center; height: 120px; font-size: 11px; color: #2a2a2a; letter-spacing: 2px; }
+.movers-loading { display: flex; align-items: center; justify-content: center; height: 120px; font-size: 11px; color: #334155; letter-spacing: 2px; }
 @media (max-width: 480px) {
   .movers-grid { grid-template-columns: 1fr; gap: 8px; }
   .movers-section { padding: 0 12px 32px; }
@@ -1160,7 +1160,7 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
     <div class="legal-box"><div class="legal-title">법적 고지 및 면책 조항</div><div class="legal-text">본 서비스는 <b>금융투자상품에 대한 투자를 권유하지 않으며</b>, 제공되는 모든 정보는 투자 참고 목적으로만 활용되어야 합니다. 설거지 지수는 금융감독원 전자공시시스템(DART)의 공개 공시 데이터를 기반으로 알고리즘이 산출한 참고값으로, <b>투자 결과에 대한 법적 책임을 지지 않습니다.</b> 모든 투자 판단과 그에 따른 손익은 투자자 본인에게 귀속됩니다.</div></div>
     <div class="dart-credit">데이터 출처: 금융감독원 전자공시시스템(DART) · dart.fss.or.kr</div>
     <div class="copyright">© 2026 설거지수 측정기 · All rights reserved</div>
-    <div style="margin-top:12px;padding:16px 20px;border-top:1px solid #1a1a1a;text-align:center;font-size:11px;color:#444;line-height:1.9;">
+    <div style="margin-top:12px;padding:16px 20px;border-top:1px solid #131c2e;text-align:center;font-size:11px;color:#444;line-height:1.9;">
       상호: 리저너스 &nbsp;|&nbsp; 대표자: 현윤석 &nbsp;|&nbsp; 사업자등록번호: 827-46-00854<br>
       주소: 서울특별시 강서구 마곡중앙로 105-7, 3층 315호<br>
       <a href="#" style="color:#555;text-decoration:underline;">개인정보처리방침</a>
@@ -1212,7 +1212,7 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
     <div class="gauge-section">
       <div class="gauge-wrap">
         <svg class="gauge-svg" viewBox="0 0 240 145">
-          <path d="M 24 124 A 96 96 0 0 1 216 124" fill="none" stroke="#1c1c1c" stroke-width="12" stroke-linecap="round"/>
+          <path d="M 24 124 A 96 96 0 0 1 216 124" fill="none" stroke="#1a2840" stroke-width="12" stroke-linecap="round"/>
           <path d="M 24 124 A 96 96 0 0 1 216 124" fill="none" stroke="#2a2a2a" stroke-width="12" stroke-linecap="round"/>
           <path id="gauge-arc" d="M 24 124 A 96 96 0 0 1 216 124" fill="none" stroke="#00e676" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 302"/>
         </svg>
@@ -1317,13 +1317,13 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
       <!-- 외국인/기관 상세 -->
       <div id="investor-detail" style="padding:0 4px;">
         <div style="font-size:10px;color:#333;letter-spacing:2px;margin:20px 0 10px;">스마트머니 5일 상세</div>
-        <div style="display:grid;grid-template-columns:70px 1fr 1fr 1fr;gap:0;font-size:10px;color:#444;padding:6px 0;border-bottom:1px solid #1a1a1a;">
+        <div style="display:grid;grid-template-columns:70px 1fr 1fr 1fr;gap:0;font-size:10px;color:#444;padding:6px 0;border-bottom:1px solid #131c2e;">
           <span>날짜</span><span style="text-align:right">기관</span><span style="text-align:right">외국인</span><span style="text-align:right">외국인보유율</span>
         </div>
         <div id="investor-day-list"></div>
         <div class="investor-frgn-rate-bar" id="investor-rate-wrap" style="display:none;">
           <span style="font-size:11px;color:#555;">외국인 보유율</span>
-          <div style="flex:1;height:6px;background:#1a1a1a;border-radius:3px;overflow:hidden;">
+          <div style="flex:1;height:6px;background:#131c2e;border-radius:3px;overflow:hidden;">
             <div id="investor-rate-bar" style="height:100%;background:#4488ff;border-radius:3px;transition:width 0.6s;"></div>
           </div>
           <span id="investor-rate-val" style="font-size:12px;font-weight:700;color:#4488ff;">—</span>
@@ -1343,7 +1343,7 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
   <div style="width:100%;max-width:640px;padding:8px 24px 32px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <div style="font-size:11px;color:#2e2e2e;letter-spacing:2px;">최신 뉴스</div>
-      <div style="font-size:10px;color:#2a2a2a;letter-spacing:1px;">뉴스 API 연결 후 자동 표시</div>
+      <div style="font-size:10px;color:#334155;letter-spacing:1px;">뉴스 API 연결 후 자동 표시</div>
     </div>
     <div id="news-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
   </div>
@@ -1533,7 +1533,7 @@ function renderResult(code){
   document.getElementById('fin-stable').innerHTML=d.finance.stable.map(r=>`<div class="fin-row"><span class="fin-label">${r.label}</span><span class="fin-val" style="color:${r.color}">${r.val}</span></div><div class="fin-bar-wrap"><div class="fin-bar" style="width:${r.pct}%;background:${r.color}"></div></div>`).join('');
   document.getElementById('fin-strengths').innerHTML=d.finance.strengths.map(s=>`<div class="eval-item"><div class="eval-dot" style="background:#00e676"></div><div class="eval-text">${s}</div></div>`).join('');
   document.getElementById('fin-weaknesses').innerHTML=d.finance.weaknesses.map(s=>`<div class="eval-item"><div class="eval-dot" style="background:#ff3131"></div><div class="eval-text">${s}</div></div>`).join('');
-  document.getElementById('news-cards').innerHTML=d.news.map(n=>`<div style="background:#141414;border:1.5px solid ${n.type==='good'?'rgba(0,230,118,0.35)':'rgba(255,49,49,0.35)'};border-radius:4px;padding:14px;position:relative;overflow:hidden;"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:${n.type==='good'?'#00e676':'#ff3131'};"></div><div style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:${n.type==='good'?'#00e676':'#ff3131'};background:${n.type==='good'?'rgba(0,230,118,0.08)':'rgba(255,49,49,0.08)'};padding:2px 8px;border-radius:2px;margin-bottom:8px;">${n.type==='good'?'▲ 호재':'▼ 악재'}</div><div style="font-size:13px;font-weight:500;line-height:1.5;color:#efefef;margin-bottom:10px;">${n.title}</div><div style="display:flex;justify-content:space-between;"><span style="font-size:10px;color:#333;">${n.media}</span><span style="font-size:10px;color:#2a2a2a;">${n.time}</span></div></div>`).join('');
+  document.getElementById('news-cards').innerHTML=d.news.map(n=>`<div style="background:#162032;border:1.5px solid ${n.type==='good'?'rgba(0,230,118,0.35)':'rgba(255,49,49,0.35)'};border-radius:4px;padding:14px;position:relative;overflow:hidden;"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:${n.type==='good'?'#00e676':'#ff3131'};"></div><div style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:${n.type==='good'?'#00e676':'#ff3131'};background:${n.type==='good'?'rgba(0,230,118,0.08)':'rgba(255,49,49,0.08)'};padding:2px 8px;border-radius:2px;margin-bottom:8px;">${n.type==='good'?'▲ 호재':'▼ 악재'}</div><div style="font-size:13px;font-weight:500;line-height:1.5;color:#efefef;margin-bottom:10px;">${n.title}</div><div style="display:flex;justify-content:space-between;"><span style="font-size:10px;color:#333;">${n.media}</span><span style="font-size:10px;color:#334155;">${n.time}</span></div></div>`).join('');
   switchTab('flags');
   showOnly('result-screen');
   setTimeout(()=>{
@@ -1916,13 +1916,13 @@ async function loadNews(stock_code){
     const bg=t=>t==='good'?'rgba(0,230,118,0.08)':'rgba(255,49,49,0.08)';
     document.getElementById('news-cards').innerHTML=all.map(n=>`
       <a class="news-card-link" href="${n.link}" target="_blank" rel="noopener">
-        <div style="background:#141414;border:1.5px solid ${col(n.type)}44;border-radius:4px;padding:14px;position:relative;overflow:hidden;">
+        <div style="background:#162032;border:1.5px solid ${col(n.type)}44;border-radius:4px;padding:14px;position:relative;overflow:hidden;">
           <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${col(n.type)};"></div>
           <div style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:${col(n.type)};background:${bg(n.type)};padding:2px 8px;border-radius:2px;margin-bottom:8px;">${n.type==='good'?'▲ 호재':'▼ 악재'}</div>
           <div style="font-size:13px;font-weight:500;line-height:1.5;color:#efefef;margin-bottom:10px;">${n.title}</div>
           <div style="display:flex;justify-content:space-between;">
             <span style="font-size:10px;color:#333;">${n.press||''}</span>
-            <span style="font-size:10px;color:#2a2a2a;">${n.date||''}</span>
+            <span style="font-size:10px;color:#334155;">${n.date||''}</span>
           </div>
         </div>
       </a>`).join('');

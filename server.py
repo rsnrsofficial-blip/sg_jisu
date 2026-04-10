@@ -164,20 +164,25 @@ async def get_stock_market(client, corp_code):
     })
     mkt = data.get("stock_mket", "")
     if "유가" in mkt:
-        return "KOSPI"
+        market = "KOSPI"
     elif "코스닥" in mkt:
-        return "KOSDAQ"
+        market = "KOSDAQ"
     elif "코넥스" in mkt:
-        return "KONEX"
-    # corp_cls 필드로 fallback: Y=유가증권(KOSPI), K=코스닥, N=코넥스
-    cls = data.get("corp_cls", "")
-    if cls == "Y":
-        return "KOSPI"
-    elif cls == "K":
-        return "KOSDAQ"
-    elif cls == "N":
-        return "KONEX"
-    return "—"
+        market = "KONEX"
+    else:
+        cls = data.get("corp_cls", "")
+        if cls == "Y":
+            market = "KOSPI"
+        elif cls == "K":
+            market = "KOSDAQ"
+        elif cls == "N":
+            market = "KONEX"
+        else:
+            market = "—"
+    # 업종코드: 금융업 여부 판단 (K코드: 64~66 금융/보험, 증권)
+    induty_code = data.get("induty_code", "")
+    is_financial = induty_code.startswith(("64", "65", "66")) if induty_code else False
+    return market, is_financial
 
 
 # ──────────────────────────────────────────
@@ -428,7 +433,7 @@ async def calc_insider(client, corp_code, stock_code, 공시목록_1개월):
 # ──────────────────────────────────────────
 # S4. 재무 위험도 (병렬 조회)
 # ──────────────────────────────────────────
-async def calc_financial(client, corp_code):
+async def calc_financial(client, corp_code, is_financial=False):
     try:
         올해 = datetime.now().year
         작년 = 올해 - 1
@@ -574,19 +579,22 @@ async def calc_financial(client, corp_code):
 
         if 자본0 > 0:
             부채비율0 = 부채0 / 자본0 * 100
-            결과["🏦 빚이 얼마나 많나"] = f"{부채비율0:.0f}%"
-            if 부채비율0 >= 400:
-                점수 += 10; 위험항목.append(f"부채비율 극위험 ({부채비율0:.0f}%)")
-            elif 부채비율0 >= 200:
-                점수 += 5; 위험항목.append(f"부채비율 주의 ({부채비율0:.0f}%)")
-            if 자본1 > 0 and 부채1 > 0:
-                부채비율1 = 부채1 / 자본1 * 100
-                if 부채비율0 - 부채비율1 >= 100:
-                    점수 += 15
-                    위험항목.append(f"부채비율 1년새 {부채비율0-부채비율1:.0f}%p 폭증!")
-                    결과["💣 부채 폭증"] = f"+{부채비율0-부채비율1:.0f}%p"
+            if is_financial:
+                결과["🏦 빚이 얼마나 많나"] = f"{부채비율0:.0f}% (금융업 기준 제외)"
+            else:
+                결과["🏦 빚이 얼마나 많나"] = f"{부채비율0:.0f}%"
+                if 부채비율0 >= 400:
+                    점수 += 10; 위험항목.append(f"부채비율 극위험 ({부채비율0:.0f}%)")
+                elif 부채비율0 >= 200:
+                    점수 += 5; 위험항목.append(f"부채비율 주의 ({부채비율0:.0f}%)")
+                if 자본1 > 0 and 부채1 > 0:
+                    부채비율1 = 부채1 / 자본1 * 100
+                    if 부채비율0 - 부채비율1 >= 100:
+                        점수 += 15
+                        위험항목.append(f"부채비율 1년새 {부채비율0-부채비율1:.0f}%p 폭증!")
+                        결과["💣 부채 폭증"] = f"+{부채비율0-부채비율1:.0f}%p"
 
-        if 유동부채0 > 0:
+        if 유동부채0 > 0 and not is_financial:
             유동비율 = 유동자산0 / 유동부채0 * 100
             결과["💳 단기 자금 여유"] = f"{유동비율:.0f}%"
             if 유동비율 < 80:
@@ -764,13 +772,14 @@ async def analyze(name: str = "", code: str = "", request: Request = None):
         공시목록_3년, 공시목록_2년, 공시목록_1년, 공시목록_6개월, 공시목록_1개월 = 공시_results
 
         # ── 핵심 분석 4개 + 시장구분 병렬 실행 ──
-        s4_r, s1_r, s2_r, s3_r, market = await asyncio.gather(
-            calc_financial(client, corp_code),
+        corp_info_r, s1_r, s2_r, s3_r = await asyncio.gather(
+            get_stock_market(client, corp_code),
             calc_funding(client, corp_code, 공시목록_1년),
             calc_trust(client, corp_code, 공시목록_2년, 공시목록_6개월),
             calc_insider(client, corp_code, stock_code, 공시목록_1개월),
-            get_stock_market(client, corp_code),
         )
+        market, is_financial = corp_info_r
+        s4_r = await calc_financial(client, corp_code, is_financial)
 
     s4, 재무결과, 재무위험, 자본금, 자본총계 = s4_r
     s1, cb수, cb목록, 조합수, 발행금액, 제3자유증 = s1_r

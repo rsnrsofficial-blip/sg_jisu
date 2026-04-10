@@ -575,11 +575,13 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
   <div class="ad-box mobile-ad" id="ad-result-bottom-mo"></div>
 </div>
   <div style="width:100%;max-width:640px;padding:0 24px 32px;">
-    <div style="text-align:center;font-size:13px;color:#444;font-style:italic;margin-bottom:20px;letter-spacing:0.3px;">"매수 전 한 번 더. 그 습관이 계좌를 지킵니다."</div>
+    <div id="cta-guidance" style="background:#131c2e;border-radius:6px;padding:16px 20px;margin-bottom:16px;"></div>
+    <div style="text-align:center;font-size:12px;color:#334155;font-style:italic;margin-bottom:16px;letter-spacing:0.3px;">"매수 전 한 번 더. 그 습관이 계좌를 지킵니다."</div>
     <button onclick="shareKakao()" style="width:100%;padding:16px;background:#FAE300;color:#3A1D1D;border:none;border-radius:6px;font-size:16px;font-weight:700;letter-spacing:0.5px;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;"><img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" style="width:22px;height:22px;border-radius:4px;" onerror="this.style.display='none'"> 카카오톡으로 이 종목 위험도 공유하기</button>
     <button onclick="goBack()" style="width:100%;padding:16px;background:#ff3131;color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:700;letter-spacing:1px;cursor:pointer;">🔍 다른 종목 분석하기</button>
   </div>
   <div class="footer-legal">
+    <div class="legal-box"><div class="legal-title">점수 산정 기준</div><div class="legal-text"><b>설거지 지수(0~100점)</b>는 아래 4개 항목의 합산입니다.<br>· <b>자금 오염도</b> (최대 40pt) — CB/BW 발행 횟수·대상·금액<br>· <b>신뢰도 결여</b> (최대 30pt) — 불성실공시 지정, 공시 번복·정정 횟수<br>· <b>내부자 엑시트</b> (최대 30pt) — 대주주·임원 보유 주식 매도 규모<br>· <b>재무 위험도</b> (최대 30pt) — 적자 지속, 현금흐름, ROE 등 재무 지표<br>※ 관리종목·감사의견 거절 등 즉각 위험 신호는 별도 표시됩니다.</div></div>
     <div class="legal-box"><div class="legal-title">법적 고지 및 면책 조항</div><div class="legal-text">본 서비스는 <b>금융투자상품에 대한 투자를 권유하지 않으며</b>, 제공되는 모든 정보는 투자 참고 목적으로만 활용되어야 합니다. 설거지 지수는 금융감독원 전자공시시스템(DART)의 공개 공시 데이터를 기반으로 알고리즘이 산출한 참고값이며, <b>투자 결과에 대한 법적 책임을 지지 않습니다.</b></div></div>
     <div class="dart-credit">데이터 출처: 금융감독원 전자공시시스템(DART) · dart.fss.or.kr</div>
     <div class="copyright">© 2026 설거지수 측정기 · All rights reserved</div>
@@ -884,6 +886,7 @@ async function startAnalysisReal(name,code){
   const summaryEl=document.getElementById('r-summary');
   if(summaryEl){
     const parts=[];
+    if(real.관리종목) parts.push('⚠ 관리종목 지정');
     if((real.cb_count||0)>0) parts.push(`CB/BW ${real.cb_count}회 발행`);
     if((real.불성실_count||0)>0) parts.push(`불성실공시 ${real.불성실_count}건`);
     if((real.번복_count||0)>0) parts.push(`공시 번복·정정 ${real.번복_count}건`);
@@ -891,16 +894,28 @@ async function startAnalysisReal(name,code){
     if(realS4>=30) parts.push('재무 위험 다수');
     else if(realS4>=15) parts.push('재무 주의 신호');
     if(realS7>=35) parts.push('급락 이상 감지');
-    if(real.관리종목) parts.push('관리종목 지정');
     if(parts.length===0){
-      summaryEl.textContent=realTotal<20?'분석된 위험 항목이 없습니다':'특이사항 없음 — 세부 내역을 확인하세요';
-      summaryEl.style.color='#444';
+      summaryEl.innerHTML=realTotal<20
+        ?'<span style="color:#00e676">✓</span> 분석된 위험 항목이 없습니다. 단, 공시는 수시로 변동되므로 정기적으로 확인하세요.'
+        :'특이사항 없음 — 세부 내역을 탭에서 직접 확인하세요.';
+      summaryEl.style.color='#475569';
     }else{
-      summaryEl.textContent=parts.join(' · ');
-      summaryEl.style.color=realCol;
+      summaryEl.innerHTML=`<b style="color:${realCol}">${parts.join(' · ')}</b><span style="color:#475569"> → ${realTotal}점의 주요 원인입니다.</span>`;
     }
   }
   document.getElementById('r-score').style.color=realCol;
+  // 10번: CTA 행동 지침 — 점수별 맞춤 안내
+  const ctaEl=document.getElementById('cta-guidance');
+  if(ctaEl){
+    const ctaMap=[
+      [70,'#ff3131','⚠ 고위험 종목입니다','매수를 보류하고 세부 공시 내역을 반드시 확인하세요. 아래 탭의 원문 링크를 통해 직접 확인하시길 권장합니다.'],
+      [50,'#ff8800','! 주의가 필요한 종목입니다','매수 전 신뢰도 결여·자금 오염도 탭을 확인하고, 이상 공시가 있다면 매수 규모를 줄이거나 보류하세요.'],
+      [20,'#ffd000','~ 경계 구간입니다','위험 신호가 일부 감지됩니다. 공시 타임라인 탭에서 최근 공시 내역을 직접 확인 후 판단하세요.'],
+      [0,'#00e676','✓ 현재 특이 위험 신호 없음','단, 공시는 수시로 변동됩니다. 매수 전 최신 공시를 한 번 더 확인하는 습관을 권장합니다.'],
+    ];
+    const [,color,title,desc]=ctaMap.find(([t])=>realTotal>=t);
+    ctaEl.innerHTML=`<div style="font-size:14px;font-weight:700;color:${color};margin-bottom:8px;">${title}</div><div style="font-size:13px;color:#94a3b8;line-height:1.7;">${desc}</div>`;
+  }
   [[realS1,'pt1','b1'],[realS2,'pt2','b2'],[realS3,'pt3','b3'],[realS4,'pt4','b4']].forEach(([v,pid,bid])=>{
     const ptEl=document.getElementById(pid); ptEl.textContent=v+'pt'; ptEl.style.color=cardColor(v);
     document.getElementById(bid).style.background=cardColor(v);

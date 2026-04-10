@@ -249,6 +249,15 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .warn-verdict { font-size: 10px; color: #ff3131; margin-top: 2px; letter-spacing: 1px; }
 /* 뉴스 카드 클릭 가능 */
 .news-card-link { text-decoration: none; display: block; }
+.process-section { width: 100%; max-width: 640px; padding: 40px 24px 32px; margin: 0 auto; }
+.process-title { font-size: 11px; color: #475569; letter-spacing: 3px; text-align: center; margin-bottom: 28px; }
+.process-steps { display: flex; align-items: flex-start; justify-content: center; gap: 0; }
+.process-step { display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1; max-width: 130px; }
+.process-num { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: #ff3131; line-height: 1; margin-bottom: 8px; }
+.process-label { font-size: 13px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px; line-height: 1.3; }
+.process-desc { font-size: 11px; color: #475569; line-height: 1.7; }
+.process-arrow { color: #1e2d42; font-size: 16px; margin-top: 10px; flex-shrink: 0; padding: 0 6px; }
+
 .movers-section { width: 100%; max-width: 840px; padding: 0 20px 40px; margin: 0 auto; }
 .movers-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
 .movers-title { font-size: 11px; color: #333; letter-spacing: 3px; }
@@ -275,6 +284,12 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
 @media (max-width: 480px) {
   .movers-grid { grid-template-columns: 1fr; gap: 8px; }
   .movers-section { padding: 0 12px 32px; }
+  .process-section { padding: 32px 16px 24px; }
+  .process-steps { gap: 0; }
+  .process-step { max-width: none; }
+  .process-label { font-size: 11px; }
+  .process-desc { font-size: 10px; }
+  .process-arrow { font-size: 12px; padding: 0 2px; }
 }
 </style>
 </head>
@@ -1139,6 +1154,34 @@ ippJ1U7er791/R/qAacf1pj8edwAbpAAAAAAAAAAAAAAAAAAAAAH/9k=" style="width:200px;hei
       <div class="chip" onclick="quick('카카오','035720')">035720 카카오</div>
       <div class="chip" onclick="quick('에코앤드림','101360')">101360 에코앤드림</div>
       <div class="chip" onclick="quick('SV인베스트먼트','236340')">236340 SV인베스트먼트</div>
+    </div>
+  </div>
+  <div class="process-section">
+    <div class="process-title">분석은 이렇게 진행됩니다</div>
+    <div class="process-steps">
+      <div class="process-step">
+        <div class="process-num">①</div>
+        <div class="process-label">DART 공시 수집</div>
+        <div class="process-desc">금감원 공시 원문<br>자동 수집</div>
+      </div>
+      <div class="process-arrow">→</div>
+      <div class="process-step">
+        <div class="process-num">②</div>
+        <div class="process-label">위험 신호 감지</div>
+        <div class="process-desc">CB 발행·대주주 매도<br>불성실공시 탐지</div>
+      </div>
+      <div class="process-arrow">→</div>
+      <div class="process-step">
+        <div class="process-num">③</div>
+        <div class="process-label">점수 산출</div>
+        <div class="process-desc">자체 알고리즘으로<br>위험 수준 수치화</div>
+      </div>
+      <div class="process-arrow">→</div>
+      <div class="process-step">
+        <div class="process-num">④</div>
+        <div class="process-label">근거와 함께 제공</div>
+        <div class="process-desc">원문 링크와 함께<br>이해하기 쉽게 전달</div>
+      </div>
     </div>
   </div>
   <div class="movers-section">

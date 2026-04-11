@@ -308,11 +308,9 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
       </div>
       <div class="autocomplete-dropdown" id="ac-dropdown"></div>
     </div>
-    <div class="chips">
-      <div class="chip" onclick="quick('삼성전자','005930')">005930 삼성전자</div>
-      <div class="chip" onclick="quick('카카오','035720')">035720 카카오</div>
-      <div class="chip" onclick="quick('에코앤드림','101360')">101360 에코앤드림</div>
-      <div class="chip" onclick="quick('SV인베스트먼트','236340')">236340 SV인베스트먼트</div>
+    <div style="font-size:10px;color:#475569;letter-spacing:2px;margin-bottom:10px;margin-top:4px;">금주의 인기 검색 종목</div>
+    <div class="chips" id="popular-chips">
+      <div class="chip" style="color:#334155;">불러오는 중...</div>
     </div>
   </div>
   <div class="process-section">
@@ -1215,6 +1213,30 @@ async function loadTopMovers(){
   }
 }
 loadTopMovers();
+
+async function loadPopularChips(){
+  const el=document.getElementById('popular-chips');
+  if(!el)return;
+  try{
+    const res=await fetch('https://sgjisu-production.up.railway.app/popular',{signal:AbortSignal.timeout(8000)});
+    const data=await res.json();
+    if(!data.stocks||!data.stocks.length)throw new Error('empty');
+    el.innerHTML=data.stocks.map(s=>
+      `<div class="chip" onclick="quick('${s.name.replace(/'/g,"\\'")}','${s.code}')">${s.name}</div>`
+    ).join('');
+  }catch(e){
+    // 실패 시 기본 종목
+    el.innerHTML=[
+      {name:'삼성전자',code:'005930'},
+      {name:'SK하이닉스',code:'000660'},
+      {name:'카카오',code:'035720'},
+      {name:'현대차',code:'005380'},
+      {name:'NAVER',code:'035420'},
+    ].map(s=>`<div class="chip" onclick="quick('${s.name}','${s.code}')">${s.name}</div>`).join('');
+  }
+}
+loadPopularChips();
+
 // 최초 검색 화면 광고 삽입
 setTimeout(()=>{
   const PC='DAN-WJFMOwQyhWvfEfP8', MO='DAN-aB8kUXx9LEx9BCNV';

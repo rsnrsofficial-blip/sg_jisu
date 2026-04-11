@@ -954,6 +954,7 @@ def get_warning_stocks(exclude: str = ""):
 
 
 _top_movers_cache = {"ts": 0, "data": None}
+_popular_cache = {"ts": 0, "data": None}
 _NAVER_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
     "Referer": "https://finance.naver.com/",
@@ -1015,6 +1016,44 @@ def get_top_movers():
     except Exception as e:
         print(f"top-movers 오류: {e}")
         return {"error": str(e), "상승": [], "하락": []}
+
+
+@app.get("/popular")
+def get_popular():
+    global _popular_cache
+    now = time.time()
+    # 1시간 캐시
+    if now - _popular_cache["ts"] < 3600 and _popular_cache["data"]:
+        return _popular_cache["data"]
+    try:
+        url = "https://finance.naver.com/sise/lastsearch2.naver"
+        r = sync_requests.get(url, headers=_NAVER_HEADERS, timeout=8)
+        r.encoding = "euc-kr"
+        html = r.text
+        pairs = re.findall(r'code=([A-Z0-9]{6})[^>]*>([^<]{1,20})</a>', html)
+        # 중복 제거, 상위 5개
+        seen = set()
+        result = []
+        for code, name in pairs:
+            name = name.strip()
+            if code not in seen and name and len(name) >= 2:
+                seen.add(code)
+                result.append({"code": code, "name": name})
+            if len(result) >= 5:
+                break
+        data = {"stocks": result, "ts": int(now)}
+        _popular_cache = {"ts": now, "data": data}
+        return data
+    except Exception as e:
+        print(f"popular 오류: {e}")
+        # 실패 시 기본값 반환
+        return {"stocks": [
+            {"code": "005930", "name": "삼성전자"},
+            {"code": "000660", "name": "SK하이닉스"},
+            {"code": "035420", "name": "NAVER"},
+            {"code": "035720", "name": "카카오"},
+            {"code": "005380", "name": "현대차"},
+        ], "ts": 0}
 
 
 @app.get("/news-debug")

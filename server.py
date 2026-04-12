@@ -179,10 +179,12 @@ async def get_stock_market(client, corp_code):
             market = "KONEX"
         else:
             market = "—"
-    # 업종코드: 금융업 여부 판단 (K코드: 64~66 금융/보험, 증권)
+    # 업종코드: 금융업/바이오 여부 판단
     induty_code = data.get("induty_code", "")
     is_financial = induty_code.startswith(("64", "65", "66")) if induty_code else False
-    return market, is_financial
+    # 27=의약품, 21=의료용물질, 72=연구개발업, 86=보건업
+    is_bio = induty_code.startswith(("27", "21", "72", "86")) if induty_code else False
+    return market, is_financial, is_bio
 
 
 # ──────────────────────────────────────────
@@ -433,7 +435,7 @@ async def calc_insider(client, corp_code, stock_code, 공시목록_1개월):
 # ──────────────────────────────────────────
 # S4. 재무 위험도 (병렬 조회)
 # ──────────────────────────────────────────
-async def calc_financial(client, corp_code, is_financial=False):
+async def calc_financial(client, corp_code, is_financial=False, is_bio=False):
     try:
         올해 = datetime.now().year
         작년 = 올해 - 1
@@ -517,7 +519,10 @@ async def calc_financial(client, corp_code, is_financial=False):
             이익률0 = 영업0 / 매출0 * 100
             결과["💰 100원 팔면 얼마 남나"] = f"{이익률0:.1f}%"
             if 영업0 < 0:
-                점수 += 18; 위험항목.append(f"장사해서 손해봄 ({이익률0:.1f}%)")
+                if is_bio:
+                    점수 += 6; 위험항목.append(f"영업손실 ({이익률0:.1f}%) — 바이오업 특성상 경감 적용")
+                else:
+                    점수 += 18; 위험항목.append(f"장사해서 손해봄 ({이익률0:.1f}%)")
             elif 이익률0 < 1:
                 점수 += 15; 위험항목.append(f"100원 팔아도 1원도 못 남김 ({이익률0:.1f}%)")
             elif 이익률0 < 3:
@@ -542,10 +547,16 @@ async def calc_financial(client, corp_code, is_financial=False):
             elif 감소횟수 >= 2:
                 점수 += 10; 위험항목.append("영업이익 지속 감소 추세")
             if 영업이력[-2] > 0 and 영업이력[-1] < 0:
-                점수 += 20; 위험항목.append("흑자→적자 전환 (위험)")
+                if is_bio:
+                    점수 += 6; 위험항목.append("흑자→적자 전환 (바이오업 특성상 경감 적용)")
+                else:
+                    점수 += 20; 위험항목.append("흑자→적자 전환 (위험)")
             적자횟수 = sum(1 for x in 영업이력 if x < 0)
             if 적자횟수 >= 2:
-                점수 += 12; 위험항목.append(f"최근 3년 중 {적자횟수}번 적자")
+                if is_bio:
+                    점수 += 4; 위험항목.append(f"최근 3년 중 {적자횟수}번 적자 (바이오업 특성상 경감 적용)")
+                else:
+                    점수 += 12; 위험항목.append(f"최근 3년 중 {적자횟수}번 적자")
             부호변화 = sum(1 for i in range(len(영업이력)-1) if (영업이력[i] > 0) != (영업이력[i+1] > 0))
             if 부호변화 >= 2:
                 점수 += 10; 위험항목.append("흑자↔적자 반복 (경영 불안정)")
@@ -565,9 +576,15 @@ async def calc_financial(client, corp_code, is_financial=False):
             순이익률 = 순이익0 / 매출0 * 100
             결과["📊 최종적으로 남은 돈"] = f"{순이익률:.1f}%"
             if 순이익률 < -10:
-                점수 += 12; 위험항목.append(f"최종 손실 매출의 10% 이상 ({순이익률:.1f}%)")
+                if is_bio:
+                    점수 += 4; 위험항목.append(f"순손실 ({순이익률:.1f}%) — 바이오업 특성상 경감 적용")
+                else:
+                    점수 += 12; 위험항목.append(f"최종 손실 매출의 10% 이상 ({순이익률:.1f}%)")
             elif 순이익률 < -5:
-                점수 += 6; 위험항목.append(f"최종 손실 지속 ({순이익률:.1f}%)")
+                if is_bio:
+                    점수 += 2; 위험항목.append(f"순손실 ({순이익률:.1f}%) — 바이오업 특성상 경감 적용")
+                else:
+                    점수 += 6; 위험항목.append(f"최종 손실 지속 ({순이익률:.1f}%)")
 
         if 매출1 > 0:
             매출증가율 = (매출0 - 매출1) / abs(매출1) * 100
@@ -778,8 +795,8 @@ async def analyze(name: str = "", code: str = "", request: Request = None):
             calc_trust(client, corp_code, 공시목록_2년, 공시목록_6개월),
             calc_insider(client, corp_code, stock_code, 공시목록_1개월),
         )
-        market, is_financial = corp_info_r
-        s4_r = await calc_financial(client, corp_code, is_financial)
+        market, is_financial, is_bio = corp_info_r
+        s4_r = await calc_financial(client, corp_code, is_financial, is_bio)
 
     s4, 재무결과, 재무위험, 자본금, 자본총계 = s4_r
     s1, cb수, cb목록, 조합수, 발행금액, 제3자유증 = s1_r

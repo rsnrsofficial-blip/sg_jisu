@@ -664,7 +664,7 @@ function shareKakao(){
 }
 
 function goBack(){
-  if(window._sessionStart&&window._logData&&!window._usageLogged){
+  if(window._sessionStart&&window._logData){
     const session_time=Math.round((Date.now()-window._sessionStart)/1000);
     fetch('https://sgjisu-production.up.railway.app/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'exit',...window._logData,session_time})}).catch(()=>{});
   }
@@ -1246,7 +1246,7 @@ setTimeout(()=>{
 },500);
 
 window.addEventListener('beforeunload',()=>{
-  if(window._sessionStart&&window._logData&&!window._usageLogged){
+  if(window._sessionStart&&window._logData){
     const session_time=Math.round((Date.now()-window._sessionStart)/1000);
     navigator.sendBeacon('https://sgjisu-production.up.railway.app/log',JSON.stringify({type:'exit',...window._logData,session_time}));
   }

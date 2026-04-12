@@ -1175,7 +1175,7 @@ async def log_session(request: Request):
         company = data.get("company", "")
         log_to_sheets({
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "type": "사용" if company else log_type,
+            "type": "체류" if log_type == "exit" else ("사용" if company else log_type),
             "company": company,
             "stock_code": data.get("stock_code", ""),
             "score": data.get("score", 0),

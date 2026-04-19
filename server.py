@@ -751,17 +751,17 @@ async def analyze(name: str = "", code: str = "", request: Request = None):
         corp_code, corp_name, stock_code = search_corp(name)
 
     if not corp_code:
-        return {"error": f"'{name}' 을 찾을 수 없어요. 종목명을 정확히 입력하거나 종목코드(예: 005930)로 검색해보세요."}
+        return {"error": f"'{name}' 을 찾을 수 없어요. 종목명을 정확히 입력하거나 종목코드(예: 005930)로 검색해보세요.", "error_type": "not_found"}
 
     # 상장폐지 종목 차단: 최근 1년 주가 데이터가 없으면 거래불가 종목으로 처리
     if stock_code and stock_code not in _dead_codes:
         df_check = get_price_data(stock_code)
         if df_check is None or len(df_check) == 0:
             _dead_codes.add(stock_code)
-            return {"error": f"'{corp_name}'({stock_code})은 상장폐지되었거나 거래가 중단된 종목입니다."}
+            return {"error": f"'{corp_name}'({stock_code})은 상장폐지되었거나 거래가 중단된 종목입니다.", "error_type": "delisted"}
 
     if stock_code and stock_code in _dead_codes:
-        return {"error": f"'{corp_name}'({stock_code})은 상장폐지되었거나 거래가 중단된 종목입니다."}
+        return {"error": f"'{corp_name}'({stock_code})은 상장폐지되었거나 거래가 중단된 종목입니다.", "error_type": "delisted"}
 
     ip = "unknown"; device = "PC"; referrer = ""
     if request:

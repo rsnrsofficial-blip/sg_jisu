@@ -3,7 +3,7 @@ import json, asyncio
 import pandas as pd
 import httpx
 import requests as sync_requests
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -735,6 +735,26 @@ def calc_price_anomaly(stock_code, krx_상태, 공시목록_1개월):
 @app.get("/")
 def health():
     return {"status": "ok", "ready": CORP_LIST_READY, "corps": len(CORP_LIST)}
+
+
+@app.get("/robots.txt", response_class=PlainTextResponse)
+def robots():
+    return "User-agent: *\nAllow: /\nSitemap: https://www.sgjisu.xyz/sitemap.xml\n"
+
+
+@app.get("/sitemap.xml")
+def sitemap():
+    from fastapi.responses import Response
+    content = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.sgjisu.xyz/</loc>
+    <lastmod>2026-04-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>"""
+    return Response(content=content, media_type="application/xml")
 
 
 @app.get("/analyze")

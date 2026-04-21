@@ -662,26 +662,31 @@ function shareKakao(){
   const shareTitle=`${name}(${code}) 설거지 위험도 ${score}점`;
   const shareDesc=`판정: ${verdict}${summary?'\n'+summary:''}`;
 
-  _initKakao();
-  if(window.Kakao&&Kakao.isInitialized()){
-    Kakao.Share.sendDefault({
-      objectType:'feed',
-      content:{
-        title:shareTitle,
-        description:shareDesc,
-        imageUrl:'https://sgjisu-production.up.railway.app/static/og.png',
-        link:{mobileWebUrl:'https://www.sgjisu.xyz/',webUrl:'https://www.sgjisu.xyz/'}
-      },
-      buttons:[{title:'내 종목도 확인하기',link:{mobileWebUrl:'https://www.sgjisu.xyz/',webUrl:'https://www.sgjisu.xyz/'}}]
-    });
-    return;
-  }
   const text=`📊 설거지수 AI 분석 결과\n종목: ${name}(${code})\n판정: ${verdict}${summary?'\n'+summary:''}\n\n🔍 내 종목도 확인하기 → https://www.sgjisu.xyz/`;
   const btn=document.querySelector('[onclick="shareKakao()"]');
-  navigator.clipboard.writeText(text).then(()=>{
-    const orig=btn?btn.innerHTML:'';
-    if(btn){btn.textContent='✅ 클립보드에 복사됨!';setTimeout(()=>{btn.innerHTML=orig;},2000);}
-  }).catch(()=>{window.open('https://www.sgjisu.xyz/','_blank');});
+  function fallback(){
+    navigator.clipboard.writeText(text).then(()=>{
+      const orig=btn?btn.innerHTML:'';
+      if(btn){btn.textContent='✅ 클립보드에 복사됨!';setTimeout(()=>{btn.innerHTML=orig;},2000);}
+    }).catch(()=>{window.open('https://www.sgjisu.xyz/','_blank');});
+  }
+  _initKakao();
+  if(window.Kakao&&Kakao.isInitialized()){
+    try{
+      Kakao.Share.sendDefault({
+        objectType:'feed',
+        content:{
+          title:shareTitle,
+          description:shareDesc,
+          imageUrl:'https://sgjisu-production.up.railway.app/static/og.png',
+          link:{mobileWebUrl:'https://www.sgjisu.xyz/',webUrl:'https://www.sgjisu.xyz/'}
+        },
+        buttons:[{title:'내 종목도 확인하기',link:{mobileWebUrl:'https://www.sgjisu.xyz/',webUrl:'https://www.sgjisu.xyz/'}}]
+      });
+    }catch(e){fallback();}
+    return;
+  }
+  fallback();
 }
 
 function goBack(){

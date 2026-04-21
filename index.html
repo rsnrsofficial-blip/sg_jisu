@@ -649,12 +649,13 @@ function shareKakao(){
   const code=codeEl?codeEl.textContent.trim():'';
   const verdict=verdictEl?verdictEl.textContent.replace(/^[▪◉⚠!~✓]\s*/,'').trim():'';
   const summary=summaryEl?summaryEl.textContent.trim():'';
-  const text=`📊 설거지수 AI 분석 결과\n종목: ${name}(${code})\n판정: ${verdict}\n${summary?summary+'\n':''}\n🔍 내 종목도 확인하기 → https://www.sgjisu.xyz/`;
+  const text=`📊 설거지수 AI 분석 결과\n종목: ${name}(${code})\n판정: ${verdict}${summary?'\n'+summary:''}`;
   if(navigator.share){
     navigator.share({title:`${name} 설거지 위험도 분석`,text,url:'https://www.sgjisu.xyz/'}).catch(()=>{});
   } else {
     const btn=document.querySelector('[onclick="shareKakao()"]');
-    navigator.clipboard.writeText(text).then(()=>{
+    const clipText=text+'\n\n🔍 내 종목도 확인하기 → https://www.sgjisu.xyz/';
+    navigator.clipboard.writeText(clipText).then(()=>{
       const orig=btn?btn.innerHTML:'';
       if(btn){btn.textContent='✅ 클립보드에 복사됨!';setTimeout(()=>{btn.innerHTML=orig;},2000);}
     }).catch(()=>{window.open('https://www.sgjisu.xyz/','_blank');});

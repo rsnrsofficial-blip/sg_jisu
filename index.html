@@ -7,10 +7,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>설거지수.AI | 주식 개미를 위한 세력이탈 감지 & DART 분석</title>
 <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4" crossorigin="anonymous"></script>
 <meta name="description" content="내가 사면 고점? AI가 실시간 DART 공시를 분석해 세력의 이탈 징후를 점수로 알려드립니다. 개미들을 위한 가장 빠른 설거지 감지망, 개미는 죽지않는다.">
 <meta property="og:title" content="설거지수.AI | 세력이탈 감지">
 <meta property="og:description" content="내가 사면 고점? AI가 분석하는 가장 빠른 세력 탈출 신호, 지금 내 종목을 검색해보세요.">
 <meta property="og:url" content="https://www.sgjisu.xyz/">
+<meta property="og:image" content="https://sgjisu-production.up.railway.app/static/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -637,25 +642,46 @@ function showOnly(id){
   }
 }
 
+const KAKAO_APP_KEY='fff182696639f699ed2efdf4999959f3';
+function _initKakao(){
+  if(window.Kakao&&!Kakao.isInitialized()&&KAKAO_APP_KEY!=='YOUR_KAKAO_JS_APP_KEY'){
+    Kakao.init(KAKAO_APP_KEY);
+  }
+}
 function shareKakao(){
   const nameEl=document.getElementById('r-name');
   const codeEl=document.getElementById('r-code');
+  const scoreEl=document.getElementById('r-score');
   const verdictEl=document.getElementById('r-verdict');
   const summaryEl=document.getElementById('r-summary');
   const name=nameEl?nameEl.textContent.trim():'';
   const code=codeEl?codeEl.textContent.trim():'';
+  const score=scoreEl?scoreEl.textContent.trim():'';
   const verdict=verdictEl?verdictEl.textContent.replace(/^[▪◉⚠!~✓]\s*/,'').trim():'';
   const summary=summaryEl?summaryEl.textContent.trim():'';
-  const text=`📊 설거지수 AI 분석 결과\n종목: ${name}(${code})\n판정: ${verdict}\n${summary?summary+'\n':''}\n🔍 내 종목도 확인하기 → https://www.sgjisu.xyz/`;
-  if(navigator.share){
-    navigator.share({title:`${name} 설거지 위험도 분석`,text,url:'https://www.sgjisu.xyz/'}).catch(()=>{});
-  } else {
-    const btn=document.querySelector('[onclick="shareKakao()"]');
-    navigator.clipboard.writeText(text).then(()=>{
-      const orig=btn?btn.innerHTML:'';
-      if(btn){btn.textContent='✅ 클립보드에 복사됨!';setTimeout(()=>{btn.innerHTML=orig;},2000);}
-    }).catch(()=>{window.open('https://www.sgjisu.xyz/','_blank');});
+  const shareTitle=`${name}(${code}) 설거지 위험도 ${score}점`;
+  const shareDesc=`판정: ${verdict}${summary?'\n'+summary:''}`;
+
+  _initKakao();
+  if(window.Kakao&&Kakao.isInitialized()){
+    Kakao.Share.sendDefault({
+      objectType:'feed',
+      content:{
+        title:shareTitle,
+        description:shareDesc,
+        imageUrl:'https://sgjisu-production.up.railway.app/static/og.png',
+        link:{mobileWebUrl:'https://www.sgjisu.xyz/',webUrl:'https://www.sgjisu.xyz/'}
+      },
+      buttons:[{title:'내 종목도 확인하기',link:{mobileWebUrl:'https://www.sgjisu.xyz/',webUrl:'https://www.sgjisu.xyz/'}}]
+    });
+    return;
   }
+  const text=`📊 설거지수 AI 분석 결과\n종목: ${name}(${code})\n판정: ${verdict}${summary?'\n'+summary:''}\n\n🔍 내 종목도 확인하기 → https://www.sgjisu.xyz/`;
+  const btn=document.querySelector('[onclick="shareKakao()"]');
+  navigator.clipboard.writeText(text).then(()=>{
+    const orig=btn?btn.innerHTML:'';
+    if(btn){btn.textContent='✅ 클립보드에 복사됨!';setTimeout(()=>{btn.innerHTML=orig;},2000);}
+  }).catch(()=>{window.open('https://www.sgjisu.xyz/','_blank');});
 }
 
 function goBack(){

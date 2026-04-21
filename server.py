@@ -6,6 +6,7 @@ import requests as sync_requests
 from fastapi.responses import JSONResponse
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from datetime import datetime, timedelta
 from pykrx import stock as krx
 
@@ -29,6 +30,7 @@ async def add_utf8_charset(request: Request, call_next):
 
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 API_KEY = os.getenv("DART_API_KEY")
 if not API_KEY:

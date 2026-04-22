@@ -164,6 +164,55 @@
 
 ---
 
+### 트래픽 & 수요 검증 (2026-04-21~22)
+
+#### 종토방 바이럴 결과
+- 2026-04-21 12:00 종토방 5개 댓글 배포 → 당일 ~35-40명 유입 (기준선 1~2명 대비 20배+)
+- 포트폴리오 체커 패턴 뚜렷: 한 유저가 5~10개 종목 연속 검색 (LS 계열, 바이오 포트폴리오 등)
+- 최장 체류: 메지온 1790초(30분), 에프엔씨엔터 928초, 포스코퓨처엠 1452초 — 진지하게 읽은 유저 다수
+- 에프엔씨엔터 종토방 댓글 반응: "저거 어플명이 뭐임?ㅋ", "이거 뭔기요? 좋은데요" → 자발적 관심 확인
+
+#### 수요 검증 단계 판단
+- **수요 있음** (확인): 종토방 유입, 다종목 검색, 긴 체류시간
+- **효용 미검증**: 아직 재방문, 자발적 공유, "써보니 맞더라" 피드백 없음
+- **다음 증거**: 재방문 유저 or 자발적 카카오톡 공유 1건
+
+---
+
+### OG 이미지 & 공유 개선 (2026-04-21)
+
+#### 카카오톡 링크 미리보기 썸네일
+- `static/og.png` 생성 (1200×630, Pillow로 로컬 생성)
+- server.py: `StaticFiles` 마운트 (`/static`)
+- `og:image` 메타태그 추가 → `https://sgjisu-production.up.railway.app/static/og.png`
+- `og:image:width/height`, `og:type` 추가
+
+#### navigator.share URL 중복 수정
+- 기존: `text` 안에 URL + `url` 파라미터에도 URL → KakaoTalk에서 링크 카드 2개 표시
+- 수정: `text`에서 URL 제거, `url` 파라미터로만 전달 (카드 1개)
+- 클립보드 fallback은 URL 포함 유지
+
+#### Kakao Share SDK 시도 → 롤백
+- 시도: `Kakao.Share.sendDefault()`로 커스텀 카드 공유
+- 실패 원인: sharer.kakao.com 도메인 인증 에러 (원인 불명확)
+- 결론: navigator.share 원복, URL 미리보기 썸네일 개선으로 충분
+
+---
+
+### SEO / 네이버 색인 (2026-04-22)
+
+#### robots.txt + sitemap.xml 추가
+- 문제: 네이버 서치어드바이저 "수집제한 1" → robots.txt 404
+- 원인: `www.sgjisu.xyz`는 static 서비스, FastAPI 엔드포인트와 별개
+- 해결: `robots.txt`, `sitemap.xml` 루트에 정적 파일로 추가 (index.html 옆)
+- 네이버 서치어드바이저 → 요청 → 사이트맵 제출: `https://www.sgjisu.xyz/sitemap.xml`
+
+#### SEO 현황 판단
+- 지금 단계에서 SEO 우선순위 낮음: 유입 전부 종토방 직접 링크, 검색 유입 아님
+- SEO가 의미 있어지는 시점: `/ranking` 페이지 완성 후 (키워드 타겟팅 가능)
+
+---
+
 ## 주의사항
 - Kakao AdFit: 같은 unit ID는 DOM에 1개만 존재해야 함
 - 로그 구조: `type:'usage'`(session_time:0) = 분석 완료 즉시 / `type:'체류'`(session_time:실제초) = 이탈 시
@@ -176,3 +225,6 @@
 - `/ranking-build`는 내부 함수 직접 호출로 구현 (HTTP 엔드포인트 노출 시 DART API 남용 가능)
 - Railway Cron: `/ranking` 빌드에 사용. 타임아웃 초과 시 `asyncio.create_task` 백그라운드 처리
 - 에러 타입 필드: server.py 반환값에 `error_type` 항상 포함 (`not_found` / `delisted` / 기타)
+- `og:image` URL은 `sgjisu-production.up.railway.app/static/og.png` (FastAPI StaticFiles 서빙)
+- `robots.txt` / `sitemap.xml`은 루트 정적 파일 (index.html 옆), FastAPI 엔드포인트 아님
+- `www.sgjisu.xyz`(static 서비스)와 `sgjisu-production.up.railway.app`(FastAPI)는 별개 Railway 서비스

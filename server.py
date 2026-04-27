@@ -742,6 +742,18 @@ def robots():
     return "User-agent: *\nAllow: /\nSitemap: https://www.sgjisu.xyz/sitemap.xml\n"
 
 
+@app.get("/manifest.json")
+def manifest():
+    from fastapi.responses import FileResponse
+    return FileResponse("manifest.json", media_type="application/manifest+json")
+
+
+@app.get("/service-worker.js")
+def service_worker():
+    from fastapi.responses import FileResponse
+    return FileResponse("service-worker.js", media_type="application/javascript")
+
+
 @app.get("/sitemap.xml")
 def sitemap():
     from fastapi.responses import Response

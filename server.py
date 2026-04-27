@@ -754,6 +754,12 @@ def service_worker():
     return FileResponse("service-worker.js", media_type="application/javascript")
 
 
+@app.get("/.well-known/assetlinks.json")
+def assetlinks():
+    from fastapi.responses import FileResponse
+    return FileResponse("static/.well-known/assetlinks.json", media_type="application/json")
+
+
 @app.get("/sitemap.xml")
 def sitemap():
     from fastapi.responses import Response

@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "xyz.sgjisu.app",
+    "sha256_cert_fingerprints": [
+      "6A:B9:B4:13:9F:02:A2:6B:91:99:2E:8D:A2:3B:D1:F6:F2:4F:97:D1:BA:3B:FB:44:08:FD:35:0F:BC:8E:AE:C6"
+    ]
+  }
+}]

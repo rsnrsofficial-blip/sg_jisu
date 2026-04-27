@@ -288,6 +288,9 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
 .mover-rate { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 0.5px; flex-shrink: 0; }
 .mover-rate.up { color: #ff3131; }
 .mover-rate.dn { color: #4fc3f7; }
+.mover-danger { font-size: 15px; margin-left: 6px; flex-shrink: 0; line-height: 1; }
+.mover-item:hover::after { display: none; }
+.movers-legend { font-size: 10px; color: #475569; padding: 6px 14px 8px; border-top: 1px solid rgba(255,255,255,0.04); }
 .movers-loading { display: flex; align-items: center; justify-content: center; height: 120px; font-size: 11px; color: #334155; letter-spacing: 2px; }
 @media (max-width: 480px) {
   .movers-grid { grid-template-columns: 1fr; gap: 8px; }
@@ -361,10 +364,12 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
       <div class="movers-col">
         <div class="movers-col-header"><span class="movers-col-label up">▲ 급등 TOP 10</span></div>
         <div id="movers-up"><div class="movers-loading">로딩 중...</div></div>
+        <div class="movers-legend">⚠️ 설거지 위험 높음(70점+) &nbsp;·&nbsp; 💀 극도 위험(100점+)</div>
       </div>
       <div class="movers-col">
         <div class="movers-col-header"><span class="movers-col-label dn">▼ 급락 TOP 10</span></div>
         <div id="movers-dn"><div class="movers-loading">로딩 중...</div></div>
+        <div class="movers-legend">⚠️ 설거지 위험 높음(70점+) &nbsp;·&nbsp; 💀 극도 위험(100점+)</div>
       </div>
     </div>
   </div>
@@ -1203,6 +1208,12 @@ async function loadTopMovers(){
       return;
     }
     if(data.date)document.getElementById('movers-date').textContent=data.date+' 기준';
+    function dangerIcon(score){
+      if(score===undefined||score===null)return '';
+      if(score>=100)return '<span class="mover-danger skull" title="설거지 위험 극도 높음">💀</span>';
+      if(score>=70)return '<span class="mover-danger warn" title="설거지 위험 높음">⚠️</span>';
+      return '';
+    }
     function renderList(items,cls){
       return items.map((s,i)=>`
         <div class="mover-item" onclick="quick('${s.name}','${s.code}')">
@@ -1212,6 +1223,7 @@ async function loadTopMovers(){
             <div class="mover-code">${s.code}</div>
           </div>
           <div class="mover-rate ${cls}">${s.rate>0?'+':''}${s.rate.toFixed(2)}%</div>
+          ${dangerIcon(s.score)}
         </div>`).join('');
     }
     document.getElementById('movers-up').innerHTML=renderList(data.상승,'up');

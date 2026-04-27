@@ -1012,6 +1012,32 @@ def get_warning_stocks(exclude: str = ""):
 
 _top_movers_cache = {"ts": 0, "data": None}
 _popular_cache = {"ts": 0, "data": None}
+_movers_score_cache = {}  # stock_code -> score (백그라운드 계산 결과)
+
+
+def _bg_score_movers(items):
+    """백그라운드 스레드: movers 종목들의 설거지 지수 계산 후 캐시"""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    for item in items:
+        code = item.get("code", "")
+        name = item.get("name", "")
+        if not code:
+            continue
+        matched = next((c for c in CORP_LIST if c["stock_code"] == code), None)
+        if matched:
+            cached = get_cached(matched["corp_code"])
+            if cached and "score" in cached:
+                _movers_score_cache[code] = cached["score"]
+                continue
+        try:
+            result = loop.run_until_complete(analyze(name=name, code=code))
+            if result and "score" in result:
+                _movers_score_cache[code] = result["score"]
+        except Exception as e:
+            print(f"mover bg score 오류 {code}: {e}")
+        time.sleep(1.5)
+    loop.close()
 _NAVER_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
     "Referer": "https://finance.naver.com/",
@@ -1067,8 +1093,21 @@ def get_top_movers():
         if not 상승 and not 하락:
             return {"error": "데이터 없음", "상승": [], "하락": []}
         today_str = datetime.now().strftime("%m/%d")
+
+        # 기존 캐시된 점수 삽입
+        for item in 상승 + 하락:
+            s = _movers_score_cache.get(item["code"])
+            if s is not None:
+                item["score"] = s
+
         result = {"상승": 상승, "하락": 하락, "date": today_str}
         _top_movers_cache = {"ts": now, "data": result}
+
+        # 백그라운드로 점수 계산 (캐시 없는 종목만)
+        uncached = [i for i in 상승 + 하락 if i["code"] not in _movers_score_cache]
+        if uncached:
+            threading.Thread(target=_bg_score_movers, args=(uncached,), daemon=True).start()
+
         return result
     except Exception as e:
         print(f"top-movers 오류: {e}")

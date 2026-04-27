@@ -320,6 +320,10 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
       </div>
       <div class="autocomplete-dropdown" id="ac-dropdown"></div>
     </div>
+    <div id="my-stocks-section" style="order:6;width:100%;max-width:460px;display:none;margin-top:32px;margin-bottom:0;">
+      <div style="font-size:10px;color:#4488ff;letter-spacing:2px;margin-bottom:10px;">⭐ 내 종목</div>
+      <div class="chips" id="my-stocks-chips" style="margin-bottom:0;"></div>
+    </div>
     <div style="order:4;font-size:10px;color:#475569;letter-spacing:2px;margin-bottom:10px;margin-top:24px;">금주의 인기 검색 종목</div>
     <div class="chips" id="popular-chips">
       <div class="chip" style="color:#334155;">불러오는 중...</div>
@@ -416,6 +420,7 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
   <div class="result-topbar">
     <div class="result-topbar-inner">
       <span class="result-topbar-back" onclick="goBack()">← 다시 검색</span>
+      <span id="watchlist-btn" onclick="toggleWatchlist()" style="cursor:pointer;font-size:18px;margin-left:6px;user-select:none;" title="내 종목 저장">☆</span>
       <div class="result-topbar-stock">
         <span class="result-topbar-code" id="r-code"></span>
         <span class="result-topbar-name" id="r-name"></span>
@@ -640,6 +645,7 @@ function showOnly(id){
   window.scrollTo(0,0);
   _clearAds();
   const PC='DAN-WJFMOwQyhWvfEfP8', MO='DAN-aB8kUXx9LEx9BCNV';
+  if(id==='search-screen'){ renderMyStocks(); }
   if(id==='search-screen'){
     setTimeout(()=>{_injectAd('ad-search-bottom-pc','ad-search-bottom-mo',PC,MO);},100);
     setTimeout(()=>{const inp=document.getElementById('main-input');if(inp)inp.focus();},300);
@@ -669,6 +675,56 @@ function shareKakao(){
       if(btn){btn.textContent='✅ 클립보드에 복사됨!';setTimeout(()=>{btn.innerHTML=orig;},2000);}
     }).catch(()=>{window.open('https://www.sgjisu.xyz/','_blank');});
   }
+}
+
+// ── 내 종목 즐겨찾기 ──
+function _getWatchlist(){ try{ return JSON.parse(localStorage.getItem('watchlist')||'[]'); }catch(e){ return []; } }
+function _saveWatchlist(list){ localStorage.setItem('watchlist', JSON.stringify(list)); }
+
+function toggleWatchlist(){
+  const btn = document.getElementById('watchlist-btn');
+  const code = document.getElementById('r-code').textContent;
+  const name = document.getElementById('r-name').textContent;
+  if(!code) return;
+  let list = _getWatchlist();
+  const idx = list.findIndex(s => s.code === code);
+  if(idx >= 0){
+    list.splice(idx, 1);
+    btn.textContent = '☆';
+  } else {
+    list.unshift({code, name});
+    if(list.length > 20) list = list.slice(0, 20);
+    btn.textContent = '⭐';
+    fetch('https://sgjisu-production.up.railway.app/log', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({type:'watchlist', company:name, stock_code:code, score: window._logData?.score||0})
+    }).catch(()=>{});
+  }
+  _saveWatchlist(list);
+}
+
+function _updateWatchlistBtn(){
+  const btn = document.getElementById('watchlist-btn');
+  const code = document.getElementById('r-code').textContent;
+  if(!btn || !code) return;
+  const list = _getWatchlist();
+  btn.textContent = list.some(s => s.code === code) ? '⭐' : '☆';
+}
+
+function renderMyStocks(){
+  const list = _getWatchlist();
+  const section = document.getElementById('my-stocks-section');
+  const chips = document.getElementById('my-stocks-chips');
+  section.style.display='block';
+  if(!list.length){
+    chips.innerHTML = `<div style="font-size:12px;color:#334155;padding:4px 0;">결과 화면에서 ☆ 누르면 내 종목으로 저장할 수 있어요.</div>`;
+    return;
+  }
+  chips.innerHTML = list.map(s =>
+    `<div class="chip" style="border-color:rgba(68,136,255,0.4);color:#aac4ff;" onclick="quick('${s.name.replace(/'/g,"\\'")}','${s.code}')">
+      <span style="font-size:10px;color:#4488ff;margin-right:5px;">${s.code}</span>${s.name}
+    </div>`
+  ).join('');
 }
 
 function goBack(){
@@ -762,6 +818,7 @@ function renderResult(code){
   document.getElementById('news-cards').innerHTML=d.news.map(n=>`<div style="background:#162032;border:1.5px solid ${n.type==='good'?'rgba(0,230,118,0.35)':'rgba(255,49,49,0.35)'};border-radius:4px;padding:14px;position:relative;overflow:hidden;"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:${n.type==='good'?'#00e676':'#ff3131'};"></div><div style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:${n.type==='good'?'#00e676':'#ff3131'};background:${n.type==='good'?'rgba(0,230,118,0.08)':'rgba(255,49,49,0.08)'};padding:2px 8px;border-radius:2px;margin-bottom:8px;">${n.type==='good'?'▲ 호재':'▼ 악재'}</div><div style="font-size:13px;font-weight:500;line-height:1.5;color:#efefef;margin-bottom:10px;">${n.title}</div><div style="display:flex;justify-content:space-between;"><span style="font-size:10px;color:#333;">${n.media}</span><span style="font-size:10px;color:#334155;">${n.time}</span></div></div>`).join('');
   switchTab('flags');
   showOnly('result-screen');
+  _updateWatchlistBtn();
   setTimeout(()=>{
     animateScore(total,col);
     document.getElementById('b1').style.width=Math.round(d.s1/40*100)+'%';
@@ -981,6 +1038,7 @@ async function startAnalysisReal(name,code){
 
   switchTab('flags');
   showOnly('result-screen');
+  _updateWatchlistBtn();
   history.pushState({screen:'result'}, '', '');
   window._logData={company:real.종목||name,stock_code:real.stock_code||'',score:real.score||0};
   window._sessionStart=Date.now();
@@ -1235,6 +1293,7 @@ async function loadTopMovers(){
   }
 }
 loadTopMovers();
+renderMyStocks();
 
 async function loadPopularChips(){
   const el=document.getElementById('popular-chips');

@@ -77,6 +77,20 @@ CORP_LIST_READY = False
 _dead_codes: set = set()  # 상폐/거래정지 등 비활성 종목 코드
 
 
+def _startup_score_movers():
+    """서버 시작 시 현재 movers 종목을 백그라운드로 자동 스코어링"""
+    try:
+        items = []
+        for sosok in ["0", "1"]:
+            for direction in ["rise", "fall"]:
+                items += _parse_naver_sise(sosok, direction)
+        if items:
+            threading.Thread(target=_bg_score_movers, args=(items,), daemon=True).start()
+            print(f"🔄 시작 시 movers 스코어링 시작 ({len(items)}개 종목)")
+    except Exception as e:
+        print(f"startup score 오류: {e}")
+
+
 def load_corp_list():
     global CORP_LIST, CORP_LIST_READY
     try:
@@ -96,6 +110,7 @@ def load_corp_list():
         CORP_LIST_READY = True
         print(f"✅ 총 {len(CORP_LIST)}개 상장사 로드 완료")
         filter_dead_codes()
+        _startup_score_movers()
     except Exception as e:
         print(f"❌ 회사 목록 로드 실패: {e}")
 

@@ -820,7 +820,7 @@ async def analyze(name: str = "", code: str = "", request: Request = None):
 
     ip = "unknown"; device = "PC"; referrer = ""
     if request:
-        ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "unknown")
+        ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "unknown").split(",")[0].strip()
         ua = request.headers.get("user-agent", "")
         referrer = request.headers.get("referer", "")
         if any(k in ua.lower() for k in ["mobile", "android", "iphone", "ipad"]):
@@ -1256,7 +1256,7 @@ def get_investor_debug(stock_code: str = "005930"):
 async def log_session(request: Request):
     try:
         data = await request.json()
-        ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "unknown")
+        ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "unknown").split(",")[0].strip()
         ua = request.headers.get("user-agent", "")
         ua_lower = ua.lower()
         if "iphone" in ua_lower or "ipad" in ua_lower:

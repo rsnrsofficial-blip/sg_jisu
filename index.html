@@ -310,6 +310,29 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
 </head>
 <body>
 
+<!-- 상단 우측 로그인 버튼 (고정) -->
+<div id="auth-btn-wrap" style="position:fixed;top:14px;right:16px;z-index:9999;">
+  <div id="auth-top-btn" onclick="toggleAuthMenu()" style="cursor:pointer;background:#131c2e;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:6px 12px;font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:6px;user-select:none;">
+    <span id="auth-top-label">로그인</span>
+  </div>
+  <div id="auth-menu" style="display:none;position:absolute;top:calc(100% + 6px);right:0;background:#162032;border:1px solid rgba(255,255,255,0.1);border-radius:10px;overflow:hidden;min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.4);">
+    <div onclick="sbSignIn()" style="display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;color:#e2e8f0;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.06);" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">
+      <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      구글로 로그인
+    </div>
+    <div onclick="showComingSoon(this)" style="display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;color:#e2e8f0;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.06);" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#03C75A"/><path d="M12 5C7.58 5 4 7.91 4 11.5c0 2.28 1.52 4.28 3.82 5.48L7 20l3.44-1.9c.5.13 1.02.2 1.56.2 4.42 0 8-2.91 8-6.5S16.42 5 12 5z" fill="white"/></svg>
+      네이버로 로그인
+    </div>
+    <div onclick="showComingSoon(this)" style="display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;color:#e2e8f0;font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">
+      <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="#FEE500"/><path d="M12 4C7.58 4 4 6.69 4 10c0 2.09 1.3 3.93 3.28 5.05L6.5 19l4.1-2.07c.46.07.93.1 1.4.1 4.42 0 8-2.69 8-6s-3.58-6-8-6z" fill="#3C1E1E"/></svg>
+      카카오로 로그인
+    </div>
+  </div>
+</div>
+<!-- 메뉴 외부 클릭 닫기 -->
+<div id="auth-menu-overlay" onclick="closeAuthMenu()" style="display:none;position:fixed;inset:0;z-index:9998;"></div>
+
 <!-- 검색 화면 -->
 <div id="search-screen">
   <div class="search-main">
@@ -322,7 +345,6 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
       </div>
       <div class="autocomplete-dropdown" id="ac-dropdown"></div>
     </div>
-    <div id="auth-section" style="order:5;width:100%;max-width:460px;margin-top:20px;"></div>
     <div id="my-stocks-section" style="order:6;width:100%;max-width:460px;display:none;margin-top:16px;margin-bottom:0;">
       <div style="font-size:10px;color:#4488ff;letter-spacing:2px;margin-bottom:10px;">⭐ 내 종목</div>
       <div class="chips" id="my-stocks-chips" style="margin-bottom:0;"></div>
@@ -630,22 +652,53 @@ sb.auth.getSession().then(({ data: { session } }) => {
 });
 
 function _renderAuthUI() {
-  const el = document.getElementById('auth-section');
-  if (!el) return;
+  const label = document.getElementById('auth-top-label');
+  const btn = document.getElementById('auth-top-btn');
+  if (!label || !btn) return;
   if (window._sbUser) {
     const avatar = window._sbUser.user_metadata?.avatar_url;
-    const email = window._sbUser.email;
-    el.innerHTML = `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#64748b;">
-      ${avatar ? `<img src="${avatar}" style="width:20px;height:20px;border-radius:50%;vertical-align:middle;">` : ''}
-      <span>${email}</span>
-      <span onclick="sbSignOut()" style="cursor:pointer;color:#475569;text-decoration:underline;font-size:11px;">로그아웃</span>
-    </div>`;
+    const name = window._sbUser.user_metadata?.name || window._sbUser.email.split('@')[0];
+    btn.innerHTML = avatar
+      ? `<img src="${avatar}" style="width:20px;height:20px;border-radius:50%;"> <span style="max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</span>`
+      : `<span>${name}</span>`;
   } else {
-    el.innerHTML = `<button onclick="sbSignIn()" style="background:none;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:5px 12px;color:#94a3b8;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
-      <svg width="13" height="13" viewBox="0 0 24 24" style="flex-shrink:0"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-      구글로 로그인
-    </button>`;
+    btn.innerHTML = `<span id="auth-top-label">로그인</span>`;
   }
+}
+
+function toggleAuthMenu() {
+  const menu = document.getElementById('auth-menu');
+  const overlay = document.getElementById('auth-menu-overlay');
+  if (!menu) return;
+  const isOpen = menu.style.display !== 'none';
+  if (isOpen) {
+    menu.style.display = 'none';
+    overlay.style.display = 'none';
+  } else {
+    if (window._sbUser) {
+      const name = window._sbUser.user_metadata?.name || window._sbUser.email;
+      menu.innerHTML = `
+        <div style="padding:12px 16px;font-size:12px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.06);">${name}</div>
+        <div onclick="sbSignOut()" style="padding:12px 16px;cursor:pointer;color:#94a3b8;font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">로그아웃</div>`;
+    }
+    menu.style.display = 'block';
+    overlay.style.display = 'block';
+  }
+}
+
+function closeAuthMenu() {
+  const menu = document.getElementById('auth-menu');
+  const overlay = document.getElementById('auth-menu-overlay');
+  if (menu) menu.style.display = 'none';
+  if (overlay) overlay.style.display = 'none';
+}
+
+function showComingSoon(el) {
+  closeAuthMenu();
+  const orig = el.innerHTML;
+  el.style.background = 'rgba(255,255,255,0.05)';
+  el.innerHTML = `<span style="color:#94a3b8;font-size:12px;">서비스 구현중입니다! 빠른시간안에 돌아올게요 🙏</span>`;
+  setTimeout(() => { el.innerHTML = orig; el.style.background = 'none'; }, 2500);
 }
 
 async function sbSignIn() {

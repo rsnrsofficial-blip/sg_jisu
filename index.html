@@ -311,7 +311,7 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
 <body>
 
 <!-- 햄버거 버튼 (좌상단 고정) -->
-<button onclick="openSidebar()" style="position:fixed;top:14px;left:16px;z-index:9999;background:none;border:none;cursor:pointer;padding:6px;display:flex;flex-direction:column;gap:5px;">
+<button id="hamburger-btn" onclick="openSidebar()" style="position:fixed;top:14px;left:16px;z-index:9999;background:none;border:none;cursor:pointer;padding:6px;display:flex;flex-direction:column;gap:5px;">
   <span style="display:block;width:20px;height:2px;background:#94a3b8;border-radius:2px;"></span>
   <span style="display:block;width:20px;height:2px;background:#94a3b8;border-radius:2px;"></span>
   <span style="display:block;width:20px;height:2px;background:#94a3b8;border-radius:2px;"></span>
@@ -323,9 +323,12 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
 <!-- 사이드바 -->
 <div id="sidebar" style="position:fixed;top:0;left:-270px;width:260px;height:100%;background:#0f1923;z-index:9998;display:flex;flex-direction:column;transition:left 0.25s cubic-bezier(0.4,0,0.2,1);border-right:1px solid rgba(255,255,255,0.07);">
   <!-- 헤더 -->
-  <div style="padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.06);">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#e2e8f0;letter-spacing:1px;">설거지수<span style="color:#4488ff;">.ai</span></div>
-    <div style="font-size:10px;color:#334155;margin-top:2px;">DART 공시 기반 세력이탈 감지</div>
+  <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;">
+    <div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#e2e8f0;letter-spacing:1px;">설거지수<span style="color:#4488ff;">.ai</span></div>
+      <div style="font-size:10px;color:#334155;margin-top:1px;">DART 공시 기반 세력이탈 감지</div>
+    </div>
+    <button onclick="closeSidebar()" style="background:none;border:none;cursor:pointer;color:#475569;font-size:20px;padding:4px;line-height:1;">✕</button>
   </div>
 
   <!-- 메뉴 아이템 (추후 확장용) -->
@@ -704,11 +707,13 @@ function _renderAuthUI() {
 function openSidebar() {
   document.getElementById('sidebar').style.left = '0';
   document.getElementById('sidebar-overlay').style.display = 'block';
+  document.getElementById('hamburger-btn').style.display = 'none';
 }
 
 function closeSidebar() {
   document.getElementById('sidebar').style.left = '-270px';
   document.getElementById('sidebar-overlay').style.display = 'none';
+  document.getElementById('hamburger-btn').style.display = 'flex';
 }
 
 function toggleSidebarLogin() {

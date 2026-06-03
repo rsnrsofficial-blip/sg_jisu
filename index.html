@@ -734,9 +734,12 @@ function sidebarComingSoon(id, label) {
 }
 
 async function sbSignIn() {
+  const redirectTo = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:3000'
+    : 'https://www.sgjisu.xyz';
   await sb.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.origin }
+    options: { redirectTo }
   });
 }
 

@@ -1,2 +1,5 @@
 *.jks
 *.keystore
+.env
+__pycache__/
+*.pyc

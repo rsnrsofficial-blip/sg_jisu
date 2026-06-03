@@ -602,6 +602,10 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
 </div>
 
 <script>
+const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:8000'
+  : 'https://sgjisu-production.up.railway.app';
+
 const DATA = {
   '005930': { name:'삼성전자', s1:5, s2:0, s3:10, price:{ cur:'73,400', chg:'+1,200', pct:'+1.66%', high:'87,800', low:'49,900', vol:'18,432,000', up:true }, priceData:[68200,69100,70500,69800,71200,72000,71500,72800,73100,72400,73400,73400,73000,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400,73400], flags:[{ lv:'low', title:'최근 1년 CB/BW <b>발행 없음</b>', tag:'안전', detail:'✅ <b>한 줄 요약:</b> 의심스러운 돈 안 빌렸어요.', source:'공시 출처: DART 발행공시 조회' },{ lv:'low', title:'불성실공시 이력 <b>없음</b>', tag:'안전', detail:'✅ <b>한 줄 요약:</b> 금감원한테 한 번도 혼난 적 없어요.', source:'공시 출처: DART 불성실공시법인 지정 이력 조회' },{ lv:'mid', title:'임원 스톡옵션 행사 후 <b>일부 매도</b> 감지', tag:'주의', detail:'🟡 <b>한 줄 요약:</b> 임원이 주식 좀 팔았는데 양이 작아요.', source:'공시 출처: DART 임원·주요주주 특정증권 등 소유상황보고서 (2025.03)' }], finance:{ profit:[{ label:'매출액 증가율', val:'+12.4%', color:'#00e676', pct:62 },{ label:'영업이익률', val:'16.8%', color:'#00e676', pct:68 },{ label:'순이익률', val:'14.2%', color:'#ffd000', pct:57 },{ label:'ROE', val:'18.3%', color:'#00e676', pct:73 }], stable:[{ label:'부채비율', val:'28.4%', color:'#00e676', pct:20 },{ label:'유동비율', val:'240%', color:'#00e676', pct:80 },{ label:'이자보상배율', val:'42.1x', color:'#00e676', pct:90 },{ label:'현금성 자산', val:'103조원', color:'#00e676', pct:85 }], strengths:['<b>압도적인 현금 보유력</b>: 103조원의 현금성 자산'], weaknesses:['<b>HBM 경쟁 지연</b>: AI 반도체 HBM 시장에서 경쟁사 대비 납품 일정 지연 우려'] }, news:[{ type:'good', title:'삼성전자, 엔비디아 HBM3E 최종 품질 테스트 통과', media:'한국경제', time:'2시간 전' },{ type:'bad', title:'中 반도체 수출규제 강화… 삼성 메모리 타격 불가피', media:'연합뉴스', time:'6시간 전' }] },
   '101360': { name:'에코앤드림', s1:40, s2:25, s3:30, price:{ cur:'4,285', chg:'-320', pct:'-6.95%', high:'12,400', low:'3,810', vol:'9,847,000', up:false }, priceData:[12400,11800,10200,9400,8700,8100,7600,7200,6800,6400,6100,5800,5400,5100,4900,4750,4600,4500,4430,4380,4350,4320,4310,4295,4290,4285,4285,4285,4285,4285], flags:[{ lv:'high', title:'<b>CB 3회 발행</b> — 발행 대상 중 투자조합 2건 포함', tag:'고위험', detail:'🔴 <b>한 줄 요약:</b> 의심스러운 큰손들이 1년에 3번이나 돈을 꽂았어요.', source:'공시 출처: DART 주요사항보고서 (2024.02, 2024.06, 2024.10)' }], finance:{ profit:[{ label:'매출액 증가율', val:'-18.2%', color:'#ff3131', pct:18 },{ label:'영업이익률', val:'-24.1%', color:'#ff3131', pct:5 },{ label:'순이익률', val:'-31.4%', color:'#ff3131', pct:3 },{ label:'ROE', val:'-42.3%', color:'#ff3131', pct:5 }], stable:[{ label:'부채비율', val:'342%', color:'#ff3131', pct:85 },{ label:'유동비율', val:'68%', color:'#ff3131', pct:20 },{ label:'이자보상배율', val:'-3.2x', color:'#ff3131', pct:5 },{ label:'현금성 자산', val:'42억원', color:'#ff8800', pct:12 }], strengths:['<b>기존 사업 거래처 유지</b>'], weaknesses:['<b>3년 연속 영업적자</b>: 영업이익률 -24.1%'] }, news:[{ type:'bad', title:'에코앤드림, 3분기 연속 영업손실… 자금난 심화 우려', media:'파이낸셜뉴스', time:'1시간 전' }] },
@@ -696,7 +700,7 @@ function toggleWatchlist(){
     list.unshift({code, name});
     if(list.length > 20) list = list.slice(0, 20);
     btn.textContent = '⭐';
-    fetch('https://sgjisu-production.up.railway.app/log', {
+    fetch(`${API_BASE}/log`, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({type:'watchlist', company:name, stock_code:code, score: window._logData?.score||0})
     }).catch(()=>{});
@@ -731,7 +735,7 @@ function renderMyStocks(){
 function goBack(){
   if(window._sessionStart&&window._logData){
     const session_time=Math.round((Date.now()-window._sessionStart)/1000);
-    fetch('https://sgjisu-production.up.railway.app/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'exit',...window._logData,session_time})}).catch(()=>{});
+    fetch(`${API_BASE}/log`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'exit',...window._logData,session_time})}).catch(()=>{});
   }
   window._sessionStart=null;window._logData=null;window._usageLogged=false;
   showOnly('search-screen');
@@ -853,7 +857,7 @@ function showSearchError(msg){
 
 async function fetchRealData(name,code){
   try{
-    const url=`https://sgjisu-production.up.railway.app/analyze?name=${encodeURIComponent(name)}${code?'&code='+encodeURIComponent(code):''}`;
+    const url=`${API_BASE}/analyze?name=${encodeURIComponent(name)}${code?'&code='+encodeURIComponent(code):''}`;
     const res=await fetch(url,{signal:AbortSignal.timeout(30000)});
     const data=await res.json();
     if(data&&typeof data.error==='string')return{_err:true,error:data.error,error_type:data.error_type||'unknown'};
@@ -916,7 +920,7 @@ async function startAnalysisReal(name,code){
   }else{mktEl.innerHTML='';}
 
   try{
-    const priceRes=await fetch(`https://sgjisu-production.up.railway.app/price?stock_code=${real.stock_code}`);
+    const priceRes=await fetch(`${API_BASE}/price?stock_code=${real.stock_code}`);
     const price=await priceRes.json();
     _priceData=price;
     if(price&&!price.error&&price['현재가']!=null){
@@ -1045,7 +1049,7 @@ async function startAnalysisReal(name,code){
   window._sessionStart=Date.now();
   window._usageLogged=false;
   // 결과 수신 즉시 usage 기록 (강제 종료 시 유실 방지)
-  fetch('https://sgjisu-production.up.railway.app/log',{
+  fetch(`${API_BASE}/log`,{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({type:'usage',company:real.종목||name,stock_code:real.stock_code||'',score:real.score||0,session_time:0})
   }).then(()=>{window._usageLogged=true;}).catch(()=>{});
@@ -1109,7 +1113,7 @@ _inp.addEventListener('input',()=>{
   if(v.length<1){_acClose();return;}
   _acTimer=setTimeout(async()=>{
     try{
-      const r=await fetch(`https://sgjisu-production.up.railway.app/search?q=${encodeURIComponent(v)}`);
+      const r=await fetch(`${API_BASE}/search?q=${encodeURIComponent(v)}`);
       const d=await r.json();
       _acRender(d||[]);
     }catch(e){_acClose();}
@@ -1143,7 +1147,7 @@ document.querySelectorAll('.period-btn').forEach((btn,i)=>{
 // ── 뉴스 렌더 ──
 async function loadInvestor(stock_code){
   try{
-    const res=await fetch(`https://sgjisu-production.up.railway.app/investor?stock_code=${stock_code}`);
+    const res=await fetch(`${API_BASE}/investor?stock_code=${stock_code}`);
     const data=await res.json();
     const days=data.days||[];
     if(!days.length)return;
@@ -1216,7 +1220,7 @@ async function loadInvestor(stock_code){
 
 async function loadNews(stock_code){
   try{
-    const r=await fetch(`https://sgjisu-production.up.railway.app/news?stock_code=${stock_code}`,{signal:AbortSignal.timeout(10000)});
+    const r=await fetch(`${API_BASE}/news?stock_code=${stock_code}`,{signal:AbortSignal.timeout(10000)});
     const d=await r.json();
     const all=[...( d.good||[]).map(n=>({...n,type:'good'})),...(d.bad||[]).map(n=>({...n,type:'bad'}))];
     if(!all.length){document.getElementById('news-cards').innerHTML='<div style="grid-column:span 2;text-align:center;padding:24px;color:#333;font-size:12px;">관련 뉴스를 찾을 수 없습니다</div>';return;}
@@ -1240,7 +1244,7 @@ async function loadNews(stock_code){
 // ── 경고 종목 렌더 ──
 async function loadWarningStocks(exclude_code){
   try{
-    const r=await fetch(`https://sgjisu-production.up.railway.app/warning-stocks?exclude=${exclude_code}`);
+    const r=await fetch(`${API_BASE}/warning-stocks?exclude=${exclude_code}`);
     const d=await r.json();
     if(!d||!d.length){document.getElementById('warning-section').style.display='none';return;}
     document.getElementById('warning-section').style.display='block';
@@ -1260,7 +1264,7 @@ showOnly('search-screen');
 
 async function loadTopMovers(){
   try{
-    const res=await fetch('https://sgjisu-production.up.railway.app/top-movers',{signal:AbortSignal.timeout(15000)});
+    const res=await fetch(`${API_BASE}/top-movers`,{signal:AbortSignal.timeout(15000)});
     const data=await res.json();
     if(data.error||!data.상승){
       document.getElementById('movers-up').innerHTML='<div class="movers-loading">데이터 없음</div>';
@@ -1300,7 +1304,7 @@ async function loadPopularChips(){
   const el=document.getElementById('popular-chips');
   if(!el)return;
   try{
-    const res=await fetch('https://sgjisu-production.up.railway.app/popular',{signal:AbortSignal.timeout(8000)});
+    const res=await fetch(`${API_BASE}/popular`,{signal:AbortSignal.timeout(8000)});
     const data=await res.json();
     if(!data.stocks||!data.stocks.length)throw new Error('empty');
     el.innerHTML=data.stocks.map(s=>
@@ -1328,7 +1332,7 @@ setTimeout(()=>{
 window.addEventListener('beforeunload',()=>{
   if(window._sessionStart&&window._logData){
     const session_time=Math.round((Date.now()-window._sessionStart)/1000);
-    navigator.sendBeacon('https://sgjisu-production.up.railway.app/log',JSON.stringify({type:'exit',...window._logData,session_time}));
+    navigator.sendBeacon(`${API_BASE}/log`,JSON.stringify({type:'exit',...window._logData,session_time}));
   }
 });
 </script>

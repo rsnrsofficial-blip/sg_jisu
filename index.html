@@ -310,28 +310,32 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
 </head>
 <body>
 
-<!-- 상단 우측 로그인 버튼 (고정) -->
-<div id="auth-btn-wrap" style="position:fixed;top:14px;right:16px;z-index:9999;">
-  <div id="auth-top-btn" onclick="toggleAuthMenu()" style="cursor:pointer;background:#131c2e;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:6px 12px;font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:6px;user-select:none;">
-    <span id="auth-top-label">로그인</span>
+<!-- 햄버거 버튼 (좌상단 고정) -->
+<button onclick="openSidebar()" style="position:fixed;top:14px;left:16px;z-index:9999;background:none;border:none;cursor:pointer;padding:6px;display:flex;flex-direction:column;gap:5px;">
+  <span style="display:block;width:20px;height:2px;background:#94a3b8;border-radius:2px;"></span>
+  <span style="display:block;width:20px;height:2px;background:#94a3b8;border-radius:2px;"></span>
+  <span style="display:block;width:20px;height:2px;background:#94a3b8;border-radius:2px;"></span>
+</button>
+
+<!-- 사이드바 오버레이 -->
+<div id="sidebar-overlay" onclick="closeSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9997;backdrop-filter:blur(2px);"></div>
+
+<!-- 사이드바 -->
+<div id="sidebar" style="position:fixed;top:0;left:-270px;width:260px;height:100%;background:#0f1923;z-index:9998;display:flex;flex-direction:column;transition:left 0.25s cubic-bezier(0.4,0,0.2,1);border-right:1px solid rgba(255,255,255,0.07);">
+  <!-- 헤더 -->
+  <div style="padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.06);">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#e2e8f0;letter-spacing:1px;">설거지수<span style="color:#4488ff;">.ai</span></div>
+    <div style="font-size:10px;color:#334155;margin-top:2px;">DART 공시 기반 세력이탈 감지</div>
   </div>
-  <div id="auth-menu" style="display:none;position:absolute;top:calc(100% + 6px);right:0;background:#162032;border:1px solid rgba(255,255,255,0.1);border-radius:10px;overflow:hidden;min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.4);">
-    <div onclick="sbSignIn()" style="display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;color:#e2e8f0;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.06);" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">
-      <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-      구글로 로그인
-    </div>
-    <div onclick="showComingSoon(this)" style="display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;color:#e2e8f0;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.06);" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#03C75A"/><path d="M12 5C7.58 5 4 7.91 4 11.5c0 2.28 1.52 4.28 3.82 5.48L7 20l3.44-1.9c.5.13 1.02.2 1.56.2 4.42 0 8-2.91 8-6.5S16.42 5 12 5z" fill="white"/></svg>
-      네이버로 로그인
-    </div>
-    <div onclick="showComingSoon(this)" style="display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;color:#e2e8f0;font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">
-      <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="#FEE500"/><path d="M12 4C7.58 4 4 6.69 4 10c0 2.09 1.3 3.93 3.28 5.05L6.5 19l4.1-2.07c.46.07.93.1 1.4.1 4.42 0 8-2.69 8-6s-3.58-6-8-6z" fill="#3C1E1E"/></svg>
-      카카오로 로그인
-    </div>
+
+  <!-- 메뉴 아이템 (추후 확장용) -->
+  <div style="flex:1;padding:12px 0;">
+    <div style="padding:10px 20px;font-size:13px;color:#475569;cursor:pointer;" onmouseover="this.style.color='#94a3b8'" onmouseout="this.style.color='#475569'">🏠 홈</div>
   </div>
+
+  <!-- 하단 유저 섹션 -->
+  <div id="sidebar-user" style="border-top:1px solid rgba(255,255,255,0.06);padding:16px 20px;"></div>
 </div>
-<!-- 메뉴 외부 클릭 닫기 -->
-<div id="auth-menu-overlay" onclick="closeAuthMenu()" style="display:none;position:fixed;inset:0;z-index:9998;"></div>
 
 <!-- 검색 화면 -->
 <div id="search-screen">
@@ -652,53 +656,81 @@ sb.auth.getSession().then(({ data: { session } }) => {
 });
 
 function _renderAuthUI() {
-  const label = document.getElementById('auth-top-label');
-  const btn = document.getElementById('auth-top-btn');
-  if (!label || !btn) return;
+  const el = document.getElementById('sidebar-user');
+  if (!el) return;
   if (window._sbUser) {
     const avatar = window._sbUser.user_metadata?.avatar_url;
     const name = window._sbUser.user_metadata?.name || window._sbUser.email.split('@')[0];
-    btn.innerHTML = avatar
-      ? `<img src="${avatar}" style="width:20px;height:20px;border-radius:50%;"> <span style="max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</span>`
-      : `<span>${name}</span>`;
+    const email = window._sbUser.email;
+    el.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;">
+        ${avatar
+          ? `<img src="${avatar}" style="width:38px;height:38px;border-radius:50%;flex-shrink:0;">`
+          : `<div style="width:38px;height:38px;border-radius:50%;background:#1e2d45;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">👤</div>`}
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;color:#e2e8f0;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</div>
+          <div style="font-size:11px;color:#475569;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${email}</div>
+        </div>
+      </div>
+      <div onclick="sbSignOut()" style="margin-top:12px;text-align:center;padding:7px;border:1px solid rgba(255,255,255,0.08);border-radius:6px;font-size:12px;color:#475569;cursor:pointer;" onmouseover="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='#64748b'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.color='#475569'">로그아웃</div>`;
   } else {
-    btn.innerHTML = `<span id="auth-top-label">로그인</span>`;
+    el.innerHTML = `
+      <div onclick="toggleSidebarLogin()" style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:4px 0;" id="sidebar-login-trigger">
+        <div style="width:38px;height:38px;border-radius:50%;background:#1a2840;border:1.5px dashed rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#475569" stroke-width="1.5"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="#475569" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div style="font-size:13px;color:#94a3b8;">로그인하기</div>
+          <div style="font-size:10px;color:#334155;margin-top:1px;">내 종목을 기기간 동기화</div>
+        </div>
+      </div>
+      <div id="sidebar-login-options" style="display:none;margin-top:12px;display:none;">
+        <div onclick="sbSignIn()" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;background:#131c2e;margin-bottom:6px;" onmouseover="this.style.background='#162032'" onmouseout="this.style.background='#131c2e'">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          <span style="font-size:13px;color:#e2e8f0;">구글로 로그인</span>
+        </div>
+        <div id="sb-naver-btn" onclick="sidebarComingSoon('sb-naver-btn','네이버로 로그인')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;background:#131c2e;margin-bottom:6px;" onmouseover="this.style.background='#162032'" onmouseout="this.style.background='#131c2e'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#03C75A"/><path d="M12 5C7.58 5 4 7.91 4 11.5c0 2.28 1.52 4.28 3.82 5.48L7 20l3.44-1.9c.5.13 1.02.2 1.56.2 4.42 0 8-2.91 8-6.5S16.42 5 12 5z" fill="white"/></svg>
+          <span style="font-size:13px;color:#e2e8f0;">네이버로 로그인</span>
+        </div>
+        <div id="sb-kakao-btn" onclick="sidebarComingSoon('sb-kakao-btn','카카오로 로그인')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;background:#131c2e;" onmouseover="this.style.background='#162032'" onmouseout="this.style.background='#131c2e'">
+          <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="#FEE500"/><path d="M12 4C7.58 4 4 6.69 4 10c0 2.09 1.3 3.93 3.28 5.05L6.5 19l4.1-2.07c.46.07.93.1 1.4.1 4.42 0 8-2.69 8-6s-3.58-6-8-6z" fill="#3C1E1E"/></svg>
+          <span style="font-size:13px;color:#e2e8f0;">카카오로 로그인</span>
+        </div>
+      </div>`;
   }
 }
 
-function toggleAuthMenu() {
-  const menu = document.getElementById('auth-menu');
-  const overlay = document.getElementById('auth-menu-overlay');
-  if (!menu) return;
-  const isOpen = menu.style.display !== 'none';
-  if (isOpen) {
-    menu.style.display = 'none';
-    overlay.style.display = 'none';
-  } else {
-    if (window._sbUser) {
-      const name = window._sbUser.user_metadata?.name || window._sbUser.email;
-      menu.innerHTML = `
-        <div style="padding:12px 16px;font-size:12px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.06);">${name}</div>
-        <div onclick="sbSignOut()" style="padding:12px 16px;cursor:pointer;color:#94a3b8;font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">로그아웃</div>`;
-    }
-    menu.style.display = 'block';
-    overlay.style.display = 'block';
-  }
+function openSidebar() {
+  document.getElementById('sidebar').style.left = '0';
+  document.getElementById('sidebar-overlay').style.display = 'block';
 }
 
-function closeAuthMenu() {
-  const menu = document.getElementById('auth-menu');
-  const overlay = document.getElementById('auth-menu-overlay');
-  if (menu) menu.style.display = 'none';
-  if (overlay) overlay.style.display = 'none';
+function closeSidebar() {
+  document.getElementById('sidebar').style.left = '-270px';
+  document.getElementById('sidebar-overlay').style.display = 'none';
 }
 
-function showComingSoon(el) {
-  closeAuthMenu();
-  const orig = el.innerHTML;
-  el.style.background = 'rgba(255,255,255,0.05)';
-  el.innerHTML = `<span style="color:#94a3b8;font-size:12px;">서비스 구현중입니다! 빠른시간안에 돌아올게요 🙏</span>`;
-  setTimeout(() => { el.innerHTML = orig; el.style.background = 'none'; }, 2500);
+function toggleSidebarLogin() {
+  const opts = document.getElementById('sidebar-login-options');
+  const trigger = document.getElementById('sidebar-login-trigger');
+  if (!opts) return;
+  const isOpen = opts.style.display === 'flex' || opts.style.display === 'block';
+  opts.style.display = isOpen ? 'none' : 'block';
+  if (trigger) trigger.style.display = isOpen ? 'flex' : 'none';
+}
+
+function sidebarComingSoon(id, label) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = `<span style="font-size:12px;color:#64748b;">서비스 구현중입니다! 빠른시간안에 돌아올게요 🙏</span>`;
+  setTimeout(() => {
+    _renderAuthUI();
+    const opts = document.getElementById('sidebar-login-options');
+    if (opts) opts.style.display = 'block';
+    const trigger = document.getElementById('sidebar-login-trigger');
+    if (trigger) trigger.style.display = 'none';
+  }, 2500);
 }
 
 async function sbSignIn() {

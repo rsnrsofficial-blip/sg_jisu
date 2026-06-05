@@ -368,9 +368,12 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
       </div>
       <div class="autocomplete-dropdown" id="ac-dropdown"></div>
     </div>
-    <div id="my-stocks-section" style="order:6;width:100%;max-width:460px;display:none;margin-top:16px;margin-bottom:0;">
-      <div style="font-size:10px;color:#4488ff;letter-spacing:2px;margin-bottom:10px;">⭐ 내 종목</div>
-      <div class="chips" id="my-stocks-chips" style="margin-bottom:0;"></div>
+    <div id="my-stocks-section" style="order:6;width:100%;max-width:460px;display:none;margin-top:20px;margin-bottom:0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:10px;color:#4488ff;letter-spacing:2px;">⭐ 내 종목</div>
+        <div id="my-stocks-more-btn" style="display:none;font-size:11px;color:#4488ff;cursor:pointer;" onclick="openWatchlistPage()">내 종목 더보기 →</div>
+      </div>
+      <div id="my-stocks-chips" style="display:flex;flex-direction:column;gap:0;"></div>
     </div>
     <div style="order:4;font-size:10px;color:#475569;letter-spacing:2px;margin-bottom:10px;margin-top:24px;">금주의 인기 검색 종목</div>
     <div class="chips" id="popular-chips">
@@ -1344,25 +1347,43 @@ async function _updateWatchlistBtn(){
 }
 
 async function renderMyStocks(){
-  let list;
-  if(window._sbUser){
-    const { data } = await sb.from('watchlist').select('stock_code, stock_name').eq('user_id', window._sbUser.id).order('created_at', { ascending: false });
-    list = (data||[]).map(r => ({ code: r.stock_code, name: r.stock_name }));
-  } else {
-    list = _getWatchlist();
-  }
   const section = document.getElementById('my-stocks-section');
   const chips = document.getElementById('my-stocks-chips');
-  section.style.display='block';
-  if(!list.length){
-    chips.innerHTML = `<div style="font-size:12px;color:#334155;padding:4px 0;">결과 화면에서 ☆ 누르면 내 종목으로 저장할 수 있어요.</div>`;
+  const moreBtn = document.getElementById('my-stocks-more-btn');
+  section.style.display = 'block';
+
+  // 비로그인
+  if(!window._sbUser){
+    moreBtn.style.display = 'none';
+    chips.innerHTML = `<div style="font-size:12px;color:#475569;padding:4px 0;">로그인하면 내 종목을 볼 수 있어요.</div>`;
     return;
   }
-  chips.innerHTML = list.map(s =>
-    `<div class="chip" style="border-color:rgba(68,136,255,0.4);color:#aac4ff;" onclick="quick('${s.name.replace(/'/g,"\\'")}','${s.code}')">
-      <span style="font-size:10px;color:#4488ff;margin-right:5px;">${s.code}</span>${s.name}
-    </div>`
-  ).join('');
+
+  const name = window._sbUser.user_metadata?.name || window._sbUser.email.split('@')[0];
+  const { data } = await sb.from('watchlist').select('stock_code, stock_name').eq('user_id', window._sbUser.id).order('created_at', { ascending: false });
+  const list = (data||[]).map(r => ({ code: r.stock_code, name: r.stock_name }));
+
+  // 로그인했지만 종목 없음
+  if(!list.length){
+    moreBtn.style.display = 'none';
+    chips.innerHTML = `<div style="font-size:12px;color:#475569;padding:4px 0;">아직 저장한 종목이 없어요.<br><span style="font-size:11px;color:#334155;">분석 후 ☆를 눌러 개인 종목을 추가해보세요!</span></div>`;
+    return;
+  }
+
+  // 종목 있음
+  const display = list.slice(0, 20);
+  moreBtn.style.display = list.length > 5 ? 'block' : 'none';
+
+  chips.innerHTML = `
+    <div style="font-size:11px;color:#64748b;margin-bottom:8px;padding:0 2px;"><span style="color:#94a3b8;font-weight:500;">${name}</span>님의 개인종목은 아래와 같습니다</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      ${display.map(s =>
+        `<div class="chip" style="border-color:rgba(68,136,255,0.4);color:#aac4ff;" onclick="quick('${s.name.replace(/'/g,"\\'")}','${s.code}')">
+          <span style="font-size:10px;color:#4488ff;margin-right:5px;">${s.code}</span>${s.name}
+        </div>`
+      ).join('')}
+    </div>
+    ${list.length > 20 ? `<div style="font-size:10px;color:#334155;margin-top:8px;padding:0 2px;">외 ${list.length - 20}개 더 있어요</div>` : ''}`;
 }
 
 function goBack(){

@@ -690,10 +690,11 @@ function _renderAuthUI() {
   if (tr) {
     if (window._sbUser) {
       const avatar = window._sbUser.user_metadata?.avatar_url;
-      const placeholder = `<div style="width:30px;height:30px;border-radius:50%;background:#1e2d45;border:1.5px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:13px;">👤</div>`;
-      tr.innerHTML = avatar
-        ? `<img src="${avatar}" style="width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.15);display:block;" onerror="this.parentElement.innerHTML='${placeholder.replace(/'/g,"\\'")}';">`
-        : placeholder;
+      if (avatar) {
+        tr.innerHTML = `<div id="topright-avatar" style="width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.2);background:#1e2d45 url('${avatar}') center/cover no-repeat;"></div>`;
+      } else {
+        tr.innerHTML = `<div style="width:32px;height:32px;border-radius:50%;background:#1e2d45;border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:14px;">👤</div>`;
+      }
     } else {
       tr.innerHTML = `<div style="background:#131c2e;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:5px 12px;font-size:12px;color:#94a3b8;">로그인</div>`;
     }

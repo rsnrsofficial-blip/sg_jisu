@@ -780,7 +780,9 @@ function showMyStocks() {
   }, 100);
 }
 
-function openProfilePage() {
+const _pencil = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+
+async function openProfilePage() {
   if (!window._sbUser) return;
   const u = window._sbUser;
   const avatar = u.user_metadata?.avatar_url;
@@ -788,44 +790,91 @@ function openProfilePage() {
   const email = u.email || '';
   const joined = new Date(u.created_at).toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
 
+  // 관심종목 로드
+  const { data: wl } = await sb.from('watchlist').select('stock_code,stock_name').eq('user_id', u.id).order('created_at', { ascending: false });
+  const watchlist = wl || [];
+
   const page = document.getElementById('profile-page');
   page.innerHTML = `
     <div style="max-width:480px;width:100%;margin:0 auto;padding:24px 20px 60px;">
+      <!-- 헤더 -->
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
         <button onclick="closeProfilePage()" style="background:none;border:none;cursor:pointer;color:#64748b;font-size:22px;padding:4px;">←</button>
         <span style="font-size:16px;font-weight:600;color:#e2e8f0;">회원정보</span>
       </div>
 
       <!-- 프로필 사진 -->
-      <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:32px;gap:12px;">
-        ${avatar
-          ? `<img src="${avatar}" style="width:80px;height:80px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);">`
-          : `<div style="width:80px;height:80px;border-radius:50%;background:#1e2d45;display:flex;align-items:center;justify-content:center;font-size:32px;">👤</div>`}
-        <div style="font-size:11px;color:#334155;">구글 계정 프로필 사진</div>
+      <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:32px;gap:10px;">
+        <div style="position:relative;display:inline-block;">
+          ${avatar
+            ? `<img src="${avatar}" style="width:80px;height:80px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);display:block;">`
+            : `<div style="width:80px;height:80px;border-radius:50%;background:#1e2d45;display:flex;align-items:center;justify-content:center;font-size:32px;">👤</div>`}
+          <a href="https://myaccount.google.com/personal-info" target="_blank" title="구글 계정에서 변경"
+             style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:#1e2d45;border:1.5px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;color:#94a3b8;text-decoration:none;">
+            ${_pencil}
+          </a>
+        </div>
+        <div style="font-size:11px;color:#334155;">구글 계정에서 변경 가능</div>
       </div>
 
-      <!-- 정보 카드 -->
-      <div style="background:#131c2e;border-radius:10px;overflow:hidden;margin-bottom:16px;">
-        <div style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);">
-          <div style="font-size:10px;color:#475569;margin-bottom:4px;letter-spacing:1px;">이름</div>
-          <div style="font-size:14px;color:#e2e8f0;">${name || '—'}</div>
+      <!-- 기본 정보 카드 -->
+      <div style="background:#131c2e;border-radius:10px;overflow:hidden;margin-bottom:12px;">
+        <div style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:10px;color:#475569;margin-bottom:4px;letter-spacing:1px;">이름</div>
+            <div id="profile-name-display" style="font-size:14px;color:#e2e8f0;">${name || '—'}</div>
+            <div id="profile-name-edit" style="display:none;margin-top:6px;">
+              <input id="profile-name-input" value="${name}" style="background:#0d1117;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:6px 10px;color:#e2e8f0;font-size:14px;width:100%;outline:none;">
+              <div style="display:flex;gap:8px;margin-top:8px;">
+                <button onclick="saveProfileName()" style="flex:1;padding:6px;background:#4488ff;border:none;border-radius:6px;color:#fff;font-size:12px;cursor:pointer;">저장</button>
+                <button onclick="cancelProfileName()" style="flex:1;padding:6px;background:rgba(255,255,255,0.06);border:none;border-radius:6px;color:#94a3b8;font-size:12px;cursor:pointer;">취소</button>
+              </div>
+            </div>
+          </div>
+          <button id="profile-name-pencil" onclick="editProfileName()" style="background:none;border:none;cursor:pointer;color:#475569;padding:4px;" title="이름 수정">${_pencil}</button>
         </div>
         <div style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);">
           <div style="font-size:10px;color:#475569;margin-bottom:4px;letter-spacing:1px;">이메일</div>
           <div style="font-size:14px;color:#e2e8f0;">${email}</div>
         </div>
-        <div style="padding:14px 18px;">
+        <div style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);">
           <div style="font-size:10px;color:#475569;margin-bottom:4px;letter-spacing:1px;">가입일</div>
           <div style="font-size:14px;color:#e2e8f0;">${joined}</div>
         </div>
-      </div>
-
-      <div style="background:#131c2e;border-radius:10px;overflow:hidden;margin-bottom:28px;">
         <div style="padding:14px 18px;">
           <div style="font-size:10px;color:#475569;margin-bottom:4px;letter-spacing:1px;">로그인 방식</div>
           <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:#e2e8f0;">
-            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
             Google
+          </div>
+        </div>
+      </div>
+
+      <!-- 내 관심종목 -->
+      <div style="background:#131c2e;border-radius:10px;overflow:hidden;margin-bottom:12px;">
+        <div style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:13px;font-weight:500;color:#e2e8f0;">⭐ 내 관심종목</div>
+          <div style="font-size:12px;color:#4488ff;">${watchlist.length}개</div>
+        </div>
+        ${watchlist.length
+          ? watchlist.map(s => `
+            <div onclick="closeProfilePage();quick('${s.stock_name.replace(/'/g,"\\'")}','${s.stock_code}')" style="padding:11px 18px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
+              <div style="font-size:13px;color:#e2e8f0;">${s.stock_name}</div>
+              <div style="font-size:11px;color:#334155;">${s.stock_code}</div>
+            </div>`).join('')
+          : `<div style="padding:16px 18px;font-size:12px;color:#334155;">저장된 종목이 없어요. 분석 후 ☆를 눌러 저장해보세요.</div>`}
+      </div>
+
+      <!-- 알림 설정 -->
+      <div style="background:#131c2e;border-radius:10px;overflow:hidden;margin-bottom:24px;">
+        <div style="padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:#e2e8f0;">🔔 위험 종목 알림</div>
+            <div style="font-size:11px;color:#334155;margin-top:3px;">관심종목 점수 70+ 시 이메일 알림</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:10px;color:#475569;background:rgba(255,255,255,0.06);padding:2px 7px;border-radius:4px;">준비중</span>
+            <div style="width:36px;height:20px;background:rgba(255,255,255,0.08);border-radius:10px;opacity:0.4;"></div>
           </div>
         </div>
       </div>
@@ -835,6 +884,32 @@ function openProfilePage() {
       </button>
     </div>`;
   page.style.display = 'flex';
+}
+
+function editProfileName() {
+  document.getElementById('profile-name-display').style.display = 'none';
+  document.getElementById('profile-name-pencil').style.display = 'none';
+  document.getElementById('profile-name-edit').style.display = 'block';
+  document.getElementById('profile-name-input').focus();
+}
+
+function cancelProfileName() {
+  document.getElementById('profile-name-display').style.display = 'block';
+  document.getElementById('profile-name-pencil').style.display = 'block';
+  document.getElementById('profile-name-edit').style.display = 'none';
+}
+
+async function saveProfileName() {
+  const input = document.getElementById('profile-name-input');
+  const newName = input.value.trim();
+  if (!newName) return;
+  const { error } = await sb.auth.updateUser({ data: { name: newName } });
+  if (!error) {
+    window._sbUser.user_metadata.name = newName;
+    document.getElementById('profile-name-display').textContent = newName;
+    cancelProfileName();
+    _renderAuthUI();
+  }
 }
 
 function closeProfilePage() {

@@ -804,17 +804,17 @@ async function openProfilePage() {
       </div>
 
       <!-- 프로필 사진 -->
+      <input type="file" id="avatar-file-input" accept="image/*" style="display:none;" onchange="uploadAvatar(this)">
       <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:32px;gap:10px;">
         <div style="position:relative;display:inline-block;">
-          ${avatar
-            ? `<img src="${avatar}" style="width:80px;height:80px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);display:block;">`
-            : `<div style="width:80px;height:80px;border-radius:50%;background:#1e2d45;display:flex;align-items:center;justify-content:center;font-size:32px;">👤</div>`}
-          <a href="https://myaccount.google.com/personal-info" target="_blank" title="구글 계정에서 변경"
-             style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:#1e2d45;border:1.5px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;color:#94a3b8;text-decoration:none;">
+          <img id="profile-avatar-img" src="${avatar || ''}" style="width:80px;height:80px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);display:${avatar ? 'block' : 'none'};">
+          <div id="profile-avatar-placeholder" style="width:80px;height:80px;border-radius:50%;background:#1e2d45;display:${avatar ? 'none' : 'flex'};align-items:center;justify-content:center;font-size:32px;">👤</div>
+          <button onclick="document.getElementById('avatar-file-input').click()" title="사진 변경"
+             style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:#1e2d45;border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;color:#94a3b8;cursor:pointer;">
             ${_pencil}
-          </a>
+          </button>
         </div>
-        <div style="font-size:11px;color:#334155;">구글 계정에서 변경 가능</div>
+        <div id="avatar-upload-status" style="font-size:11px;color:#334155;">사진을 눌러 변경</div>
       </div>
 
       <!-- 기본 정보 카드 -->
@@ -884,6 +884,51 @@ async function openProfilePage() {
       </button>
     </div>`;
   page.style.display = 'flex';
+}
+
+async function uploadAvatar(input) {
+  const file = input.files[0];
+  if (!file || !window._sbUser) return;
+
+  const status = document.getElementById('avatar-upload-status');
+  status.textContent = '업로드 중...';
+  status.style.color = '#4488ff';
+
+  // 5MB 제한
+  if (file.size > 5 * 1024 * 1024) {
+    status.textContent = '5MB 이하 이미지만 가능해요';
+    status.style.color = '#ff6b6b';
+    return;
+  }
+
+  const ext = file.name.split('.').pop();
+  const path = `${window._sbUser.id}/avatar.${ext}`;
+
+  const { error: upErr } = await sb.storage.from('avatars').upload(path, file, { upsert: true });
+  if (upErr) {
+    status.textContent = '업로드 실패. 다시 시도해주세요.';
+    status.style.color = '#ff6b6b';
+    return;
+  }
+
+  const { data: { publicUrl } } = sb.storage.from('avatars').getPublicUrl(path);
+  const cacheBusted = publicUrl + '?t=' + Date.now();
+
+  await sb.auth.updateUser({ data: { avatar_url: cacheBusted } });
+  window._sbUser.user_metadata.avatar_url = cacheBusted;
+
+  // UI 즉시 반영
+  const img = document.getElementById('profile-avatar-img');
+  const placeholder = document.getElementById('profile-avatar-placeholder');
+  img.src = cacheBusted;
+  img.style.display = 'block';
+  placeholder.style.display = 'none';
+  status.textContent = '변경 완료!';
+  status.style.color = '#00e676';
+  setTimeout(() => { status.textContent = '사진을 눌러 변경'; status.style.color = '#334155'; }, 2000);
+
+  _renderAuthUI();
+  input.value = '';
 }
 
 function editProfileName() {

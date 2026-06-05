@@ -692,16 +692,16 @@ async function _loadProfile(user) {
 
 sb.auth.onAuthStateChange(async (event, session) => {
   window._sbUser = session?.user || null;
-  if (window._sbUser) await _loadProfile(window._sbUser);
+  if (window._sbUser) { try { await _loadProfile(window._sbUser); } catch(e) { console.warn('profile load error', e); } }
   else window._sbProfile = null;
   _renderAuthUI();
-  if (event === 'SIGNED_IN') await _migrateLocalToCloud();
+  if (event === 'SIGNED_IN') { try { await _migrateLocalToCloud(); } catch(e) {} }
   renderMyStocks();
 });
 
 sb.auth.getSession().then(async ({ data: { session } }) => {
   window._sbUser = session?.user || null;
-  if (window._sbUser) await _loadProfile(window._sbUser);
+  if (window._sbUser) { try { await _loadProfile(window._sbUser); } catch(e) { console.warn('profile load error', e); } }
   _renderAuthUI();
   renderMyStocks();
 });

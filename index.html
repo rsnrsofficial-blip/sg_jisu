@@ -471,7 +471,6 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
   <div class="result-topbar">
     <div class="result-topbar-inner">
       <span class="result-topbar-back" onclick="goBack()">← 다시 검색</span>
-      <span id="watchlist-btn" onclick="toggleWatchlist()" style="cursor:pointer;font-size:18px;margin-left:6px;user-select:none;" title="내 종목 저장">☆</span>
       <div class="result-topbar-stock">
         <span class="result-topbar-code" id="r-code"></span>
         <span class="result-topbar-name" id="r-name"></span>
@@ -508,6 +507,15 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
         <span style="font-size:10px;color:#555;">·</span>
         <span style="font-size:10px;color:#aaa;letter-spacing:0.5px;">70+ <span style="color:#ff3131">⚠ 고위험</span></span>
       </div>
+
+      <!-- 내 종목 저장 버튼 -->
+      <button id="watchlist-btn" onclick="toggleWatchlist()"
+        style="margin-top:18px;display:flex;align-items:center;gap:8px;padding:10px 24px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:#94a3b8;font-size:13px;cursor:pointer;transition:all 0.15s;user-select:none;"
+        onmouseover="this.style.borderColor='rgba(68,136,255,0.5)';this.style.color='#4488ff'"
+        onmouseout="_resetWatchlistBtnStyle(this)">
+        <span id="watchlist-btn-icon" style="font-size:18px;line-height:1;">☆</span>
+        <span id="watchlist-btn-label">내 종목에 저장</span>
+      </button>
     </div>
     <div class="cards">
       <div class="card">
@@ -1303,47 +1311,67 @@ function _getWatchlist(){ try{ return JSON.parse(localStorage.getItem('watchlist
 function _saveWatchlist(list){ localStorage.setItem('watchlist', JSON.stringify(list)); }
 
 async function toggleWatchlist(){
-  const btn = document.getElementById('watchlist-btn');
   const code = document.getElementById('r-code').textContent;
   const name = document.getElementById('r-name').textContent;
   if(!code) return;
 
-  if(window._sbUser){
-    const { data } = await sb.from('watchlist').select('id').eq('user_id', window._sbUser.id).eq('stock_code', code).maybeSingle();
-    if(data){
-      await sb.from('watchlist').delete().eq('id', data.id);
-      btn.textContent = '☆';
-    } else {
-      await sb.from('watchlist').insert({ user_id: window._sbUser.id, stock_code: code, stock_name: name });
-      btn.textContent = '⭐';
-      fetch(`${API_BASE}/log`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'watchlist',company:name,stock_code:code,score:window._logData?.score||0})}).catch(()=>{});
-    }
+  if(!window._sbUser){
+    // 비로그인 시 로그인 유도
+    openSidebar();
+    return;
+  }
+
+  const { data } = await sb.from('watchlist').select('id').eq('user_id', window._sbUser.id).eq('stock_code', code).maybeSingle();
+  if(data){
+    await sb.from('watchlist').delete().eq('id', data.id);
+    _applyWatchlistBtnState(false);
   } else {
-    let list = _getWatchlist();
-    const idx = list.findIndex(s => s.code === code);
-    if(idx >= 0){
-      list.splice(idx, 1);
-      btn.textContent = '☆';
-    } else {
-      list.unshift({code, name});
-      if(list.length > 20) list = list.slice(0, 20);
-      btn.textContent = '⭐';
-      fetch(`${API_BASE}/log`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'watchlist',company:name,stock_code:code,score:window._logData?.score||0})}).catch(()=>{});
-    }
-    _saveWatchlist(list);
+    await sb.from('watchlist').insert({ user_id: window._sbUser.id, stock_code: code, stock_name: name });
+    _applyWatchlistBtnState(true);
+    fetch(`${API_BASE}/log`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'watchlist',company:name,stock_code:code,score:window._logData?.score||0})}).catch(()=>{});
   }
 }
 
 async function _updateWatchlistBtn(){
   const btn = document.getElementById('watchlist-btn');
+  const icon = document.getElementById('watchlist-btn-icon');
+  const label = document.getElementById('watchlist-btn-label');
   const code = document.getElementById('r-code').textContent;
   if(!btn || !code) return;
+
+  let saved = false;
   if(window._sbUser){
     const { data } = await sb.from('watchlist').select('id').eq('user_id', window._sbUser.id).eq('stock_code', code).maybeSingle();
-    btn.textContent = data ? '⭐' : '☆';
+    saved = !!data;
   } else {
-    btn.textContent = _getWatchlist().some(s => s.code === code) ? '⭐' : '☆';
+    saved = _getWatchlist().some(s => s.code === code);
   }
+  _applyWatchlistBtnState(saved);
+}
+
+function _applyWatchlistBtnState(saved){
+  const btn = document.getElementById('watchlist-btn');
+  const icon = document.getElementById('watchlist-btn-icon');
+  const label = document.getElementById('watchlist-btn-label');
+  if(!btn) return;
+  if(saved){
+    btn.style.borderColor = 'rgba(68,136,255,0.5)';
+    btn.style.background = 'rgba(68,136,255,0.1)';
+    btn.style.color = '#4488ff';
+    if(icon) icon.textContent = '⭐';
+    if(label) label.textContent = '내 종목에 저장됨';
+  } else {
+    btn.style.borderColor = 'rgba(255,255,255,0.12)';
+    btn.style.background = 'rgba(255,255,255,0.04)';
+    btn.style.color = '#94a3b8';
+    if(icon) icon.textContent = '☆';
+    if(label) label.textContent = '내 종목에 저장';
+  }
+}
+
+function _resetWatchlistBtnStyle(btn){
+  const saved = document.getElementById('watchlist-btn-icon')?.textContent === '⭐';
+  _applyWatchlistBtnState(saved);
 }
 
 async function renderMyStocks(){

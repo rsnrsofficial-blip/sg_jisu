@@ -671,16 +671,37 @@ const sb = createClient(
   'sb_publishable_lDhp8DoUWvKmckEsYiJ8Cw_eD24q2z2'
 );
 window._sbUser = null;
+window._sbProfile = null;
+
+async function _loadProfile(user) {
+  if (!user) { window._sbProfile = null; return; }
+  const { data } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
+  if (data) {
+    window._sbProfile = data;
+  } else {
+    // 첫 로그인 - Google 기본값으로 프로필 생성
+    const defaults = {
+      id: user.id,
+      name: user.user_metadata?.name || null,
+      avatar_url: user.user_metadata?.avatar_url || null,
+    };
+    await sb.from('profiles').insert(defaults);
+    window._sbProfile = defaults;
+  }
+}
 
 sb.auth.onAuthStateChange(async (event, session) => {
   window._sbUser = session?.user || null;
+  if (window._sbUser) await _loadProfile(window._sbUser);
+  else window._sbProfile = null;
   _renderAuthUI();
   if (event === 'SIGNED_IN') await _migrateLocalToCloud();
   renderMyStocks();
 });
 
-sb.auth.getSession().then(({ data: { session } }) => {
+sb.auth.getSession().then(async ({ data: { session } }) => {
   window._sbUser = session?.user || null;
+  if (window._sbUser) await _loadProfile(window._sbUser);
   _renderAuthUI();
   renderMyStocks();
 });
@@ -689,7 +710,7 @@ function _renderAuthUI() {
   const tr = document.getElementById('topright-auth');
   if (tr) {
     if (window._sbUser) {
-      const avatar = window._sbUser.user_metadata?.avatar_url;
+      const avatar = window._sbProfile?.avatar_url;
       tr.style.cssText = 'cursor:pointer;min-width:32px;min-height:32px;';
       if (avatar) {
         tr.innerHTML = `<img src="${avatar}" width="32" height="32" style="border-radius:50%;border:1.5px solid rgba(255,255,255,0.2);display:block;object-fit:cover;" onerror="this.outerHTML='<div style=\\'width:32px;height:32px;border-radius:50%;background:#1e2d45;border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:14px;\\'>👤</div>'">`;
@@ -704,8 +725,8 @@ function _renderAuthUI() {
   const el = document.getElementById('sidebar-user');
   if (!el) return;
   if (window._sbUser) {
-    const avatar = window._sbUser.user_metadata?.avatar_url;
-    const name = window._sbUser.user_metadata?.name || window._sbUser.email.split('@')[0];
+    const avatar = window._sbProfile?.avatar_url;
+    const name = window._sbProfile?.name || window._sbUser.email.split('@')[0];
     const email = window._sbUser.email;
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:12px;">
@@ -765,7 +786,7 @@ function toggleToprightMenu() {
   const overlay = document.getElementById('topright-overlay');
   if (menu.style.display !== 'none') { closeToprightMenu(); return; }
   if (window._sbUser) {
-    const name = window._sbUser.user_metadata?.name || window._sbUser.email;
+    const name = window._sbProfile?.name || window._sbUser.email;
     const row = 'padding:11px 16px;cursor:pointer;color:#e2e8f0;font-size:13px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.06);';
     menu.innerHTML = `
       <div style="padding:11px 16px;font-size:12px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.06);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</div>
@@ -826,8 +847,8 @@ async function openWatchlistPage() {
   if (!window._sbUser) { sbSignIn(); return; }
   const page = document.getElementById('watchlist-page');
   const u = window._sbUser;
-  const avatar = u.user_metadata?.avatar_url;
-  const name = u.user_metadata?.name || u.email.split('@')[0];
+  const avatar = window._sbProfile?.avatar_url;
+  const name = window._sbProfile?.name || u.email.split('@')[0];
 
   page.innerHTML = `
     <div style="max-width:520px;width:100%;margin:0 auto;padding:20px 16px 60px;">
@@ -991,8 +1012,8 @@ const _pencil = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" str
 async function openProfilePage() {
   if (!window._sbUser) return;
   const u = window._sbUser;
-  const avatar = u.user_metadata?.avatar_url;
-  const name = u.user_metadata?.name || '';
+  const avatar = window._sbProfile?.avatar_url;
+  const name = window._sbProfile?.name || '';
   const email = u.email || '';
   const joined = new Date(u.created_at).toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
 
@@ -1120,8 +1141,8 @@ async function uploadAvatar(input) {
   const { data: { publicUrl } } = sb.storage.from('avatars').getPublicUrl(path);
   const cacheBusted = publicUrl + '?t=' + Date.now();
 
-  await sb.auth.updateUser({ data: { avatar_url: cacheBusted } });
-  window._sbUser.user_metadata.avatar_url = cacheBusted;
+  await sb.from('profiles').update({ avatar_url: cacheBusted, updated_at: new Date().toISOString() }).eq('id', window._sbUser.id);
+  if (window._sbProfile) window._sbProfile.avatar_url = cacheBusted;
 
   // UI 즉시 반영
   const img = document.getElementById('profile-avatar-img');
@@ -1154,9 +1175,9 @@ async function saveProfileName() {
   const input = document.getElementById('profile-name-input');
   const newName = input.value.trim();
   if (!newName) return;
-  const { error } = await sb.auth.updateUser({ data: { name: newName } });
+  const { error } = await sb.from('profiles').update({ name: newName, updated_at: new Date().toISOString() }).eq('id', window._sbUser.id);
   if (!error) {
-    window._sbUser.user_metadata.name = newName;
+    if (window._sbProfile) window._sbProfile.name = newName;
     document.getElementById('profile-name-display').textContent = newName;
     cancelProfileName();
     _renderAuthUI();
@@ -1391,7 +1412,7 @@ async function renderMyStocks(){
     return;
   }
 
-  const name = window._sbUser.user_metadata?.name || window._sbUser.email.split('@')[0];
+  const name = window._sbProfile?.name || window._sbUser.email.split('@')[0];
   const { data } = await sb.from('watchlist').select('stock_code, stock_name').eq('user_id', window._sbUser.id).order('created_at', { ascending: false });
   const list = (data||[]).map(r => ({ code: r.stock_code, name: r.stock_name }));
 

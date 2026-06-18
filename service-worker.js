@@ -23,8 +23,9 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // API 요청은 캐시 안 함
-  if (event.request.url.includes('/analyze') ||
+  // Supabase, 외부 API, 자체 API 요청은 캐시 안 함 (서비스워커 개입 금지)
+  if (event.request.url.includes('supabase.co') ||
+      event.request.url.includes('/analyze') ||
       event.request.url.includes('/investor') ||
       event.request.url.includes('/popular') ||
       event.request.url.includes('/movers') ||

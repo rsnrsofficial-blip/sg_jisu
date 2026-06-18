@@ -2,6 +2,14 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F022K429Q2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-F022K429Q2');
+</script>
 <meta name="google-site-verification" content="lbDgPtUyylKr6ATSNclBDlIOhC8NLASiHkt_hnKr5pU" />
 <meta name="naver-site-verification" content="9e3c41b94dee7e1b50bd7d3dc690691b30e30b9a" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -322,10 +330,9 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
   <div id="topright-auth" onclick="toggleToprightMenu()" style="cursor:pointer;min-width:30px;min-height:30px;">
     <div style="background:#131c2e;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:5px 12px;font-size:12px;color:#94a3b8;">로그인</div>
   </div>
-  <div id="topright-menu" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:#162032;border:1px solid rgba(255,255,255,0.1);border-radius:10px;overflow:hidden;min-width:190px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+  <div id="topright-menu" style="display:none;position:absolute;top:calc(100% + 8px);right:0;z-index:10000;background:#162032;border:1px solid rgba(255,255,255,0.1);border-radius:10px;overflow:hidden;min-width:190px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
   </div>
 </div>
-<div id="topright-overlay" onclick="closeToprightMenu()" style="display:none;position:fixed;inset:0;z-index:9998;"></div>
 
 <!-- 사이드바 오버레이 -->
 <div id="sidebar-overlay" onclick="closeSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9997;backdrop-filter:blur(2px);"></div>
@@ -369,9 +376,9 @@ body { background: #0d1117; color: #efefef; font-family: 'Noto Sans KR', sans-se
       <div class="autocomplete-dropdown" id="ac-dropdown"></div>
     </div>
     <div id="my-stocks-section" style="order:6;width:100%;max-width:460px;display:none;margin-top:20px;margin-bottom:0;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div style="font-size:10px;color:#4488ff;letter-spacing:2px;">⭐ 내 종목</div>
-        <div id="my-stocks-more-btn" style="display:none;font-size:11px;color:#4488ff;cursor:pointer;" onclick="openWatchlistPage()">내 종목 더보기 →</div>
+        <div id="my-stocks-more-btn" style="display:none;font-size:11px;color:#4488ff;cursor:pointer;padding:3px 8px;border:1px solid rgba(68,136,255,0.3);border-radius:4px;" onclick="openWatchlistPage()">전체 보기 →</div>
       </div>
       <div id="my-stocks-chips" style="display:flex;flex-direction:column;gap:0;"></div>
     </div>
@@ -685,25 +692,48 @@ async function _loadProfile(user) {
       name: user.user_metadata?.name || null,
       avatar_url: user.user_metadata?.avatar_url || null,
     };
-    await sb.from('profiles').insert(defaults);
-    window._sbProfile = defaults;
+    const { error: insertErr } = await sb.from('profiles').insert(defaults);
+    if (!insertErr) window._sbProfile = defaults;
   }
 }
 
-sb.auth.onAuthStateChange(async (event, session) => {
-  window._sbUser = session?.user || null;
-  if (window._sbUser) { try { await _loadProfile(window._sbUser); } catch(e) { console.warn('profile load error', e); } }
-  else window._sbProfile = null;
+// 초기 auth 로드: 단일 진입점, profile 완료 후 UI 동시 업데이트
+async function _initAuth() {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    window._sbUser = session?.user || null;
+    if (window._sbUser) {
+      try { await _loadProfile(window._sbUser); } catch(e) {}
+    }
+  } catch(e) {
+    window._sbUser = null;
+  }
   _renderAuthUI();
-  if (event === 'SIGNED_IN') { try { await _migrateLocalToCloud(); } catch(e) {} }
   renderMyStocks();
-});
+}
+_initAuth();
 
-sb.auth.getSession().then(async ({ data: { session } }) => {
+// 로그인/로그아웃 전용: INITIAL_SESSION·TOKEN_REFRESHED는 _initAuth에서 처리
+sb.auth.onAuthStateChange((event, session) => {
+  if (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') return;
   window._sbUser = session?.user || null;
-  if (window._sbUser) { try { await _loadProfile(window._sbUser); } catch(e) { console.warn('profile load error', e); } }
+  if (!window._sbUser) window._sbProfile = null;
   _renderAuthUI();
-  renderMyStocks();
+  // setTimeout(0): onAuthStateChange 콜백은 Supabase 내부 lock을 보유한 채 호출됨
+  // 콜백 내에서 sb.from() 호출 시 같은 lock을 대기 → deadlock
+  // setTimeout으로 현재 task 종료 후(lock 해제 후) 실행 보장
+  const _event = event;
+  setTimeout(async () => {
+    renderMyStocks();
+    if (window._sbUser) {
+      const uid = window._sbUser.id;
+      try { await _loadProfile(window._sbUser); } catch(e) {}
+      if (window._sbUser?.id !== uid) return;
+      _renderAuthUI();
+      if (_event === 'SIGNED_IN') { try { await _migrateLocalToCloud(); } catch(e) {} }
+      renderMyStocks();
+    }
+  }, 0);
 });
 
 function _renderAuthUI() {
@@ -712,6 +742,7 @@ function _renderAuthUI() {
     if (window._sbUser) {
       const avatar = window._sbProfile?.avatar_url;
       tr.style.cssText = 'cursor:pointer;min-width:32px;min-height:32px;';
+      tr.onclick = () => openProfilePage();
       if (avatar) {
         tr.innerHTML = `<img src="${avatar}" width="32" height="32" style="border-radius:50%;border:1.5px solid rgba(255,255,255,0.2);display:block;object-fit:cover;" onerror="this.outerHTML='<div style=\\'width:32px;height:32px;border-radius:50%;background:#1e2d45;border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:14px;\\'>👤</div>'">`;
       } else {
@@ -719,6 +750,7 @@ function _renderAuthUI() {
       }
     } else {
       tr.style.cssText = 'cursor:pointer;';
+      tr.onclick = toggleToprightMenu;
       tr.innerHTML = `<div style="background:#131c2e;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:5px 12px;font-size:12px;color:#94a3b8;">로그인</div>`;
     }
   }
@@ -783,32 +815,46 @@ const _loginOptionsHTML = `
 
 function toggleToprightMenu() {
   const menu = document.getElementById('topright-menu');
-  const overlay = document.getElementById('topright-overlay');
   if (menu.style.display !== 'none') { closeToprightMenu(); return; }
   if (window._sbUser) {
     const name = window._sbProfile?.name || window._sbUser.email;
     const row = 'padding:11px 16px;cursor:pointer;color:#e2e8f0;font-size:13px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.06);';
     menu.innerHTML = `
       <div style="padding:11px 16px;font-size:12px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.06);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</div>
-      <div onclick="showMyStocks();closeToprightMenu()" style="${row}" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background=''">
+      <div id="_tm-watchlist" style="${row}" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background=''">
         <span style="font-size:15px;">⭐</span> 내 저장 종목 보기
       </div>
-      <div onclick="openProfilePage();closeToprightMenu()" style="${row}" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background=''">
+      <div id="_tm-profile" style="${row}" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background=''">
         <span style="font-size:15px;">👤</span> 회원정보 수정
       </div>
-      <div onclick="sbSignOut();closeToprightMenu()" style="padding:11px 16px;cursor:pointer;color:#64748b;font-size:13px;display:flex;align-items:center;gap:10px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background=''">
+      <div id="_tm-signout" style="padding:11px 16px;cursor:pointer;color:#64748b;font-size:13px;display:flex;align-items:center;gap:10px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background=''">
         <span style="font-size:15px;">🚪</span> 로그아웃
       </div>`;
+    document.getElementById('_tm-watchlist').addEventListener('click', () => { showMyStocks(); closeToprightMenu(); });
+    document.getElementById('_tm-profile').addEventListener('click', () => { openProfilePage(); closeToprightMenu(); });
+    document.getElementById('_tm-signout').addEventListener('click', () => { sbSignOut(); closeToprightMenu(); });
   } else {
     menu.innerHTML = _loginOptionsHTML;
   }
   menu.style.display = 'block';
-  overlay.style.display = 'block';
+  setTimeout(() => {
+    window._toprightOutsideHandler = function(e) {
+      const menu = document.getElementById('topright-menu');
+      const auth = document.getElementById('topright-auth');
+      if (menu && !menu.contains(e.target) && auth && !auth.contains(e.target)) {
+        closeToprightMenu();
+      }
+    };
+    document.addEventListener('click', window._toprightOutsideHandler);
+  }, 0);
 }
 
 function closeToprightMenu() {
   document.getElementById('topright-menu').style.display = 'none';
-  document.getElementById('topright-overlay').style.display = 'none';
+  if (window._toprightOutsideHandler) {
+    document.removeEventListener('click', window._toprightOutsideHandler);
+    window._toprightOutsideHandler = null;
+  }
 }
 
 function showMyStocks() {
@@ -843,34 +889,62 @@ function _miniGauge(score) {
   <div style="font-size:10px;color:${col};margin-top:1px;text-align:center;">${verdict}</div>`;
 }
 
+let _wlSort = 'saved'; // 'saved' | 'asc' | 'desc'
+
+function _wlSortTab(active) {
+  ['wl-sort-saved','wl-sort-asc','wl-sort-desc'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const isActive = id === 'wl-sort-' + active;
+    el.style.background = isActive ? 'rgba(68,136,255,0.18)' : 'rgba(255,255,255,0.04)';
+    el.style.color = isActive ? '#4488ff' : '#64748b';
+    el.style.borderColor = isActive ? 'rgba(68,136,255,0.4)' : 'rgba(255,255,255,0.08)';
+  });
+}
+
+async function setWlSort(order) {
+  _wlSort = order;
+  _wlSortTab(order);
+  await _loadWatchlistCards();
+}
+
 async function openWatchlistPage() {
   if (!window._sbUser) { sbSignIn(); return; }
+  document.getElementById('profile-page').style.display = 'none';
   const page = document.getElementById('watchlist-page');
   const u = window._sbUser;
   const avatar = window._sbProfile?.avatar_url;
   const name = window._sbProfile?.name || u.email.split('@')[0];
 
+  const tabStyle = 'font-size:11px;padding:4px 9px;border-radius:5px;border:1px solid;cursor:pointer;transition:all 0.15s;';
   page.innerHTML = `
     <div style="max-width:520px;width:100%;margin:0 auto;padding:20px 16px 60px;">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
         <button onclick="closeWatchlistPage()" style="background:none;border:none;cursor:pointer;color:#64748b;font-size:22px;padding:4px;">←</button>
         <span style="font-size:16px;font-weight:600;color:#e2e8f0;">내 저장 종목</span>
       </div>
-      <div style="display:flex;align-items:center;gap:12px;background:#131c2e;border-radius:10px;padding:14px 16px;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:12px;background:#131c2e;border-radius:10px;padding:14px 16px;margin-bottom:12px;">
         ${avatar
           ? `<img src="${avatar}" style="width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.12);">`
           : `<div style="width:40px;height:40px;border-radius:50%;background:#1e2d45;display:flex;align-items:center;justify-content:center;font-size:18px;">👤</div>`}
         <div>
           <div style="font-size:14px;font-weight:600;color:#e2e8f0;">${name}</div>
-          <div style="font-size:11px;color:#475569;">관심종목 불러오는 중...</div>
+          <div class="header-sub" style="font-size:11px;color:#475569;">관심종목 불러오는 중...</div>
         </div>
         <button onclick="refreshAllWatchlist()" style="margin-left:auto;background:rgba(68,136,255,0.12);border:1px solid rgba(68,136,255,0.25);border-radius:6px;padding:6px 12px;color:#4488ff;font-size:12px;cursor:pointer;">전체 새로고침</button>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:14px;">
+        <button id="wl-sort-saved" onclick="setWlSort('saved')" style="${tabStyle}">저장순</button>
+        <button id="wl-sort-asc"   onclick="setWlSort('asc')"   style="${tabStyle}">낮은 점수순 ↑</button>
+        <button id="wl-sort-desc"  onclick="setWlSort('desc')"  style="${tabStyle}">높은 점수순 ↓</button>
       </div>
       <div id="watchlist-cards" style="display:flex;flex-direction:column;gap:10px;">
         <div style="text-align:center;padding:40px;color:#334155;font-size:13px;">불러오는 중...</div>
       </div>
     </div>`;
   page.style.display = 'flex';
+  _pushRoute('/watchlist');
+  _wlSortTab(_wlSort);
   await _loadWatchlistCards();
 }
 
@@ -894,6 +968,16 @@ async function _loadWatchlistCards(forceRefresh = false) {
   // 헤더 카운트 업데이트
   const headerSub = document.querySelector('#watchlist-page .header-sub');
   if (headerSub) headerSub.textContent = `관심종목 ${data.length}개`;
+
+  // 정렬
+  const getCachedScore = (code) => {
+    try { return JSON.parse(localStorage.getItem('wl_cache_' + code) || 'null')?.score ?? null; } catch(e) { return null; }
+  };
+  if (_wlSort === 'asc') {
+    data.sort((a, b) => (getCachedScore(a.stock_code) ?? 999) - (getCachedScore(b.stock_code) ?? 999));
+  } else if (_wlSort === 'desc') {
+    data.sort((a, b) => (getCachedScore(b.stock_code) ?? -1) - (getCachedScore(a.stock_code) ?? -1));
+  }
 
   // 각 카드 skeleton 먼저 렌더
   container.innerHTML = data.map(s => `
@@ -954,11 +1038,11 @@ async function _fetchAndRenderCard(code, name) {
 
     const data = {
       ts: Date.now(),
-      score: analyze.total_score ?? null,
-      price: price.current ?? null,
-      change: price.change_pct ?? null,
-      changeAmt: price.change ?? null,
-      up: price.up ?? true,
+      score: analyze.score ?? null,
+      price: price.현재가 ?? null,
+      change: price.등락률 ?? null,
+      changeAmt: price.등락 ?? null,
+      up: (price.등락 ?? 0) >= 0,
     };
     localStorage.setItem('wl_cache_' + code, JSON.stringify(data));
     _renderWatchlistCard(code, data);
@@ -972,10 +1056,19 @@ function _renderWatchlistCard(code, d) {
   const gaugeEl = document.getElementById('wl-gauge-' + code);
   const priceEl = document.getElementById('wl-price-' + code);
   const updEl = document.getElementById('wl-updated-' + code);
+  const cardEl = document.getElementById('wl-card-' + code);
   if (!gaugeEl) return;
 
-  if (d.score !== null && d.score !== undefined) {
-    gaugeEl.innerHTML = _miniGauge(d.score);
+  const sc = d.score;
+  if (sc !== null && sc !== undefined) {
+    const col = sc >= 70 ? '#ff3131' : sc >= 50 ? '#ff8800' : sc >= 20 ? '#ffd000' : '#00e676';
+    const bg  = sc >= 70 ? 'rgba(255,49,49,0.09)' : sc >= 50 ? 'rgba(255,136,0,0.09)' : sc >= 20 ? 'rgba(255,208,0,0.08)' : 'rgba(0,230,118,0.08)';
+    if (cardEl) {
+      cardEl.style.background = bg;
+      cardEl.style.border = `1px solid ${col}44`;
+      cardEl.style.borderLeft = `3px solid ${col}`;
+    }
+    gaugeEl.innerHTML = _miniGauge(sc);
   } else {
     gaugeEl.innerHTML = `<div style="font-size:11px;color:#334155;">정보 없음</div>`;
   }
@@ -1005,6 +1098,7 @@ async function refreshAllWatchlist() {
 
 function closeWatchlistPage() {
   document.getElementById('watchlist-page').style.display = 'none';
+  if (location.hash === '#/watchlist') _pushRoute('/');
 }
 
 const _pencil = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
@@ -1017,20 +1111,17 @@ async function openProfilePage() {
   const email = u.email || '';
   const joined = new Date(u.created_at).toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
 
-  // 관심종목 로드
-  const { data: wl } = await sb.from('watchlist').select('stock_code,stock_name').eq('user_id', u.id).order('created_at', { ascending: false });
-  const watchlist = wl || [];
-
   const page = document.getElementById('profile-page');
+  if (!page) return;
+
+  // 페이지 즉시 표시 (watchlist는 나중에 채움)
   page.innerHTML = `
     <div style="max-width:480px;width:100%;margin:0 auto;padding:24px 20px 60px;">
-      <!-- 헤더 -->
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
         <button onclick="closeProfilePage()" style="background:none;border:none;cursor:pointer;color:#64748b;font-size:22px;padding:4px;">←</button>
         <span style="font-size:16px;font-weight:600;color:#e2e8f0;">회원정보</span>
       </div>
 
-      <!-- 프로필 사진 -->
       <input type="file" id="avatar-file-input" accept="image/*" style="display:none;" onchange="uploadAvatar(this)">
       <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:32px;gap:10px;">
         <div style="position:relative;display:inline-block;">
@@ -1044,12 +1135,12 @@ async function openProfilePage() {
         <div id="avatar-upload-status" style="font-size:11px;color:#334155;">사진을 눌러 변경</div>
       </div>
 
-      <!-- 기본 정보 카드 -->
       <div style="background:#131c2e;border-radius:10px;overflow:hidden;margin-bottom:12px;">
         <div style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;">
           <div>
             <div style="font-size:10px;color:#475569;margin-bottom:4px;letter-spacing:1px;">이름</div>
             <div id="profile-name-display" style="font-size:14px;color:#e2e8f0;">${name || '—'}</div>
+            <div id="profile-name-cooldown-msg" style="display:none;font-size:11px;color:#ff8800;margin-top:4px;"></div>
             <div id="profile-name-edit" style="display:none;margin-top:6px;">
               <input id="profile-name-input" value="${name}" style="background:#0d1117;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:6px 10px;color:#e2e8f0;font-size:14px;width:100%;outline:none;">
               <div style="display:flex;gap:8px;margin-top:8px;">
@@ -1077,22 +1168,43 @@ async function openProfilePage() {
         </div>
       </div>
 
-      <!-- 내 관심종목 -->
+      <div id="profile-investor-card" style="background:#131c2e;border-radius:10px;padding:14px 18px;margin-bottom:12px;">
+        <div id="profile-investor-text" style="font-size:12px;color:#475569;text-align:center;min-height:20px;">포트폴리오 분석 중...</div>
+        <div id="profile-stats-grid" style="display:none;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">
+          <div style="text-align:center;">
+            <div id="stat-added" style="font-size:18px;font-weight:700;color:#4488ff;">-</div>
+            <div style="font-size:10px;color:#475569;margin-top:3px;line-height:1.3;">이번달<br>추가</div>
+          </div>
+          <div style="text-align:center;">
+            <div id="stat-removed" style="font-size:18px;font-weight:700;color:#475569;">-</div>
+            <div style="font-size:10px;color:#475569;margin-top:3px;line-height:1.3;">이번달<br>해제</div>
+          </div>
+          <div style="text-align:center;">
+            <div id="stat-high" style="font-size:18px;font-weight:700;color:#ff3131;">-</div>
+            <div style="font-size:10px;color:#475569;margin-top:3px;">고위험</div>
+          </div>
+          <div style="text-align:center;">
+            <div id="stat-mid" style="font-size:18px;font-weight:700;color:#ffd000;">-</div>
+            <div style="font-size:10px;color:#475569;margin-top:3px;">중위험</div>
+          </div>
+          <div style="text-align:center;">
+            <div id="stat-safe" style="font-size:18px;font-weight:700;color:#00e676;">-</div>
+            <div style="font-size:10px;color:#475569;margin-top:3px;">안정</div>
+          </div>
+        </div>
+      </div>
+
       <div style="background:#131c2e;border-radius:10px;overflow:hidden;margin-bottom:12px;">
         <div style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;">
           <div style="font-size:13px;font-weight:500;color:#e2e8f0;">⭐ 내 관심종목</div>
-          <div style="font-size:12px;color:#4488ff;">${watchlist.length}개</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div id="profile-wl-count" style="font-size:12px;color:#4488ff;">로딩중...</div>
+            <button onclick="openWatchlistPage();" style="background:rgba(68,136,255,0.12);border:1px solid rgba(68,136,255,0.25);border-radius:5px;padding:4px 10px;color:#4488ff;font-size:11px;cursor:pointer;">자세히 보기 →</button>
+          </div>
         </div>
-        ${watchlist.length
-          ? watchlist.map(s => `
-            <div onclick="closeProfilePage();quick('${s.stock_name.replace(/'/g,"\\'")}','${s.stock_code}')" style="padding:11px 18px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
-              <div style="font-size:13px;color:#e2e8f0;">${s.stock_name}</div>
-              <div style="font-size:11px;color:#334155;">${s.stock_code}</div>
-            </div>`).join('')
-          : `<div style="padding:16px 18px;font-size:12px;color:#334155;">저장된 종목이 없어요. 분석 후 ☆를 눌러 저장해보세요.</div>`}
+        <div id="profile-wl-list" style="padding:16px 18px;font-size:12px;color:#334155;">불러오는 중...</div>
       </div>
 
-      <!-- 알림 설정 -->
       <div style="background:#131c2e;border-radius:10px;overflow:hidden;margin-bottom:24px;">
         <div style="padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
           <div>
@@ -1111,6 +1223,104 @@ async function openProfilePage() {
       </button>
     </div>`;
   page.style.display = 'flex';
+  _pushRoute('/mypage');
+
+  // watchlist 비동기 로드
+  try {
+    const { data: wl } = await sb.from('watchlist').select('stock_code,stock_name,created_at').eq('user_id', u.id).order('created_at', { ascending: false });
+    const watchlist = wl || [];
+    const countEl = document.getElementById('profile-wl-count');
+    const listEl = document.getElementById('profile-wl-list');
+    if (countEl) countEl.textContent = `${watchlist.length}개`;
+
+    // 투자자 성향 분석
+    (function() {
+      const _sector = (name) => {
+        if (/전자|하이닉스|반도체|디스플레이|테크|SK하이|삼성전/.test(name)) return 'IT/전자';
+        if (/에스엠|하이브|JYP|YG|엔터|미디어|드림어스|판타지오/.test(name)) return '엔터';
+        if (/금융|은행|증권|보험|KB|NH금|하나금|신한|우리금/.test(name)) return '금융';
+        if (/바이오|제약|헬스|뷰노|셀트|메디|파마|테라/.test(name)) return '바이오';
+        if (/한미반도|원익|이오테|덕산|리노/.test(name)) return 'IT/전자';
+        if (/건설|건축|개발|GS건/.test(name)) return '건설';
+        if (/화학|에너지|정유|LG화|롯데케/.test(name)) return '에너지/화학';
+        if (/자동차|모터스|기아|현대차/.test(name)) return '자동차';
+        if (/게임|넷마블|엔씨|크래프톤|카카오게/.test(name)) return '게임';
+        return null;
+      };
+      const sectorCounts = {};
+      const scores = [];
+      watchlist.forEach(s => {
+        const sec = _sector(s.stock_name);
+        if (sec) sectorCounts[sec] = (sectorCounts[sec] || 0) + 1;
+        try {
+          const c = JSON.parse(localStorage.getItem('wl_cache_' + s.stock_code) || 'null');
+          if (c && typeof c.score === 'number') scores.push(c.score);
+        } catch(e) {}
+      });
+      const topSector = Object.entries(sectorCounts).sort((a,b) => b[1]-a[1])[0]?.[0] || null;
+      const avgScore = scores.length ? scores.reduce((a,b) => a+b, 0) / scores.length : null;
+      const investorType = avgScore === null ? null : avgScore >= 55 ? '모험형' : avgScore >= 28 ? '밸런스형' : '안정형';
+      const typeColor = investorType === '모험형' ? '#ff3131' : investorType === '밸런스형' ? '#ffd000' : '#00e676';
+      const typeEmoji = investorType === '모험형' ? '🔴' : investorType === '밸런스형' ? '🟡' : '🟢';
+      const cardEl = document.getElementById('profile-investor-card');
+      const textEl = document.getElementById('profile-investor-text');
+      if (!textEl) return;
+      if (!watchlist.length) {
+        textEl.textContent = '종목을 저장하면 포트폴리오 성향을 분석해드려요';
+      } else if (!investorType) {
+        textEl.innerHTML = `<span style="color:#94a3b8;">분석 기록이 쌓이면 투자 성향을 알려드려요 ✨</span>`;
+      } else {
+        const secText = topSector ? `<b style="color:#e2e8f0;">${topSector}</b>에 관심이 많은 ` : '';
+        textEl.style.fontSize = '13px';
+        textEl.style.color = '#94a3b8';
+        textEl.innerHTML = `${name ? name + '님' : '당신'}은 ${secText}<b style="color:${typeColor};">${investorType}</b> 투자자이시군요 ${typeEmoji}`;
+        if (cardEl) {
+          const bg = investorType === '모험형' ? 'rgba(255,49,49,0.08)' : investorType === '밸런스형' ? 'rgba(255,208,0,0.07)' : 'rgba(0,230,118,0.07)';
+          const bd = investorType === '모험형' ? 'rgba(255,49,49,0.2)' : investorType === '밸런스형' ? 'rgba(255,208,0,0.18)' : 'rgba(0,230,118,0.18)';
+          cardEl.style.background = bg;
+          cardEl.style.border = `1px solid ${bd}`;
+        }
+      }
+      // 스탯 그리드
+      const thisMonth = new Date().toISOString().slice(0, 7);
+      const addedCnt = watchlist.filter(s => (s.created_at || '').startsWith(thisMonth)).length;
+      const removedKey = 'wl_removed_' + thisMonth;
+      const removedCnt = parseInt(localStorage.getItem(removedKey) || '0');
+      let highCnt = 0, midCnt = 0, safeCnt = 0;
+      watchlist.forEach(s => {
+        try {
+          const c = JSON.parse(localStorage.getItem('wl_cache_' + s.stock_code) || 'null');
+          if (c && typeof c.score === 'number') {
+            if (c.score >= 70) highCnt++;
+            else if (c.score >= 20) midCnt++;
+            else safeCnt++;
+          }
+        } catch(e) {}
+      });
+      const grid = document.getElementById('profile-stats-grid');
+      if (grid) {
+        document.getElementById('stat-added').textContent = addedCnt;
+        document.getElementById('stat-removed').textContent = removedCnt;
+        document.getElementById('stat-high').textContent = highCnt;
+        document.getElementById('stat-mid').textContent = midCnt;
+        document.getElementById('stat-safe').textContent = safeCnt;
+        grid.style.display = 'grid';
+      }
+    })();
+    if (listEl) {
+      listEl.style.padding = watchlist.length ? '0' : '16px 18px';
+      listEl.innerHTML = watchlist.length
+        ? watchlist.map(s => `
+            <div onclick="closeProfilePage();quick('${s.stock_name.replace(/'/g,"\\'")}','${s.stock_code}')" style="padding:11px 18px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
+              <div style="font-size:13px;color:#e2e8f0;">${s.stock_name}</div>
+              <div style="font-size:11px;color:#334155;">${s.stock_code}</div>
+            </div>`).join('')
+        : `저장된 종목이 없어요. 분석 후 ☆를 눌러 저장해보세요.`;
+    }
+  } catch(e) {
+    const listEl = document.getElementById('profile-wl-list');
+    if (listEl) listEl.textContent = '불러오기 실패';
+  }
 }
 
 async function uploadAvatar(input) {
@@ -1141,7 +1351,8 @@ async function uploadAvatar(input) {
   const { data: { publicUrl } } = sb.storage.from('avatars').getPublicUrl(path);
   const cacheBusted = publicUrl + '?t=' + Date.now();
 
-  await sb.from('profiles').update({ avatar_url: cacheBusted, updated_at: new Date().toISOString() }).eq('id', window._sbUser.id);
+  const { error: avatarErr } = await sb.from('profiles').update({ avatar_url: cacheBusted, updated_at: new Date().toISOString() }).eq('id', window._sbUser.id);
+  if (avatarErr) { console.error('avatar update failed:', avatarErr); return; }
   if (window._sbProfile) window._sbProfile.avatar_url = cacheBusted;
 
   // UI 즉시 반영
@@ -1159,6 +1370,20 @@ async function uploadAvatar(input) {
 }
 
 function editProfileName() {
+  const lastChanged = localStorage.getItem('profile_name_changed_at');
+  if (lastChanged) {
+    const daysSince = (Date.now() - new Date(lastChanged).getTime()) / (1000 * 60 * 60 * 24);
+    if (daysSince < 15) {
+      const daysLeft = Math.ceil(15 - daysSince);
+      const msg = document.getElementById('profile-name-cooldown-msg');
+      if (msg) {
+        msg.textContent = `이름 변경 후 15일이 지나야 다시 변경할 수 있어요. (${daysLeft}일 후 가능)`;
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 3500);
+      }
+      return;
+    }
+  }
   document.getElementById('profile-name-display').style.display = 'none';
   document.getElementById('profile-name-pencil').style.display = 'none';
   document.getElementById('profile-name-edit').style.display = 'block';
@@ -1179,6 +1404,7 @@ async function saveProfileName() {
   if (!error) {
     if (window._sbProfile) window._sbProfile.name = newName;
     document.getElementById('profile-name-display').textContent = newName;
+    localStorage.setItem('profile_name_changed_at', new Date().toISOString());
     cancelProfileName();
     _renderAuthUI();
   }
@@ -1186,6 +1412,7 @@ async function saveProfileName() {
 
 function closeProfilePage() {
   document.getElementById('profile-page').style.display = 'none';
+  if (location.hash === '#/mypage') _pushRoute('/');
 }
 
 function trComingSoon(el, label) {
@@ -1195,15 +1422,23 @@ function trComingSoon(el, label) {
 }
 
 function openSidebar() {
-  document.getElementById('sidebar').style.left = '0';
-  document.getElementById('sidebar-overlay').style.display = 'block';
+  const sidebar = document.getElementById('sidebar');
+  const isMobile = window.innerWidth <= 480;
+  sidebar.style.width = isMobile ? '100vw' : '260px';
+  sidebar.style.left = '0';
+  document.getElementById('sidebar-overlay').style.display = isMobile ? 'none' : 'block';
   document.getElementById('hamburger-btn').style.display = 'none';
+  const tr = document.querySelector('[id="topright-auth"]')?.parentElement;
+  if (tr) tr.style.display = 'none';
 }
 
 function closeSidebar() {
-  document.getElementById('sidebar').style.left = '-270px';
+  const sidebar = document.getElementById('sidebar');
+  sidebar.style.left = `-${sidebar.offsetWidth + 10}px`;
   document.getElementById('sidebar-overlay').style.display = 'none';
   document.getElementById('hamburger-btn').style.display = 'flex';
+  const tr = document.querySelector('[id="topright-auth"]')?.parentElement;
+  if (tr) tr.style.display = '';
 }
 
 function toggleSidebarLogin() {
@@ -1239,8 +1474,14 @@ async function sbSignIn() {
 }
 
 async function sbSignOut() {
-  await sb.auth.signOut();
+  console.log('sbSignOut called');
+  try { await sb.auth.signOut(); } catch(e) { console.error('sbSignOut error:', e); }
+  window._sbUser = null;
+  window._sbProfile = null;
   closeProfilePage();
+  closeWatchlistPage();
+  _renderAuthUI();
+  renderMyStocks();
 }
 
 async function _migrateLocalToCloud() {
@@ -1350,8 +1591,11 @@ async function toggleWatchlist(){
   if(data){
     await sb.from('watchlist').delete().eq('id', data.id);
     _applyWatchlistBtnState(false);
+    const _rmKey = 'wl_removed_' + new Date().toISOString().slice(0, 7);
+    localStorage.setItem(_rmKey, (parseInt(localStorage.getItem(_rmKey) || '0') + 1).toString());
   } else {
-    await sb.from('watchlist').insert({ user_id: window._sbUser.id, stock_code: code, stock_name: name });
+    const _score = typeof window._logData?.score === 'number' ? window._logData.score : null;
+    await sb.from('watchlist').insert({ user_id: window._sbUser.id, stock_code: code, stock_name: name, score: _score });
     _applyWatchlistBtnState(true);
     fetch(`${API_BASE}/log`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'watchlist',company:name,stock_code:code,score:window._logData?.score||0})}).catch(()=>{});
   }
@@ -1399,6 +1643,7 @@ function _resetWatchlistBtnStyle(btn){
   _applyWatchlistBtnState(saved);
 }
 
+let _stocksCtrl = null;
 async function renderMyStocks(){
   const section = document.getElementById('my-stocks-section');
   const chips = document.getElementById('my-stocks-chips');
@@ -1412,31 +1657,62 @@ async function renderMyStocks(){
     return;
   }
 
-  const name = window._sbProfile?.name || window._sbUser.email.split('@')[0];
-  const { data } = await sb.from('watchlist').select('stock_code, stock_name').eq('user_id', window._sbUser.id).order('created_at', { ascending: false });
-  const list = (data||[]).map(r => ({ code: r.stock_code, name: r.stock_name }));
+  // 이전 in-flight 요청 취소 후 새 AbortController로 교체
+  if(_stocksCtrl) _stocksCtrl.abort();
+  _stocksCtrl = new AbortController();
+  const ctrl = _stocksCtrl;
+
+  chips.innerHTML = `<div style="font-size:12px;color:#475569;padding:4px 0;">내 종목 불러오는 중...</div>`;
+  moreBtn.style.display = 'none';
+
+  const uid = window._sbUser.id;
+  const name = window._sbProfile?.name || window._sbUser?.email?.split('@')[0] || '사용자';
+  let data, dbErr;
+  try {
+    const res = await sb.from('watchlist').select('stock_code, stock_name, score').eq('user_id', uid).order('created_at', { ascending: false }).abortSignal(ctrl.signal);
+    data = res.data; dbErr = res.error;
+  } catch(e) {
+    if(ctrl.signal.aborted) return;
+    chips.innerHTML = `<div style="font-size:12px;color:#475569;padding:4px 0;">아직 저장한 종목이 없어요. <span style="color:#4488ff;">분석 후 ☆를 눌러 내 종목에 추가해보세요!</span></div>`;
+    return;
+  }
+  if(ctrl.signal.aborted) return;
+  if (!window._sbUser || window._sbUser.id !== uid) return;
+  const list = (data||[]).map(r => ({ code: r.stock_code, name: r.stock_name, score: r.score }));
 
   // 로그인했지만 종목 없음
   if(!list.length){
     moreBtn.style.display = 'none';
-    chips.innerHTML = `<div style="font-size:12px;color:#475569;padding:4px 0;">아직 저장한 종목이 없어요.<br><span style="font-size:11px;color:#334155;">분석 후 ☆를 눌러 개인 종목을 추가해보세요!</span></div>`;
+    chips.innerHTML = `<div style="font-size:12px;color:#475569;padding:4px 0;">아직 저장한 종목이 없어요. <span style="color:#4488ff;">분석 후 ☆를 눌러 내 종목에 추가해보세요!</span></div>`;
     return;
   }
 
   // 종목 있음
-  const display = list.slice(0, 20);
-  moreBtn.style.display = list.length > 5 ? 'block' : 'none';
+  const display = list.slice(0, 10);
+  moreBtn.style.display = 'block';
 
   chips.innerHTML = `
-    <div style="font-size:11px;color:#64748b;margin-bottom:8px;padding:0 2px;"><span style="color:#94a3b8;font-weight:500;">${name}</span>님의 개인종목은 아래와 같습니다</div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;">
-      ${display.map(s =>
-        `<div class="chip" style="border-color:rgba(68,136,255,0.4);color:#aac4ff;" onclick="quick('${s.name.replace(/'/g,"\\'")}','${s.code}')">
-          <span style="font-size:10px;color:#4488ff;margin-right:5px;">${s.code}</span>${s.name}
-        </div>`
-      ).join('')}
+    <div style="font-size:11px;color:#64748b;margin-bottom:10px;padding:0 2px;"><span style="color:#94a3b8;font-weight:500;">${name}</span>님의 개인종목은 아래와 같습니다</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+      ${display.map(s => {
+        const sc = s.score;
+        const col = sc == null ? '#475569' : sc >= 70 ? '#ff3131' : sc >= 50 ? '#ff8800' : sc >= 20 ? '#ffd000' : '#00e676';
+        const bg  = sc == null ? 'rgba(255,255,255,0.03)' : sc >= 70 ? 'rgba(255,49,49,0.09)' : sc >= 50 ? 'rgba(255,136,0,0.09)' : sc >= 20 ? 'rgba(255,208,0,0.08)' : 'rgba(0,230,118,0.08)';
+        const verdict = sc == null ? '미분석' : sc >= 70 ? '설거지 고위험' : sc >= 50 ? '주의 요망' : sc >= 20 ? '경계 구간' : '비교적 안전';
+        const scoreText = sc == null ? '?' : String(sc);
+        return `<div onclick="quick('${s.name.replace(/'/g,"\\'")}','${s.code}')" style="background:${bg};border:1px solid ${col}44;border-left:3px solid ${col};border-radius:8px;padding:11px 10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px;" onmouseover="this.style.background='${bg.replace('0.0','0.1')}'" onmouseout="this.style.background='${bg}'">
+          <div style="min-width:0;">
+            <div style="font-size:10px;color:#4488ff;margin-bottom:3px;">${s.code}</div>
+            <div style="font-size:13px;font-weight:600;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.name}</div>
+          </div>
+          <div style="text-align:center;min-width:36px;flex-shrink:0;">
+            <div style="font-size:20px;font-weight:700;color:${col};line-height:1;">${scoreText}</div>
+            <div style="font-size:9px;color:${col};margin-top:3px;white-space:nowrap;">${verdict}</div>
+          </div>
+        </div>`;
+      }).join('')}
     </div>
-    ${list.length > 20 ? `<div style="font-size:10px;color:#334155;margin-top:8px;padding:0 2px;">외 ${list.length - 20}개 더 있어요</div>` : ''}`;
+    ${list.length > 10 ? `<div style="font-size:10px;color:#475569;margin-top:6px;padding:0 2px;text-align:center;">외 ${list.length - 10}개 더 있어요</div>` : ''}`;
 }
 
 function goBack(){
@@ -1447,6 +1723,7 @@ function goBack(){
   window._sessionStart=null;window._logData=null;window._usageLogged=false;
   showOnly('search-screen');
   document.getElementById('main-input').value='';
+  _pushRoute('/');
 }
 
 function switchTab(name){
@@ -1529,6 +1806,7 @@ function renderResult(code){
   document.getElementById('fin-weaknesses').innerHTML=d.finance.weaknesses.map(s=>`<div class="eval-item"><div class="eval-dot" style="background:#ff3131"></div><div class="eval-text">${s}</div></div>`).join('');
   document.getElementById('news-cards').innerHTML=d.news.map(n=>`<div style="background:#162032;border:1.5px solid ${n.type==='good'?'rgba(0,230,118,0.35)':'rgba(255,49,49,0.35)'};border-radius:4px;padding:14px;position:relative;overflow:hidden;"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:${n.type==='good'?'#00e676':'#ff3131'};"></div><div style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:${n.type==='good'?'#00e676':'#ff3131'};background:${n.type==='good'?'rgba(0,230,118,0.08)':'rgba(255,49,49,0.08)'};padding:2px 8px;border-radius:2px;margin-bottom:8px;">${n.type==='good'?'▲ 호재':'▼ 악재'}</div><div style="font-size:13px;font-weight:500;line-height:1.5;color:#efefef;margin-bottom:10px;">${n.title}</div><div style="display:flex;justify-content:space-between;"><span style="font-size:10px;color:#333;">${n.media}</span><span style="font-size:10px;color:#334155;">${n.time}</span></div></div>`).join('');
   switchTab('flags');
+  _pushRoute('/result/' + code);
   showOnly('result-screen');
   _updateWatchlistBtn();
   setTimeout(()=>{
@@ -1749,9 +2027,9 @@ async function startAnalysisReal(name,code){
   document.getElementById('fin-weaknesses').innerHTML=재무위험.map(s=>`<div class="eval-item"><div class="eval-dot" style="background:#ff3131"></div><div class="eval-text">${s}</div></div>`).join('')||'<div class="eval-item" style="color:#333;font-size:12px;">취약점 없음</div>';
 
   switchTab('flags');
+  _pushRoute('/result/' + (real.stock_code || ''));
   showOnly('result-screen');
   _updateWatchlistBtn();
-  history.pushState({screen:'result'}, '', '');
   window._logData={company:real.종목||name,stock_code:real.stock_code||'',score:real.score||0};
   window._sessionStart=Date.now();
   window._usageLogged=false;
@@ -1790,11 +2068,48 @@ function quick(name,code){
   startAnalysisReal(name,code);
 }
 
-// ── 뒤로가기 처리 ──
-window.addEventListener('popstate', ()=>{
-  showOnly('search-screen');
-  document.getElementById('main-input').value='';
-});
+// ── 해시 라우터 ──
+function _pushRoute(path) {
+  if ((location.hash.slice(1) || '/') !== path) location.hash = path;
+}
+
+async function _handleRoute() {
+  const path = location.hash.slice(1) || '/';
+  if (typeof gtag !== 'undefined') gtag('event', 'page_view', { page_path: path });
+  const profilePage = document.getElementById('profile-page');
+  const watchlistPage = document.getElementById('watchlist-page');
+  if (path === '/mypage') {
+    if (profilePage.style.display !== 'flex') {
+      watchlistPage.style.display = 'none';
+      await openProfilePage();
+    }
+  } else if (path === '/watchlist') {
+    if (watchlistPage.style.display !== 'flex') {
+      profilePage.style.display = 'none';
+      await openWatchlistPage();
+    }
+  } else if (path.startsWith('/result/')) {
+    const code = path.slice('/result/'.length);
+    if (code) {
+      profilePage.style.display = 'none';
+      watchlistPage.style.display = 'none';
+      if (document.getElementById('r-code')?.textContent === code && document.getElementById('result-screen').style.display !== 'none') {
+        showOnly('result-screen');
+      } else {
+        quick('', code);
+      }
+    } else {
+      showOnly('search-screen');
+    }
+  } else {
+    profilePage.style.display = 'none';
+    watchlistPage.style.display = 'none';
+    showOnly('search-screen');
+    document.getElementById('main-input').value = '';
+  }
+}
+
+window.addEventListener('hashchange', _handleRoute);
 
 // ── 자동완성 ──
 let _acTimer=null, _acIdx=-1, _acItems=[];
@@ -1967,7 +2282,7 @@ async function loadWarningStocks(exclude_code){
   }catch(e){}
 }
 
-showOnly('search-screen');
+_handleRoute();
 
 async function loadTopMovers(){
   try{
@@ -2005,7 +2320,7 @@ async function loadTopMovers(){
   }
 }
 loadTopMovers();
-renderMyStocks();
+// renderMyStocks는 _initAuth() 완료 후 호출됨 (auth 상태 확정 후 렌더)
 
 async function loadPopularChips(){
   const el=document.getElementById('popular-chips');
@@ -2044,9 +2359,10 @@ window.addEventListener('beforeunload',()=>{
 });
 </script>
 <script>
+// 구 service-worker 자동 해제 (Supabase 요청 간섭 방지)
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    for (const r of regs) r.unregister();
   });
 }
 </script>

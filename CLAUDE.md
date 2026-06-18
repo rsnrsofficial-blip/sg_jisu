@@ -213,6 +213,140 @@
 
 ---
 
+### Supabase Auth 시스템 (2026-06)
+
+#### 개요
+- Google OAuth 로그인 (Supabase Auth)
+- `window._sbUser`: 현재 로그인 유저 (`auth.users` 객체)
+- `window._sbProfile`: profiles 테이블에서 로드한 커스텀 프로필 (`null` if 미로그인)
+
+#### profiles 테이블
+- Supabase OAuth는 재로그인 시 `user_metadata`(이름, 사진)를 Google 값으로 덮어씀
+- 해결: 별도 `profiles` 테이블에 커스텀 name/avatar_url 저장
+- 구조:
+  ```sql
+  create table profiles (
+    id uuid references auth.users(id) on delete cascade primary key,
+    name text,
+    avatar_url text,
+    updated_at timestamptz default now()
+  );
+  ```
+- RLS 활성화, 본인 행만 select/insert/update 가능
+- `_loadProfile(user)`: 로그인 시 profiles 행 fetch → 없으면 Google defaults로 insert
+- `saveProfileName()` / `uploadAvatar()`: profiles 테이블 update (user_metadata 아님)
+
+#### auth 리스너 패턴 (2026-06 수정)
+- `sb.auth.onAuthStateChange` + `sb.auth.getSession()` 양쪽에서 `_loadProfile` 호출
+- **반드시 try-catch로 감싸야 함**: `_loadProfile` 에러 시 `_renderAuthUI()` 호출 누락되면 UI 망가짐
+- **`_renderAuthUI()`는 `_loadProfile` 전에 즉시 호출**: user 확인 즉시 프사 표시, profile 로드 완료 후 한 번 더 호출(avatar 반영)
+- `getSession()` 실패 시 `.catch()` 추가로 UI 정상 처리
+- 패턴:
+  ```javascript
+  window._sbUser = session?.user || null;
+  _renderAuthUI();   // 즉시 (user 유무 기반)
+  if (window._sbUser) {
+    await _loadProfile(window._sbUser);
+    _renderAuthUI(); // avatar 반영
+  }
+  renderMyStocks();
+  ```
+
+#### 새 페이지 (SPA 내부)
+- `watchlist-page`: 관심종목 목록 (Supabase `watchlist` 테이블 연동)
+- `profile-page`: 이름/프사 변경 UI
+- 사이드바 (`#sidebar`): 햄버거 메뉴 → 좌상단에 계정 정보 + 페이지 이동 링크
+- 우상단 auth 버튼: 미로그인 → "로그인" 버튼 / 로그인 → 프사 이미지 (클릭 시 `#topright-menu` 드롭다운)
+- `#topright-menu`: 드롭다운 (내 저장 종목 보기 / 회원정보 수정 / 로그아웃)
+- `#topright-overlay`: 드롭다운 열릴 때 표시되는 full-screen 투명 오버레이 (클릭 시 드롭다운 닫힘)
+
+#### watchlist 마이그레이션
+- 기존: localStorage `sgjisu_watchlist`
+- 신규: Supabase `watchlist` 테이블 (로그인 시)
+- `_migrateLocalToCloud()`: SIGNED_IN 이벤트 시 localStorage → Supabase 이전
+
+#### watchlist 테이블 스키마
+- `score integer` 컬럼 추가 (`ALTER TABLE watchlist ADD COLUMN IF NOT EXISTS score integer`)
+- `toggleWatchlist()` insert 시 `window._logData.score` 저장
+- 삭제 시 월별 해제 카운트 localStorage에 적립: `wl_removed_YYYY-MM`
+
+#### Supabase onAuthStateChange 데드락 (2026-06)
+- 원인: Supabase JS v2가 `onAuthStateChange` 콜백 실행 중 navigator.locks 스토리지 락 보유
+- 콜백 안에서 `sb.from()` 호출 시 락 대기 → 무한 대기(데드락)
+- 해결: 콜백을 `async` 제거 + 모든 Supabase 데이터 쿼리를 `setTimeout(0)`으로 지연
+- 패턴:
+  ```javascript
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') return;
+    window._sbUser = session?.user || null;
+    _renderAuthUI();
+    setTimeout(async () => {
+      renderMyStocks();
+      if (window._sbUser) {
+        try { await _loadProfile(window._sbUser); } catch(e) {}
+        _renderAuthUI();
+        renderMyStocks();
+      }
+    }, 0);
+  });
+  ```
+
+#### 메인화면 내 종목 (renderMyStocks)
+- 2열 그리드 (`grid-template-columns: 1fr 1fr`), 최대 10개 표시
+- 점수 색상 코딩: 70+=빨강(`#ff3131`), 50+=오렌지(`#ff8800`), 20+=노랑(`#ffd000`), <20=초록(`#00e676`)
+- 카드 border-left 3px solid + 배경 반투명 색상
+- "전체 보기 →" 버튼 항상 표시, 클릭 시 `openWatchlistPage()`
+- AbortController로 경쟁 조건(concurrent 호출) 처리
+
+#### 내 저장 종목 페이지 (watchlist-page)
+- 정렬 탭: 저장순 / 낮은 점수순 ↑ / 높은 점수순 ↓
+- 정렬은 `localStorage wl_cache_${code}`의 캐시 점수 기준 (새 API 호출 없음)
+- 색상 코딩: 메인화면과 동일 기준
+- 헤더 카운트 업데이트: `<div class="header-sub">` 클래스 필수 (querySelector 타겟)
+- 가격/점수 API 응답 필드명: 한국어 (`현재가`, `등락률`, `등락`) — 영문 아님
+- `wl_cache_${code}` 구조: `{ ts, score, price, change, changeAmt, up }`
+
+#### profile-page 기능 (2026-06)
+- **투자자 성향 카드** (`#profile-investor-card`): 로그인 방식 카드 아래, 내 관심종목 위
+  - 섹터: 종목명 키워드로 분류 (IT/전자, 엔터, 금융, 바이오, 건설, 에너지/화학, 자동차, 게임)
+  - 투자 성향: 캐시 점수 평균 기준 — <28=안정형🟢, 28~54=밸런스형🟡, 55+=모험형🔴
+  - 텍스트: `${name}님은 ${섹터}에 관심이 많은 ${투자유형} 투자자이시군요 ${이모지}`
+  - 이름 없으면 "당신"으로 fallback
+- **스탯 그리드** (`#profile-stats-grid`): 투자 성향 카드 안, 텍스트 아래
+  - 이번달 추가: `created_at`이 이번달(`YYYY-MM`)인 watchlist 행 수
+  - 이번달 해제: localStorage `wl_removed_YYYY-MM` 카운터
+  - 고위험/중위험/안정: 캐시 점수 기준 (70+/20~69/<20)
+- **자세히 보기 →**: 내 관심종목 헤더 우측, `openWatchlistPage()` 호출
+- **이름 변경 쿨다운 15일**: 저장 성공 시 `profile_name_changed_at` localStorage 기록, `editProfileName()` 호출 시 15일 미경과면 메시지 표시 후 차단
+
+---
+
+### 딥링크 해시 라우팅 (2026-06)
+
+#### 라우트 구조
+| URL 해시 | 화면 |
+|---|---|
+| `#/` (기본) | 메인 검색 화면 |
+| `#/mypage` | 회원정보 페이지 |
+| `#/watchlist` | 내 저장 종목 페이지 |
+| `#/result/XXXXXX` | 해당 종목코드 분석 결과 |
+
+#### 구현 방식
+- `_pushRoute(path)`: `location.hash`를 변경 (중복 push 방지 체크 포함)
+- `_handleRoute()`: `hashchange` 이벤트 + 초기 로드 시 호출, 해시 읽어 화면 전환
+- `window.addEventListener('hashchange', _handleRoute)` — `popstate` 대체
+- `history.pushState` 완전 제거
+- 각 페이지 open 함수에서 `_pushRoute` 호출:
+  - `openProfilePage()` → `_pushRoute('/mypage')`
+  - `openWatchlistPage()` → `_pushRoute('/watchlist')`
+  - `renderResult(code)` → `_pushRoute('/result/' + code)`
+  - `goBack()` → `_pushRoute('/')`
+- close 함수는 현재 해시가 해당 페이지일 때만 `_pushRoute('/')` 호출
+- `openWatchlistPage()` 시작 시 profile-page를 직접 hide (profile → watchlist 전환 시 flash 방지)
+- `/result/XXX` 딥링크 접속 시 `quick('', code)` 호출로 자동 분석 실행
+
+---
+
 ## 주의사항
 - Kakao AdFit: 같은 unit ID는 DOM에 1개만 존재해야 함
 - 로그 구조: `type:'usage'`(session_time:0) = 분석 완료 즉시 / `type:'체류'`(session_time:실제초) = 이탈 시
@@ -228,3 +362,22 @@
 - `og:image` URL은 `sgjisu-production.up.railway.app/static/og.png` (FastAPI StaticFiles 서빙)
 - `robots.txt` / `sitemap.xml`은 루트 정적 파일 (index.html 옆), FastAPI 엔드포인트 아님
 - `www.sgjisu.xyz`(static 서비스)와 `sgjisu-production.up.railway.app`(FastAPI)는 별개 Railway 서비스
+- Supabase OAuth는 재로그인마다 `user_metadata` 덮어씀 → 커스텀 프로필은 반드시 `profiles` 테이블에서 읽어야 함
+- `_loadProfile()` 호출은 항상 try-catch 필수: 에러 throw 시 이후 `_renderAuthUI()` 실행 안 됨
+- `window._sbProfile` (profiles 테이블) ≠ `window._sbUser.user_metadata` (OAuth 원본) — 혼용 금지
+- 프사 우상단 표시: `<img>` 태그 방식 사용 (CSS `background-image` shorthand 파싱 이슈로 교체)
+- `_renderAuthUI()`는 `_sbUser` 확인 즉시 호출 후, `_loadProfile()` 완료 후 다시 호출 (2회 호출 패턴)
+- `renderMyStocks()`: `_sbUser` null이면 "로그인하면 내 종목을 볼 수 있어요" 표시 — onAuthStateChange에서 profile 로드 후 호출됨
+- `topright-overlay` z-index:9998 (full-screen), topright 부모 div z-index:9999 — 드롭다운 메뉴 아이템이 오버레이보다 위여야 클릭 가능
+- `openProfilePage()` / `sbSignOut()` 는 async — onclick에서 호출 시 에러가 swallow됨, try-catch 필수
+- `onAuthStateChange` 콜백 안에서 `sb.from()` 직접 호출 절대 금지 — navigator.locks 데드락 발생. 반드시 `setTimeout(0)` 으로 감싸야 함
+- watchlist 가격/점수 필드명은 한국어: `현재가`, `등락률`, `등락` (영문 `current`, `change_pct` 아님)
+- `wl_cache_${code}` localStorage 구조: `{ ts, score, price, change, changeAmt, up }` — 점수 정렬 시 이 캐시 사용
+- `watchlist` 테이블 `score` 컬럼: `toggleWatchlist()` insert 시 `window._logData.score`로 저장
+- 월별 해제 카운트: `wl_removed_YYYY-MM` localStorage 키, `toggleWatchlist()` 삭제 시 increment
+- 이름 변경 쿨다운: `profile_name_changed_at` localStorage — `editProfileName()` 호출 시 15일 체크
+- 해시 라우팅: `_pushRoute()` / `_handleRoute()` / `hashchange`. `history.pushState` / `popstate` 완전 제거됨
+- `openWatchlistPage()` 내부에서 `profile-page` 직접 hide — "자세히 보기" 버튼이 `closeProfilePage()` 따로 호출하면 hashchange 이중 발생으로 flash 생김
+- `closeProfilePage()` / `closeWatchlistPage()`는 현재 hash가 해당 페이지일 때만 `_pushRoute('/')` 호출 (다른 컨텍스트에서 호출 시 오동작 방지)
+- `profile-page` watchlist 쿼리는 `created_at` 포함 필요 (`stock_code,stock_name,created_at`) — 이번달 추가 카운트에 사용
+- `#profile-wl-list` 내 헤더 카운트: `document.querySelector('#watchlist-page .header-sub')` — div에 `class="header-sub"` 없으면 업데이트 안 됨

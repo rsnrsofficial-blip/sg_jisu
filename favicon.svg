@@ -1,9 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <rect width="32" height="32" rx="7" fill="#131c2e"/>
-  <path d="M 7 23 A 9 9 0 0 0 25 23" stroke="#1a2840" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-  <path d="M 7 23 A 9 9 0 0 0 11.5 15.2" stroke="#00e676" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-  <path d="M 11.5 15.2 A 9 9 0 0 0 20.5 15.2" stroke="#f59e0b" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-  <path d="M 20.5 15.2 A 9 9 0 0 0 25 23" stroke="#ff3131" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-  <line x1="16" y1="23" x2="21" y2="18" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
-  <circle cx="16" cy="23" r="2.2" fill="#ffffff"/>
+  <!-- background track: center(16,20) r=9 -->
+  <path d="M 7 20 A 9 9 0 0 1 16 11 A 9 9 0 0 1 25 20" stroke="#1e2d45" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <!-- green  0-19 -->
+  <path d="M 7 20 A 9 9 0 0 1 8.6 14.9" stroke="#00e676" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <!-- yellow 20-49 -->
+  <path d="M 8.6 14.9 A 9 9 0 0 1 15.7 11" stroke="#ffd000" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <!-- orange 50-69 -->
+  <path d="M 15.7 11 A 9 9 0 0 1 21.1 12.6" stroke="#ff8800" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <!-- red 70+ -->
+  <path d="M 21.1 12.6 A 9 9 0 0 1 25 20" stroke="#ff3131" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <!-- needle ~73° into orange zone -->
+  <line x1="16" y1="20" x2="18.2" y2="12.8" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="16" cy="20" r="2" fill="#ffffff"/>
 </svg>
